@@ -372,7 +372,8 @@
             .charts-grid { grid-template-columns: 1fr; }
             .room-grid-selector { grid-template-columns: repeat(2, 1fr); }
         }
-        /* =========================================
+
+    /* =========================================
        FIX MOBILE RESPONSIVE (iPhone 13 / <1024px)
        ========================================= */
     
@@ -495,8 +496,9 @@
     @media (min-width: 1025px) {
         .mobile-actions-row { display: none !important; }
     }
-    </style>
     
+    /* CHIUSURA CORRETTA DELLO STYLE */
+    </style>
 </head>
 
 <body class="mode-brouillon">
@@ -580,122 +582,61 @@
             </div>
         </header>
 
-       <main id="quote-view" class="view-section">
-    <button id="mobile-lib-trigger" class="btn btn-primary" onclick="App.toggleMobileLib()">
-        <i class="fas fa-book-open"></i> Ouvrir Bibliothèque & Filtres
-    </button>
-
-    <aside class="col-scroll" id="left-sidebar">
-        <div class="card" style="min-height: 100%;">
-            <div class="sidebar-title">
-                <span id="lib-title-text">Bibliothèque</span>
-                <i class="fas fa-times mobile-close-btn" onclick="App.toggleMobileLib()"></i>
-            </div>
-            <ul class="category-list" id="main-families-list"></ul>
-            <div id="subfamily-panel">
-                <div class="subfamily-header" id="back-to-families"><i class="fas fa-arrow-left"></i> Retour</div>
-                <div id="subcategories-container"></div>
-            </div>
-        </div>
-    </aside>
-
-    <section class="workspace col-scroll">
-        <div class="room-nav" id="room-list-container"></div>
-        
-        <div class="metrics-panel" id="metrics-panel">
-            <div class="m-group"><label>Long. (m)</label><input type="number" id="inp-L" step="0.01" oninput="App.calcMetrics()"></div>
-            <div class="m-group"><label>Larg. (m)</label><input type="number" id="inp-l" step="0.01" oninput="App.calcMetrics()"></div>
-            <div class="m-group"><label>H. (m)</label><input type="number" id="inp-h" step="0.01" value="2.70" oninput="App.calcMetrics()"></div>
-            <div style="width:1px;background:#FCD34D;height:30px;margin:0 5px;"></div>
-            <div class="m-group"><label>Surface (m²)</label><input type="text" id="out-surf" readonly></div>
-            <div class="m-group"><label>Périmètre (m)</label><input type="text" id="out-peri" readonly></div>
-            <div class="m-group"><label>Surf. Mur (m²)</label><input type="text" id="out-wall" readonly></div>
-        </div>
-
-        <div class="card" style="padding: 15px;">
-            <div class="quote-header">
-                <div class="quote-title" id="table-title">Détail Devis</div>
-                
-                <div class="mode-switch-internal" id="quote-mode-switch">
-                    <button class="mode-btn active" id="btn-brouillon" onclick="App.setMode('brouillon')">Étude</button>
-                    <button class="mode-btn" id="btn-devis" onclick="App.setMode('devis')">Devis</button>
+        <main id="home-view" class="view-section active-section">
+            <div class="dash-header">
+                <div>
+                    <h2 class="dash-title">Tableau de Bord</h2>
+                    <div class="dash-subtitle">Bienvenue sur votre espace de gestion.</div>
                 </div>
-
-                <div class="view-toggles" style="margin-left:auto; margin-right:10px;">
-                    <button class="active" id="view-piece" onclick="App.setView('piece')">Par Pièce</button>
-                    <button id="view-ouvrage" onclick="App.setView('ouvrage')">Récap.</button> </div>
-            </div>
-            
-            <div class="mobile-actions-row" style="margin-bottom:10px; display:flex; gap:5px; overflow-x:auto;">
-                 <button class="btn btn-secondary" style="font-size:0.8rem;" onclick="App.calculateProfitability()">
-                    <i class="fas fa-euro-sign" style="color:#059669;"></i> Marge
-                </button>
-                <button class="btn btn-secondary" style="font-size:0.8rem;" onclick="App.openDemolitionModal()">
-                    <i class="fas fa-hammer" style="color:#B91C1C;"></i> Démolition
-                </button>
-            </div>
-
-            <div class="table-responsive-wrapper">
-                <table class="q-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 30%; min-width: 200px;">Désignation</th>
-                            <th style="width: 5%; min-width: 40px;">U</th>
-                            <th style="width: 5%; min-width: 50px;">Qté</th>
-                            <th class="col-tva" style="width: 10%;">TVA</th>
-                            <th class="col-price" style="width: 10%; min-width: 80px;">P.U.</th>
-                            <th class="col-cost" style="width: 10%; min-width: 80px;">Matériel</th>
-                            <th class="col-total" style="width: 10%; min-width: 80px;">Total HT</th>
-                            <th class="col-time" style="width: 8%; min-width: 60px;">Temps</th>
-                            <th class="col-note" style="width: 15%; min-width: 150px;">Notes</th>
-                            <th style="width: 5%;"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="quote-tbody"></tbody>
-                </table>
-            </div>
-        </div>
-    </section>
-
-    <aside class="col-scroll">
-        <div class="card" style="padding: 15px;">
-            <div class="sidebar-title" style="padding:0 0 10px 0; border:none; background:transparent;">Client & Projet <button style="background:none;border:none;color:var(--brand-navy);cursor:pointer;" onclick="App.showView('client')"><i class="fas fa-user-edit"></i></button></div>
-            <div class="client-info-box">
-                <label class="client-label">Nom / Raison Sociale</label><input type="text" id="cli-name" class="client-input" placeholder="Nom Client" onchange="App.saveState()">
-                <label class="client-label">Nom du Projet</label><input type="text" id="cli-project-name" class="client-input" placeholder="Ex: Rénovation Cuisine" onchange="App.saveState()">
-                <label class="client-label">Adresse</label><input type="text" id="cli-addr" class="client-input" placeholder="Adresse" onchange="App.saveState()">
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <div style="flex:1"><label class="client-label">Date</label><input type="date" id="cli-date" class="client-input" onchange="App.saveState()"></div>
-                    <div style="flex:1"><label class="client-label">N° Devis</label><input type="text" id="cli-ref" class="client-input" readonly></div>
+                <div class="kpi-filter-box">
+                    <label style="font-size:0.8rem;color:#666">Période d'analyse :</label>
+                    <select id="kpi-period" class="kpi-select" onchange="App.renderHome()">
+                        <option value="all">Tout l'historique</option>
+                        <option value="year" selected>Année en cours</option>
+                        <option value="month">Mois en cours</option>
+                        <option value="prev_year">Année précédente</option>
+                    </select>
                 </div>
             </div>
-            <div style="text-align:center; padding-bottom:10px; border-bottom:1px solid #eee;">
-                <button class="btn btn-primary" style="font-size:0.75rem; width:100%;" onclick="App.addCurrentQuoteToHistory()"><i class="fas fa-save"></i> Sauvegarder</button>
+
+            <div class="kpi-grid">
+                <div class="kpi-card clickable" onclick="App.navigateToHistory('')">
+                    <div class="kpi-icon" style="background:#EFF6FF; color:#1E40AF;"><i class="fas fa-file-invoice"></i></div>
+                    <div class="kpi-label">Total Devis</div>
+                    <div class="kpi-value" id="kpi-total-count">0</div>
+                    <div class="kpi-sub">Sur la période</div>
+                </div>
+                <div class="kpi-card clickable" onclick="App.navigateToHistory('attente')">
+                    <div class="kpi-icon" style="background:#FFF7ED; color:#C2410C;"><i class="fas fa-clock"></i></div>
+                    <div class="kpi-label">Brouillons / Attente</div>
+                    <div class="kpi-value" id="kpi-pending-count">0</div>
+                    <div class="kpi-sub" id="kpi-pending-amount">0.00 €</div>
+                </div>
+                <div class="kpi-card clickable" onclick="App.navigateToHistory('accepte')">
+                    <div class="kpi-icon" style="background:#ECFDF5; color:#047857;"><i class="fas fa-check-circle"></i></div>
+                    <div class="kpi-label">Devis Acceptés</div>
+                    <div class="kpi-value" id="kpi-accepted-count">0</div>
+                    <div class="kpi-sub" id="kpi-accepted-amount">0.00 €</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background:#F0F9FF; color:#0369A1;"><i class="fas fa-chart-line"></i></div>
+                    <div class="kpi-label">CA Signé (Accepté)</div>
+                    <div class="kpi-value" id="kpi-volume">0 €</div>
+                    <div class="kpi-sub">Total facturable</div>
+                </div>
             </div>
-        </div>
-        <div class="card summary-sec" style="padding: 15px;">
-             <div class="sidebar-title" style="padding:0 0 10px 0; font-size:0.85rem; background:transparent;">Répartition par Poste</div>
-             <table style="width:100%; font-size:0.8rem;"><tbody id="category-summary-tbody"></tbody></table>
-        </div>
-        <div class="card total-box">
-            <div class="sidebar-title" style="padding:0 0 10px 0; font-size:0.85rem; border:none; background:transparent;">Total Devis</div>
-            <div style="margin-bottom: 10px; display:flex; align-items:center; gap:8px;">
-                 <input type="checkbox" id="autoliquidation-chk" onchange="App.updateSummaries()" style="cursor:pointer">
-                 <label for="autoliquidation-chk" style="font-size:0.8rem; color:var(--brand-navy); font-weight:600; cursor:pointer;">Autoliquidation</label>
+
+            <div class="charts-grid">
+                <div class="chart-box">
+                    <div class="sidebar-title" style="border:none; padding:0 0 10px 0; font-size:0.9rem;">Répartition par Statut</div>
+                    <div class="chart-container"><canvas id="statusChart"></canvas></div>
+                </div>
+                <div class="chart-box">
+                    <div class="sidebar-title" style="border:none; padding:0 0 10px 0; font-size:0.9rem;">Évolution du Chiffre d'Affaires</div>
+                    <div class="chart-container"><canvas id="revenueChart"></canvas></div>
+                </div>
             </div>
-            <div class="fin-input-row" style="border-bottom:1px solid #eee; padding-bottom:5px;">
-                <label>Remise Globale (%)</label>
-                <input type="number" id="global-discount" class="fin-input" value="0" min="0" max="100" onchange="App.updateGlobalDiscount(this.value)">
-            </div>
-            <div id="financial-summary-body"></div>
-            <div class="fin-input-row" style="margin-top:10px; border-top:1px solid #eee; padding-top:5px;">
-                <label>Acompte Versé (€)</label>
-                <input type="number" id="deposit-amount" class="fin-input" value="0" min="0" onchange="App.updateDeposit(this.value)">
-            </div>
-            <div class="t-row" style="margin-top:5px; font-weight:700; color:#059669;"><span>Reste à Payer</span><span id="final-to-pay">0.00 €</span></div>
-        </div>
-    </aside>
-</main>
+        </main>
 
         <main id="list-view" class="view-section">
             <div class="card" style="height: 100%; display: flex; flex-direction: column; overflow: hidden;">
@@ -728,11 +669,15 @@
         </main>
 
         <main id="quote-view" class="view-section">
+            <button id="mobile-lib-trigger" class="btn btn-primary" onclick="App.toggleMobileLib()">
+                <i class="fas fa-book-open"></i> Ouvrir Bibliothèque & Filtres
+            </button>
+
             <aside class="col-scroll" id="left-sidebar">
                 <div class="card" style="min-height: 100%;">
                     <div class="sidebar-title">
                         <span id="lib-title-text">Bibliothèque</span>
-                        <i class="fas fa-times mobile-menu-btn" onclick="App.toggleSidebar()" style="font-size:1rem;"></i>
+                        <i class="fas fa-times mobile-close-btn" onclick="App.toggleMobileLib()"></i>
                     </div>
                     <ul class="category-list" id="main-families-list"></ul>
                     <div id="subfamily-panel">
@@ -744,6 +689,7 @@
 
             <section class="workspace col-scroll">
                 <div class="room-nav" id="room-list-container"></div>
+                
                 <div class="metrics-panel" id="metrics-panel">
                     <div class="m-group"><label>Long. (m)</label><input type="number" id="inp-L" step="0.01" oninput="App.calcMetrics()"></div>
                     <div class="m-group"><label>Larg. (m)</label><input type="number" id="inp-l" step="0.01" oninput="App.calcMetrics()"></div>
@@ -753,6 +699,7 @@
                     <div class="m-group"><label>Périmètre (m)</label><input type="text" id="out-peri" readonly></div>
                     <div class="m-group"><label>Surf. Mur (m²)</label><input type="text" id="out-wall" readonly></div>
                 </div>
+
                 <div class="card" style="padding: 15px;">
                     <div class="quote-header">
                         <div class="quote-title" id="table-title">Détail Devis</div>
@@ -764,25 +711,38 @@
 
                         <div class="view-toggles" style="margin-left:auto; margin-right:10px;">
                             <button class="active" id="view-piece" onclick="App.setView('piece')">Par Pièce</button>
-                            <button id="view-ouvrage" onclick="App.setView('ouvrage')">Récap. Ouvrages</button>
+                            <button id="view-ouvrage" onclick="App.setView('ouvrage')">Récap.</button>
                         </div>
-                        <button class="btn btn-secondary" style="font-size:0.8rem; margin-right:5px;" onclick="App.calculateProfitability()">
-                            <i class="fas fa-euro-sign" style="color:#059669; margin-right:5px;"></i> Analisi Margine
+                    </div>
+                    
+                    <div class="mobile-actions-row" style="margin-bottom:10px; display:flex; gap:5px; overflow-x:auto;">
+                         <button class="btn btn-secondary" style="font-size:0.8rem;" onclick="App.calculateProfitability()">
+                            <i class="fas fa-euro-sign" style="color:#059669;"></i> Marge
                         </button>
                         <button class="btn btn-secondary" style="font-size:0.8rem;" onclick="App.openDemolitionModal()">
-                            <i class="fas fa-hammer" style="color:#B91C1C; margin-right:5px;"></i> Import Démolition
+                            <i class="fas fa-hammer" style="color:#B91C1C;"></i> Démolition
                         </button>
                     </div>
-                    <table class="q-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 30%;">Désignation</th><th style="width: 5%;">U</th><th style="width: 5%;">Qté</th><th class="col-tva" style="width: 10%;">TVA</th><th class="col-price" style="width: 10%;">P.U.</th>
-                                <th class="col-cost" style="width: 10%;">Matériel</th>
-                                <th class="col-total" style="width: 10%;">Total HT</th><th class="col-time" style="width: 8%;">Temps</th><th class="col-note" style="width: 15%;">Notes</th><th style="width: 5%;"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="quote-tbody"></tbody>
-                    </table>
+
+                    <div class="table-responsive-wrapper">
+                        <table class="q-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30%; min-width: 200px;">Désignation</th>
+                                    <th style="width: 5%; min-width: 40px;">U</th>
+                                    <th style="width: 5%; min-width: 50px;">Qté</th>
+                                    <th class="col-tva" style="width: 10%;">TVA</th>
+                                    <th class="col-price" style="width: 10%; min-width: 80px;">P.U.</th>
+                                    <th class="col-cost" style="width: 10%; min-width: 80px;">Matériel</th>
+                                    <th class="col-total" style="width: 10%; min-width: 80px;">Total HT</th>
+                                    <th class="col-time" style="width: 8%; min-width: 60px;">Temps</th>
+                                    <th class="col-note" style="width: 15%; min-width: 150px;">Notes</th>
+                                    <th style="width: 5%;"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="quote-tbody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
@@ -795,22 +755,22 @@
                         <label class="client-label">Adresse</label><input type="text" id="cli-addr" class="client-input" placeholder="Adresse" onchange="App.saveState()">
                         <div style="display:flex; gap:10px; margin-top:10px;">
                             <div style="flex:1"><label class="client-label">Date</label><input type="date" id="cli-date" class="client-input" onchange="App.saveState()"></div>
-                            <div style="flex:1"><label class="client-label">N° Devis (Auto)</label><input type="text" id="cli-ref" class="client-input" readonly></div>
+                            <div style="flex:1"><label class="client-label">N° Devis</label><input type="text" id="cli-ref" class="client-input" readonly></div>
                         </div>
                     </div>
                     <div style="text-align:center; padding-bottom:10px; border-bottom:1px solid #eee;">
-                        <button class="btn btn-primary" style="font-size:0.75rem; width:100%;" onclick="App.addCurrentQuoteToHistory()"><i class="fas fa-save"></i> Sauvegarder dans Historique</button>
+                        <button class="btn btn-primary" style="font-size:0.75rem; width:100%;" onclick="App.addCurrentQuoteToHistory()"><i class="fas fa-save"></i> Sauvegarder</button>
                     </div>
                 </div>
                 <div class="card summary-sec" style="padding: 15px;">
-                    <div class="sidebar-title" style="padding:0 0 10px 0; font-size:0.85rem; background:transparent;">Répartition par Poste</div>
-                    <table style="width:100%; font-size:0.8rem;"><tbody id="category-summary-tbody"></tbody></table>
+                     <div class="sidebar-title" style="padding:0 0 10px 0; font-size:0.85rem; background:transparent;">Répartition par Poste</div>
+                     <table style="width:100%; font-size:0.8rem;"><tbody id="category-summary-tbody"></tbody></table>
                 </div>
                 <div class="card total-box">
                     <div class="sidebar-title" style="padding:0 0 10px 0; font-size:0.85rem; border:none; background:transparent;">Total Devis</div>
                     <div style="margin-bottom: 10px; display:flex; align-items:center; gap:8px;">
                          <input type="checkbox" id="autoliquidation-chk" onchange="App.updateSummaries()" style="cursor:pointer">
-                         <label for="autoliquidation-chk" style="font-size:0.8rem; color:var(--brand-navy); font-weight:600; cursor:pointer;">Autoliquidation (Sous-traitance)</label>
+                         <label for="autoliquidation-chk" style="font-size:0.8rem; color:var(--brand-navy); font-weight:600; cursor:pointer;">Autoliquidation</label>
                     </div>
                     <div class="fin-input-row" style="border-bottom:1px solid #eee; padding-bottom:5px;">
                         <label>Remise Globale (%)</label>
@@ -1587,8 +1547,6 @@
                 this.renderHome();        
                 this.renderDashboardList(); 
             },
-
-
 
             // --- FUNZIONE RICERCA GLOBALE ---
             globalSearch(term) {
@@ -2368,25 +2326,28 @@
         window.App = App;
         window.ProjectService = ProjectService;
         window.PDFService = PDFService;
-        // --- JS AGGIUNTIVO PER MOBILE ---
-App.toggleMobileLib = function() {
-    const sidebar = document.getElementById('left-sidebar');
-    // Toggle della classe che sposta la sidebar da left:-100% a left:0
-    if (sidebar.classList.contains('mobile-active')) {
-        sidebar.classList.remove('mobile-active');
-    } else {
-        sidebar.classList.add('mobile-active');
-    }
-};
 
-// Funzione opzionale per chiudere la sidebar quando si clicca un elemento
-// Aggiungi questa chiamata dentro App.addItem() per UX migliore
-const originalAddItem = App.addItem;
-App.addItem = function(...args) {
-    originalAddItem.apply(this, args);
-    // Se siamo su mobile, chiudi la sidebar dopo l'aggiunta
-    if (window.innerWidth <= 1024) {
-        document.getElementById('left-sidebar').classList.remove('mobile-active');
-    }
-};
+        // --- JS AGGIUNTIVO PER MOBILE ---
+        App.toggleMobileLib = function() {
+            const sidebar = document.getElementById('left-sidebar');
+            // Toggle della classe che sposta la sidebar da left:-100% a left:0
+            if (sidebar.classList.contains('mobile-active')) {
+                sidebar.classList.remove('mobile-active');
+            } else {
+                sidebar.classList.add('mobile-active');
+            }
+        };
+
+        // Funzione opzionale per chiudere la sidebar quando si clicca un elemento
+        // Aggiungi questa chiamata dentro App.addItem() per UX migliore
+        const originalAddItem = App.addItem;
+        App.addItem = function(...args) {
+            originalAddItem.apply(this, args);
+            // Se siamo su mobile, chiudi la sidebar dopo l'aggiunta
+            if (window.innerWidth <= 1024) {
+                document.getElementById('left-sidebar').classList.remove('mobile-active');
+            }
+        };
     </script>
+</body>
+</html>
