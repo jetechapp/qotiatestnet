@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA V75 PRO</title>
+    <title>QOTIA V76 FLOW</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -148,7 +148,7 @@
 
     <main id="view-home" class="view-section active">
         <header class="mobile-header">
-            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v75</span></div>
+            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v76</span></div>
             <button style="background:none; border:none; font-size:1.2rem;" onclick="App.nav('settings')"><i class="fas fa-cog"></i></button>
         </header>
         <div class="home-fixed-area">
@@ -293,7 +293,7 @@
             <div style="background:#FFF; border:2px solid var(--primary); padding:10px; border-radius:12px; margin-bottom:15px;">
                 <label style="font-size:0.8rem; font-weight:700; color:var(--text-sub);">Pièce Cible :</label>
                 <div id="lib-room-buttons" class="room-tag-scroll"></div>
-                <input type="text" id="lib-target-piece" class="app-input" style="margin:0; height:40px; font-weight:800; color:var(--primary);" value="Général">
+                <input type="text" id="lib-target-piece" class="app-input" style="margin:0; height:40px; font-weight:800; color:var(--primary); text-align:center; border:none; background:#F8FAFC;" readonly>
             </div>
             <div id="lib-container"></div>
         </div>
@@ -311,26 +311,58 @@
         const Store = {
             data: { clients: [], chantiers: [], appointments: [], partners: [] },
             init() { 
-                const s = localStorage.getItem('qotia_v75'); 
+                const s = localStorage.getItem('qotia_v76'); 
                 if(s) this.data = JSON.parse(s); 
                 else this.seed(); 
             },
             seed() {
-                this.data.clients = [{id:1, type:'particulier', nom:'Jean Dupont', addr:'Nice', tel:'0611223344'}];
-                this.data.partners = [{id:1, name:'Mario Rossi', role:'Collaborateur'}, {id:2, name:'Elec Pro', role:'Artisan'}];
-                this.data.chantiers = [{
-                    id: 101, clientId: 1, name: 'Rénovation Cuisine', ref: 'C-2401',
-                    devisList: [{ id: 5001, ref: 'D-2401', name: 'Rénov Complète', status: 'Validé', total: 4250, totalTime: 40, items: [{id:1, desc:'Dépose meubles', qty:1, price:350, time:4, unit:'Forfait', piece:'Cuisine'}, {id:2, desc:'Peinture', qty:25, price:28, time:0.5, unit:'m²', piece:'Cuisine'}]}],
-                    factures: [{id: 901, ref: 'FAC-2401', type: 'acompte', amount: 1275, paid: true}], extraDocs: []
-                }];
-                this.data.appointments = [{id: 1, date: new Date().toISOString(), title: 'RDV Demo', sub: 'Jean Dupont'}];
+                this.data.clients = [
+                    {id:1, type:'particulier', nom:'Jean Dupont', addr:'10 Av. de la Californie, Nice', tel:'0611223344'},
+                    {id:2, type:'societe', nom:'SCI Azurea', siret:'999888777', addr:'5 Rue Massena, Nice', tel:'0493000000'},
+                    {id:3, type:'particulier', nom:'Sophie Martin', addr:'Villa Rosiers, Cannes', tel:'0655443322'},
+                    {id:4, type:'societe', nom:'Agence Immo Plus', addr:'2 Bd Victor Hugo', tel:'0492929292'},
+                    {id:5, type:'particulier', nom:'Marc Levy', addr:'Antibes', tel:'0612121212'}
+                ];
+                this.data.partners = [
+                    {id:1, name:'Mario Rossi', role:'Collaborateur'}, 
+                    {id:2, name:'Elec Pro 06', role:'Artisan'},
+                    {id:3, name:'Plombier Express', role:'Artisan'},
+                    {id:4, name:'Équipe B', role:'Collaborateur'}
+                ];
+                this.data.chantiers = [
+                    {
+                        id: 101, clientId: 1, name: 'Rénovation Cuisine', ref: 'C-2401',
+                        devisList: [{ id: 5001, ref: 'D-2401', name: 'Rénov Complète', status: 'Validé', total: 0, totalTime: 0, items: [{id:1, desc:'Dépose meubles', qty:1, price:350, time:4, unit:'Forfait', piece:'Cuisine'}, {id:2, desc:'Peinture', qty:25, price:28, time:0.5, unit:'m²', piece:'Cuisine'}]}],
+                        factures: [{id: 901, ref: 'FAC-2401', type: 'acompte', amount: 1275, paid: true}], extraDocs: []
+                    },
+                    {
+                        id: 102, clientId: 2, name: 'Plateau Bureaux', ref: 'C-2402',
+                        devisList: [{ id: 5002, ref: 'D-2402', name: 'Lot Élec', status: 'Brouillon', total: 0, totalTime: 0, items: []}],
+                        factures: [], extraDocs: []
+                    },
+                    {
+                        id: 103, clientId: 3, name: 'SDB Suite Parentale', ref: 'C-2403',
+                        devisList: [{ id: 5003, ref: 'D-2403', name: 'Sanitaire', status: 'Validé', total: 0, totalTime: 0, items: []}],
+                        factures: [{id: 902, ref: 'FAC-2403', type: 'acompte', amount: 2000, paid: false}], extraDocs: []
+                    },
+                    { id: 104, clientId: 4, name: 'Rafraîchissement T2', ref: 'C-2404', devisList: [], factures: [], extraDocs: [] }
+                ];
+                
+                // Recalc totals
+                this.data.chantiers.forEach(c => c.devisList.forEach(d => { let t=0, ti=0; d.items.forEach(i=>{t+=i.qty*i.price; ti+=i.qty*(i.time||0)}); d.total=t; d.totalTime=ti; }));
+                
+                const today = new Date().toISOString().split('T')[0];
+                this.data.appointments = [
+                    {id: 1, date: `${today}T09:30`, title: 'Démarrage', sub: 'Jean Dupont'},
+                    {id: 2, date: `${today}T14:00`, title: 'Visite', sub: 'SCI Azurea'}
+                ];
                 this.save();
             },
-            save() { localStorage.setItem('qotia_v75', JSON.stringify(this.data)); }
+            save() { localStorage.setItem('qotia_v76', JSON.stringify(this.data)); }
         };
 
         const App = {
-            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces', selectedItems: new Set() },
+            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces', selectedItems: new Set(), lastPiece: 'Général' },
             init() { Store.init(); this.nav('home'); },
             nav(view) {
                 document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
@@ -364,7 +396,7 @@
             },
             deletePartner(id) { if(confirm("Supprimer ?")) { Store.data.partners = Store.data.partners.filter(p=>p.id!==id); Store.save(); App.renderSettings(); }},
 
-            // --- MAIN RENDERERS ---
+            // --- RENDER FUNCTIONS ---
             renderHome() {
                 document.getElementById('home-date-display').innerText = new Date().toLocaleDateString('fr-FR');
                 const l = document.getElementById('home-today-list'); l.innerHTML = '';
@@ -462,10 +494,8 @@
                 const s = document.getElementById('sel-source-devis'); s.innerHTML='';
                 if(!c.devisList || c.devisList.length===0) return alert("Aucun devis disponible");
                 c.devisList.forEach(d => { s.innerHTML += `<option value="${d.id}">${d.name}</option>`; });
-                
                 const sa = document.getElementById('cdc-assignee'); sa.innerHTML = '<option value="">Choisir un partenaire...</option>';
                 if(Store.data.partners) Store.data.partners.forEach(p => sa.innerHTML += `<option value="${p.name}">${p.name} (${p.role})</option>`);
-
                 App.state.selectedItems.clear(); document.getElementById('modal-select-cdc').classList.add('open'); this.renderSelectionList();
             },
             renderSelectionList() {
@@ -494,27 +524,16 @@
                 const itemsToPrint = d.items.filter(i => App.state.selectedItems.has(i.id));
                 let totalTime = 0;
                 let rows = itemsToPrint.map(i => { 
-                    const rowTime = (i.time || 0) * i.qty; 
-                    totalTime += rowTime;
+                    const rowTime = (i.time || 0) * i.qty; totalTime += rowTime;
                     const assigned = i.assignedTo ? `<br><span style="font-size:0.7em; color:#15803d; font-weight:bold;">Assigné: ${i.assignedTo}</span>` : '';
                     return `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px;">${i.desc} ${assigned}</td><td style="padding:10px;">${i.piece || '-'}</td><td style="padding:10px; text-align:center;">${i.qty}</td><td style="padding:10px; text-align:center;">${i.unit}</td><td style="padding:10px; text-align:right;">${i.time || 0} h</td><td style="padding:10px; text-align:right; font-weight:bold;">${rowTime.toFixed(1)} h</td></tr>`; 
                 }).join('');
-                
                 const html = `<div style="font-family:sans-serif; padding:20px; color:#1e293b;"><h2 style="color:#0f172a; margin-bottom:5px;">CAHIER DES CHARGES</h2><div style="font-size:0.9rem; color:#64748b; margin-bottom:20px;">Document Technique - QOTIA</div><div style="display:flex; justify-content:space-between; margin-bottom:30px; background:#f8fafc; padding:15px; border-radius:8px;"><div><strong>Chantier:</strong> ${c.name}<br><strong>Client:</strong> ${cli ? cli.nom : '-'}<br><strong>Date:</strong> ${new Date().toLocaleDateString()}</div><div style="text-align:right;"><strong>Estimation Temps Total:</strong><br><span style="font-size:1.4rem; font-weight:800; color:#3B82F6;">${totalTime.toFixed(1)} Heures</span></div></div><table style="width:100%; border-collapse:collapse; font-size:0.9rem;"><thead style="background:#0f172a; color:white;"><tr><th style="padding:10px; text-align:left;">Description</th><th style="padding:10px; text-align:left;">Loc.</th><th style="padding:10px; text-align:center;">Qté</th><th style="padding:10px; text-align:center;">Unit.</th><th style="padding:10px; text-align:right;">T. Unit</th><th style="padding:10px; text-align:right;">T. Total</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-                
-                // Save to Archive
                 const newDoc = { id: Date.now(), ref: "CDC-"+Date.now().toString().slice(-4), name: "CDC Export", type: 'Etude', items: itemsToPrint };
                 if(!c.extraDocs) c.extraDocs = []; c.extraDocs.push(newDoc); Store.save();
-
-                // PDF Generation
-                const element = document.createElement('div');
-                element.innerHTML = html;
-                document.body.appendChild(element);
+                const element = document.createElement('div'); element.innerHTML = html; document.body.appendChild(element);
                 const opt = { margin: 10, filename: `CDC_${c.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().set(opt).from(element).save().then(() => {
-                    document.body.removeChild(element);
-                    App.showToast("PDF Généré & Archivé");
-                });
+                html2pdf().set(opt).from(element).save().then(() => { document.body.removeChild(element); App.showToast("PDF Généré & Archivé"); });
             },
             assignCollaborator() {
                 if(App.state.selectedItems.size === 0) return alert("Sélectionnez des articles.");
@@ -525,26 +544,28 @@
                 Store.save(); App.showToast("Tâches assignées"); this.renderSelectionList();
             },
 
-            // --- STANDARD MODALS LOGIC ---
+            // --- SMART LIBRARY LOGIC (MODIFIED) ---
             openLibrary() {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
                 
-                // Get Existing Rooms
+                // Smart Room Select
                 const rooms = new Set(d.items.map(i => i.piece).filter(Boolean));
-                // Add defaults
                 ['Cuisine', 'SDB', 'Salon', 'Chambre'].forEach(r => rooms.add(r));
                 
-                // Render Quick Buttons
+                // Initialize default piece from state
+                const currentPiece = App.state.lastPiece || "Général";
+                document.getElementById('lib-target-piece').value = currentPiece;
+
                 const btnContainer = document.getElementById('lib-room-buttons');
                 btnContainer.innerHTML = '';
                 rooms.forEach(r => {
                     const btn = document.createElement('div');
-                    btn.className = 'room-tag-btn';
+                    btn.className = `room-tag-btn ${r === currentPiece ? 'active' : ''}`;
                     btn.innerText = r;
                     btn.onclick = () => {
+                        App.state.lastPiece = r;
                         document.getElementById('lib-target-piece').value = r;
-                        // Visual Feedback
                         document.querySelectorAll('.room-tag-btn').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
                     };
@@ -558,26 +579,38 @@
                         let div=document.createElement('div'); div.className='card-item'; 
                         div.innerHTML = `<div class="card-info"><div class="card-title">${it.desc}</div><div class="card-sub">${it.price}€ / ${it.unit} (${it.time}h)</div></div><i class="fas fa-plus" style="color:var(--accent)"></i>`; 
                         div.onclick=()=>{ 
-                             const piece = document.getElementById('lib-target-piece').value || "Général";
+                             // WORKFLOW OPTIMIZATION: Add -> Close -> Edit
+                             const piece = document.getElementById('lib-target-piece').value;
                              const ch=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const dv=ch.devisList.find(x=>x.id==Store.data.activeDevisId); 
-                             dv.items.push({id:Date.now(), ...it, qty:1, price:it.price, time:it.time, piece:piece}); 
-                             Store.save(); App.showToast(`Ajouté dans ${piece}`); 
-                             // Keep modal open for fast add? User said "saltare da un piece all'altro per inserire ouvrage". So let's update totals but keep modal.
-                             App.calcTotals(); App.renderEditorItems(); 
+                             const newItem = {id:Date.now(), ...it, qty:0, price:it.price, time:it.time, piece:piece}; // Qty 0 to force edit
+                             dv.items.push(newItem); 
+                             Store.save(); 
+                             App.closeModal('modal-library'); 
+                             App.calcTotals(); 
+                             App.renderEditorItems(); 
+                             // Immediately open edit modal for this item
+                             setTimeout(() => App.editDevisItem(newItem.id), 200);
                         }; 
                         cont.appendChild(div); 
                     }); 
                 } 
                 document.getElementById('modal-library').classList.add('open'); 
             },
-            toggleNewPieceInput() { const i=document.getElementById('lib-new-piece'); const s=document.getElementById('lib-target-piece'); if(i.style.display==='none'){i.style.display='block';s.style.display='none';i.focus();}else{i.style.display='none';s.style.display='block';}},
+            toggleNewPieceInput() { const i=document.getElementById('lib-new-piece'); if(i.style.display==='none'){i.style.display='block';i.focus();}else{i.style.display='none';}},
             editDevisItem(id) {
                 const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); const item=d.items.find(x=>x.id==id);
                 document.getElementById('edit-item-idx').value = id; document.getElementById('edit-item-desc').value = item.desc; document.getElementById('edit-item-qty').value = item.qty; document.getElementById('edit-item-price').value = item.price; document.getElementById('edit-item-unit').value = item.unit || 'U'; document.getElementById('edit-item-time').value = item.time || 0;
-                const rooms = new Set(d.items.map(i => i.piece).filter(Boolean)); const sel = document.getElementById('edit-item-piece'); sel.innerHTML = `<option value="${item.piece}">${item.piece}</option>`; rooms.forEach(r => { if(r!==item.piece) sel.innerHTML += `<option value="${r}">${r}</option>`; });
+                const rooms = new Set(d.items.map(i => i.piece).filter(Boolean)); ['Cuisine','SDB','Salon'].forEach(r=>rooms.add(r)); const sel = document.getElementById('edit-item-piece'); sel.innerHTML = ''; 
+                // Ensure current piece is selected
+                rooms.forEach(r => { 
+                    const isSel = r === item.piece ? 'selected' : '';
+                    sel.innerHTML += `<option value="${r}" ${isSel}>${r}</option>`; 
+                });
                 document.getElementById('modal-edit-item').classList.add('open');
+                // Focus on Quantity for speed
+                setTimeout(() => document.getElementById('edit-item-qty').focus(), 100);
             },
-            saveItemChanges() { const id=parseInt(document.getElementById('edit-item-idx').value); const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); const item=d.items.find(x=>x.id==id); item.desc=document.getElementById('edit-item-desc').value; item.qty=parseFloat(document.getElementById('edit-item-qty').value)||0; item.price=parseFloat(document.getElementById('edit-item-price').value)||0; item.time=parseFloat(document.getElementById('edit-item-time').value)||0; item.piece=document.getElementById('edit-item-piece').value; Store.save(); App.showToast("Modifié"); App.closeModal('modal-edit-item'); App.calcTotals(); App.renderEditorItems(); },
+            saveItemChanges() { const id=parseInt(document.getElementById('edit-item-idx').value); const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); const item=d.items.find(x=>x.id==id); item.desc=document.getElementById('edit-item-desc').value; item.qty=parseFloat(document.getElementById('edit-item-qty').value)||0; item.price=parseFloat(document.getElementById('edit-item-price').value)||0; item.time=parseFloat(document.getElementById('edit-item-time').value)||0; item.piece=document.getElementById('edit-item-piece').value; Store.save(); App.showToast("Enregistré"); App.closeModal('modal-edit-item'); App.calcTotals(); App.renderEditorItems(); },
             deleteItem() { if(confirm("Supprimer ?")) { const id=parseInt(document.getElementById('edit-item-idx').value); const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); d.items=d.items.filter(x=>x.id!==id); Store.save(); App.closeModal('modal-edit-item'); App.calcTotals(); App.renderEditorItems(); } },
             toggleClientType(type) { App.state.tempClientType = type; document.getElementById('type-particulier').classList.remove('active'); document.getElementById('type-societe').classList.remove('active'); document.getElementById('type-'+type).classList.add('active'); if(type === 'societe') { document.getElementById('field-siret').style.display = 'block'; document.getElementById('cli-nom').placeholder = 'Raison Sociale'; } else { document.getElementById('field-siret').style.display = 'none'; document.getElementById('cli-nom').placeholder = 'Nom et Prénom'; } },
             openClientModal() { ['cli-id','cli-nom','cli-addr','cli-tel','cli-email','cli-siret'].forEach(k=>document.getElementById(k).value=''); App.toggleClientType('particulier'); document.getElementById('modal-client').classList.add('open'); },
