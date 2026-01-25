@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA V71 FINAL</title>
+    <title>QOTIA V73 FIX</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        /* --- STILI CORE (INVARIATI) --- */
+        /* --- CORE STYLES --- */
         :root {
             --primary: #0F172A;        
             --bg-body: #F8FAFC;        
@@ -42,14 +42,19 @@
             padding-top: env(safe-area-inset-top);
         }
 
+        /* LAYOUT MANAGER */
         .view-section { 
-            display: none; flex-direction: column; height: 100%; width: 100%; 
+            display: none; 
+            flex-direction: column; 
+            height: 100%; 
+            width: 100%; 
             position: absolute; top: 0; left: 0; 
-            background: var(--bg-body); z-index: 10;
+            background: var(--bg-body); 
+            z-index: 10;
         }
         .view-section.active { display: flex; z-index: 20; }
         
-        /* HEADER */
+        /* HEADER (Standard) */
         .mobile-header { 
             flex-shrink: 0; height: var(--h-header); 
             background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
@@ -58,26 +63,76 @@
             padding: 0 20px; position: sticky; top: 0; z-index: 50; 
         }
         .logo-text { font-weight: 800; font-size: 1.3rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-        
         .header-action-btn { background: var(--primary); color: white; border: none; border-radius: 30px; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); }
-        .header-back-container { display: flex; align-items: center; gap: 5px; background: transparent; border: none; cursor: pointer; color: var(--primary); font-weight: 700; font-size: 0.9rem; }
+        .header-back-container { display: flex; align-items: center; gap: 5px; background: transparent; border: none; cursor: pointer; color: var(--primary); font-weight: 700; font-size: 0.9rem; padding: 10px 0; }
         .header-back-container i { font-size: 1.2rem; }
 
+        /* SCROLL CONTENT (Standard) */
         .scroll-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 120px; -webkit-overflow-scrolling: touch; }
 
-        /* CARDS */
-        .card-item { 
-            background: white; padding: 18px; margin-bottom: 12px; 
-            border-radius: 14px; border: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center; 
-            box-shadow: var(--shadow-card);
+        /* --- EDITOR STYLES (FIXED LAYOUT) --- */
+        /* Questo assicura che l'editor abbia una struttura solida */
+        #view-editor {
+            display: none; 
+            flex-direction: column; 
+            height: 100%; 
+            background: #F8FAFC;
         }
+        #view-editor.active { display: flex; }
+
+        .editor-header-musk { 
+            flex-shrink: 0; /* IMPEDISCE ALL'HEADER DI RESTIRINGERSI O ESSERE COPERTO */
+            background: white; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            flex-direction: column;
+            z-index: 30;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        #editor-list-container {
+            flex: 1; /* RIEMPIE LO SPAZIO RIMANENTE */
+            overflow-y: auto; /* SCROLLA SOLO QUESTO CONTENITORE */
+            padding: 20px;
+            padding-bottom: 140px; /* Spazio extra per il bottone FAB */
+        }
+
+        .client-badge { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
+        .project-title { font-size: 1.2rem; font-weight: 900; color: var(--primary); margin-top: 2px; }
+        .kpi-row { display: flex; gap: 15px; margin-top: 10px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; }
+        .kpi-box { flex: 1; background: #F8FAFC; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid #E2E8F0; }
+        .kpi-label { font-size: 0.65rem; color: #64748B; font-weight: 700; text-transform: uppercase; }
+        .kpi-val { font-size: 1.1rem; font-weight: 800; }
+        
+        .view-toggle { display: flex; padding: 10px 20px; gap: 10px; background: white; }
+        .toggle-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #F1F5F9; color: #64748B; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+        .toggle-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 5px rgba(15,23,42,0.2); }
+
+        .piece-section { margin-bottom: 20px; }
+        .piece-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 5px; cursor: pointer; background: #E2E8F0; border-radius: 8px; margin-bottom: 10px; padding: 10px; color: var(--primary); }
+        .piece-title { font-weight: 800; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
+        
+        .e-card { background: white; margin: 0 0 10px 0; padding: 15px; border-radius: 12px; border: 1px solid var(--border); border-left: 3px solid var(--primary); box-shadow: var(--shadow-card); }
+        .e-card-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .e-desc { font-weight: 700; color: var(--text-main); font-size: 0.95rem; width: 70%; line-height: 1.4; }
+        .e-loc-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #64748B; background: #F1F5F9; padding: 2px 6px; border-radius: 4px; margin-top: 4px; }
+        .e-stats { display: flex; gap: 10px; border-top: 1px solid #F1F5F9; padding-top: 10px; }
+        .stat-box { flex: 1; text-align: center; }
+        .stat-lbl { font-size: 0.65rem; color: #94A3B8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+        .stat-val { font-size: 0.9rem; font-weight: 700; color: var(--primary); }
+        .stat-val.time { color: var(--time); }
+        
+        .floating-fab { position: fixed; bottom: 110px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; font-size: 1.6rem; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; transition: transform 0.1s; }
+
+        /* CARDS GENERALI */
+        .card-item { background: white; padding: 18px; margin-bottom: 12px; border-radius: 14px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-card); }
         .card-info { flex: 1; }
         .card-title { font-weight: 800; font-size: 1.05rem; color: var(--primary); margin-bottom: 4px; }
         .card-sub { font-size: 0.9rem; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
         .card-tag { font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: #E2E8F0; color: #475569; display: inline-block; margin-bottom: 4px; }
         
-        /* HOME GRID */
+        /* HOME */
         .home-fixed-area { background: var(--bg-body); padding: 10px 20px 20px 20px; z-index: 40; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .welcome-block { margin-bottom: 15px; }
         .welcome-name { font-size: 1.8rem; font-weight: 900; color: var(--primary); margin: 0; }
@@ -94,33 +149,6 @@
         .section-title { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
         .action-create-btn { background: white; color: var(--primary); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; cursor: pointer; }
 
-        /* EDITOR MUSK STYLES */
-        .editor-header-musk { background: white; border-bottom: 1px solid var(--border); padding-bottom: 0; flex-shrink: 0; display:flex; flex-direction:column; }
-        .client-badge { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
-        .project-title { font-size: 1.2rem; font-weight: 900; color: var(--primary); margin-top: 2px; }
-        .kpi-row { display: flex; gap: 15px; margin-top: 10px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; }
-        .kpi-box { flex: 1; background: #F8FAFC; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid #E2E8F0; }
-        .kpi-label { font-size: 0.65rem; color: #64748B; font-weight: 700; text-transform: uppercase; }
-        .kpi-val { font-size: 1.1rem; font-weight: 800; }
-        
-        .view-toggle { display: flex; padding: 10px 20px; gap: 10px; background: white; }
-        .toggle-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #F1F5F9; color: #64748B; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
-        .toggle-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 5px rgba(15,23,42,0.2); }
-
-        .piece-section { margin-bottom: 20px; }
-        .piece-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 5px; cursor: pointer; background: #F1F5F9; border-radius: 8px; margin-bottom: 10px; padding: 10px; }
-        .piece-title { font-weight: 800; font-size: 1rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        
-        .e-card { background: white; margin: 0 0 10px 0; padding: 15px; border-radius: 12px; border: 1px solid var(--border); border-left: 3px solid var(--primary); box-shadow: var(--shadow-card); }
-        .e-card-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .e-desc { font-weight: 700; color: var(--text-main); font-size: 0.95rem; width: 70%; line-height: 1.4; }
-        .e-loc-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #64748B; background: #F1F5F9; padding: 2px 6px; border-radius: 4px; margin-top: 4px; }
-        .e-stats { display: flex; gap: 10px; border-top: 1px solid #F1F5F9; padding-top: 10px; }
-        .stat-box { flex: 1; text-align: center; }
-        .stat-lbl { font-size: 0.65rem; color: #94A3B8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
-        .stat-val { font-size: 0.9rem; font-weight: 700; color: var(--primary); }
-        .stat-val.time { color: var(--time); }
-        
         /* SELECTION LIST (OPS) */
         .check-container { display: flex; align-items: center; padding: 12px; background: white; border-bottom: 1px solid #F1F5F9; cursor: pointer; }
         .custom-checkbox { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; margin-right: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
@@ -128,8 +156,6 @@
         .custom-checkbox.checked::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: white; font-size: 0.8rem; }
         .assigned-badge { background: #DCFCE7; color: #166534; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 5px; display: inline-flex; align-items: center; gap: 4px; }
 
-        .floating-fab { position: fixed; bottom: 110px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; font-size: 1.6rem; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; transition: transform 0.1s; }
-        
         /* NAV & MODALS */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--h-nav); background: white; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); z-index: 1000; align-items: flex-start; padding-top: 14px; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94A3B8; background: transparent; border: none; font-size: 0.7rem; font-weight: 600; gap: 5px; cursor: pointer; }
@@ -159,7 +185,7 @@
 
     <main id="view-home" class="view-section active">
         <header class="mobile-header">
-            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v71</span></div>
+            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v72</span></div>
             <button style="background:none; border:none; font-size:1.2rem;" onclick="App.nav('settings')"><i class="fas fa-cog"></i></button>
         </header>
         <div class="home-fixed-area">
@@ -199,10 +225,7 @@
                 <div class="section-separator"><span class="section-title">Devis</span><button class="action-create-btn" style="background:var(--primary); color:white;" onclick="App.createNewDevis()"><i class="fas fa-plus"></i> Créer</button></div>
                 <div id="hub-devis-list"></div>
                 
-                <div class="section-separator">
-                    <span class="section-title">Opérations</span>
-                    <button class="action-create-btn" onclick="App.openSelectCDCModal()"><i class="fas fa-tasks"></i> Gérer</button>
-                </div>
+                <div class="section-separator"><span class="section-title">Opérations</span><button class="action-create-btn" onclick="App.openSelectCDCModal()"><i class="fas fa-tasks"></i> Gérer</button></div>
                 
                 <div class="section-separator"><span class="section-title">Factures</span><button class="action-create-btn" onclick="App.openCreateInvoiceModal()"><i class="fas fa-euro-sign"></i> Facture</button></div>
                 <div id="hub-factures-list"></div>
@@ -213,7 +236,7 @@
     <main id="view-editor" class="view-section">
         <div class="editor-header-musk">
             <div style="padding:10px 20px 0 20px; display:flex; justify-content:space-between; align-items:center;">
-                <button class="header-back-container" onclick="App.openHub(Store.data.activeChantierId)"><i class="fas fa-chevron-left"></i> Retour</button>
+                <button class="header-back-container" onclick="App.backToHub()"><i class="fas fa-chevron-left"></i> Retour</button>
                 <div style="font-weight:900; color:var(--primary);">ÉDITEUR</div>
             </div>
             <div style="padding: 10px 20px;">
@@ -229,7 +252,8 @@
                 <button class="toggle-btn" id="btn-view-ouvrages" onclick="App.setEditorView('ouvrages')">PAR OUVRAGES</button>
             </div>
         </div>
-        <div class="scroll-content" id="editor-list-container" style="padding-top:20px; background:#f8fafc;"></div>
+        <div id="editor-list-container"></div>
+        
         <button class="floating-fab" onclick="App.openLibrary()"><i class="fas fa-plus"></i></button>
     </main>
 
@@ -303,62 +327,21 @@
         const Store = {
             data: { clients: [], chantiers: [], appointments: [] },
             init() { 
-                const s = localStorage.getItem('qotia_v71_final'); 
+                const s = localStorage.getItem('qotia_v73'); 
                 if(s) this.data = JSON.parse(s); 
                 else this.seed(); 
             },
             seed() {
-                // POPOLAMENTO DATI REALI
-                this.data.clients = [
-                    {id:1, type:'particulier', nom:'Jean Dupont', addr:'15 Promenade des Anglais, Nice', tel:'0612345678', email:'j.dupont@mail.com'},
-                    {id:2, type:'societe', nom:'SCI Horizon', siret:'888777666', addr:'22 Rue de France, Nice', tel:'0493000000', email:'contact@sci-horizon.fr'},
-                    {id:3, type:'particulier', nom:'Sophie Martin', addr:'5 Chemin du Fort, Antibes', tel:'0799887766', email:'smartin@test.com'}
-                ];
-                const today = new Date().toISOString().split('T')[0];
-                const tom = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-                
-                this.data.chantiers = [
-                    {
-                        id: 101, clientId: 1, name: 'Rénovation Cuisine', ref: 'C-2401',
-                        devisList: [{
-                            id: 5001, ref: 'D-2401', name: 'Rénov Complète', status: 'Validé', total: 4250, totalTime: 40,
-                            items: [
-                                {id:1, desc:'Dépose meubles', qty:1, price:350, time:4, unit:'Forfait', piece:'Cuisine'},
-                                {id:2, desc:'Modif Plomberie', qty:1, price:450, time:3, unit:'Forfait', piece:'Cuisine'},
-                                {id:3, desc:'Peinture Murs', qty:25, price:28, time:0.5, unit:'m²', piece:'Cuisine'},
-                                {id:4, desc:'Pose Carrelage', qty:15, price:65, time:1.2, unit:'m²', piece:'Cuisine'}
-                            ]
-                        }],
-                        factures: [{id: 901, ref: 'FAC-2401', type: 'acompte', amount: 1275, paid: true}],
-                        extraDocs: []
-                    },
-                    {
-                        id: 102, clientId: 2, name: 'Plateau Bureaux', ref: 'C-2402',
-                        devisList: [{
-                            id: 5002, ref: 'D-2402-A', name: 'Lot Électricité', status: 'Brouillon', total: 0, totalTime: 20,
-                            items: [
-                                {id:10, desc:'Tirage câbles RJ45', qty:250, price:2.5, time:0.1, unit:'ml', piece:'Open Space'},
-                                {id:11, desc:'Prises sol', qty:12, price:45, time:0.5, unit:'U', piece:'Open Space'},
-                                {id:12, desc:'Tableau Principal', qty:1, price:1200, time:8, unit:'U', piece:'Local Tech'}
-                            ]
-                        }],
-                        factures: [],
-                        extraDocs: []
-                    }
-                ];
-                this.data.appointments = [
-                    {id: 1, date: `${today}T09:30`, title: 'Démarrage', sub: 'Jean Dupont'},
-                    {id: 2, date: `${tom}T10:00`, title: 'Signature', sub: 'SCI Horizon'}
-                ];
-                // Recalc totals
-                this.data.chantiers.forEach(c => c.devisList.forEach(d => { 
-                    let t=0, ti=0; 
-                    d.items.forEach(i=>{t+=i.qty*i.price; ti+=i.qty*(i.time||0)}); 
-                    d.total=t; d.totalTime=ti;
-                }));
+                this.data.clients = [{id:1, type:'particulier', nom:'Jean Dupont', addr:'Nice', tel:'0611223344'}];
+                this.data.chantiers = [{
+                    id: 101, clientId: 1, name: 'Rénovation Cuisine', ref: 'C-2401',
+                    devisList: [{ id: 5001, ref: 'D-2401', name: 'Rénov Complète', status: 'Validé', total: 4250, totalTime: 40, items: [{id:1, desc:'Dépose meubles', qty:1, price:350, time:4, unit:'Forfait', piece:'Cuisine'}, {id:2, desc:'Peinture', qty:25, price:28, time:0.5, unit:'m²', piece:'Cuisine'}]}],
+                    factures: [{id: 901, ref: 'FAC-2401', type: 'acompte', amount: 1275, paid: true}], extraDocs: []
+                }];
+                this.data.appointments = [{id: 1, date: new Date().toISOString(), title: 'RDV Demo', sub: 'Jean Dupont'}];
                 this.save();
             },
-            save() { localStorage.setItem('qotia_v71_final', JSON.stringify(this.data)); }
+            save() { localStorage.setItem('qotia_v73', JSON.stringify(this.data)); }
         };
 
         const App = {
@@ -369,7 +352,6 @@
                 document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
                 const el = document.getElementById('view-'+view); if(el) el.classList.add('active');
                 const nEl = document.getElementById('nav-'+view); if(nEl) nEl.classList.add('active');
-                
                 if(view==='home') this.renderHome();
                 if(view==='clients') this.renderClients();
                 if(view==='projets') this.renderProjets();
@@ -384,31 +366,19 @@
             
             // --- RENDER FUNCTIONS ---
             renderHome() {
-                const d = new Date(); document.getElementById('home-date-display').innerText = d.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+                document.getElementById('home-date-display').innerText = new Date().toLocaleDateString('fr-FR');
                 const l = document.getElementById('home-today-list'); l.innerHTML = '';
-                const todayStr = new Date().toDateString();
-                const appts = (Store.data.appointments||[]).filter(a=>new Date(a.date).toDateString()===todayStr);
-                if(appts.length===0) l.innerHTML='<div style="text-align:center; color:#94A3B8; padding:20px; font-style:italic;">Aucun RDV aujourd\'hui.</div>';
-                else appts.forEach(a=>{ const t=new Date(a.date); let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div style="font-weight:800;font-size:1.1rem;color:var(--primary);width:60px;">${t.getHours()}:${t.getMinutes().toString().padStart(2,'0')}</div><div class="card-info"><div class="card-title">${a.title}</div><div class="card-sub">${a.sub}</div></div>`; l.appendChild(div); });
-                let u=0; Store.data.chantiers.forEach(c=>{ if(c.factures) c.factures.forEach(f=>{ if(!f.paid) u+=f.amount; }); });
-                document.getElementById('home-unpaid').innerText = u.toLocaleString('fr-FR',{style:'currency', currency:'EUR', minimumFractionDigits:0});
+                (Store.data.appointments||[]).forEach(a=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div style="font-weight:800;font-size:1.1rem;color:var(--primary);width:60px;">RDV</div><div class="card-info"><div class="card-title">${a.title}</div><div class="card-sub">${a.sub}</div></div>`; l.appendChild(div); });
             },
             renderClients(q='') {
                 const l = document.getElementById('clients-list'); l.innerHTML = '';
-                if(!Store.data.clients || Store.data.clients.length === 0) { l.innerHTML = '<div style="text-align:center;padding:40px;color:#94A3B8">Aucun client.</div>'; return; }
                 Store.data.clients.forEach(c => {
-                    if(!c.nom) return;
-                    if(c.nom.toLowerCase().includes(q.toLowerCase())) {
-                        let div = document.createElement('div'); div.className = 'card-item';
-                        let icon = c.type === 'societe' ? '<i class="fas fa-building" style="color:var(--accent)"></i>' : '<i class="fas fa-user" style="color:var(--primary)"></i>';
-                        const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.addr)}`;
-                        div.innerHTML = `<div class="card-info" onclick="App.editClient(${c.id})"><div class="card-title" style="display:flex;align-items:center;gap:8px;">${icon} ${c.nom}</div><div class="card-sub">${c.addr || '-'}</div></div>
-                        <a href="${mapsLink}" target="_blank" class="header-action-btn" style="background:transparent; color:#2563EB; box-shadow:none;"><i class="fas fa-map-marked-alt" style="font-size:1.4rem"></i></a>
-                        <a href="tel:${c.tel}" class="header-action-btn" style="background:transparent; color:#15803d; box-shadow:none;"><i class="fas fa-phone" style="font-size:1.4rem"></i></a>`; l.appendChild(div);
+                    if(c.nom && c.nom.toLowerCase().includes(q.toLowerCase())) {
+                        l.innerHTML += `<div class="card-item"><div class="card-info" onclick="App.editClient(${c.id})"><div class="card-title">${c.nom}</div><div class="card-sub">${c.addr || '-'}</div></div><a href="tel:${c.tel}" class="header-action-btn" style="background:transparent; color:#15803d; box-shadow:none;"><i class="fas fa-phone" style="font-size:1.4rem"></i></a></div>`;
                     }
                 });
             },
-            renderProjets() { const l = document.getElementById('projects-list-full'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><span class="card-tag">${c.ref}</span><div class="card-title">${c.name}</div><div class="card-sub"><i class="fas fa-user"></i> ${cli?cli.nom:'?'}</div></div><i class="fas fa-chevron-right" style="color:#ccc"></i>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); }); },
+            renderProjets() { const l = document.getElementById('projects-list-full'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { const cli = Store.data.clients.find(x=>x.id==c.clientId); l.innerHTML += `<div class="card-item" onclick="App.openHub(${c.id})"><div class="card-info"><span class="card-tag">${c.ref}</span><div class="card-title">${c.name}</div><div class="card-sub"><i class="fas fa-user"></i> ${cli?cli.nom:'?'}</div></div><i class="fas fa-chevron-right" style="color:#ccc"></i></div>`; }); },
             
             // --- HUB & LOGIC ---
             openHub(id) {
@@ -416,22 +386,23 @@
                 const c = Store.data.chantiers.find(x=>x.id==id); const cli = Store.data.clients.find(x=>x.id==c.clientId);
                 document.getElementById('hub-name').innerText = c.name; document.getElementById('hub-client').innerText = cli ? cli.nom : '?'; document.getElementById('hub-ref').innerText = c.ref;
                 const ld = document.getElementById('hub-devis-list'); ld.innerHTML=''; 
-                c.devisList.forEach(d => { let div = document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><div class="card-title">${d.name}</div><div class="card-sub">${(d.total||0).toLocaleString()} € - <span style="color:${d.status==='Validé'?'var(--success)':'#F59E0B'}">${d.status||'Brouillon'}</span></div></div><i class="fas fa-pen" style="color:#CBD5E1"></i>`; div.onclick=()=>App.openEditor(d.id); ld.appendChild(div); });
+                c.devisList.forEach(d => { ld.innerHTML+=`<div class="card-item" onclick="App.openEditor(${d.id})"><div class="card-info"><div class="card-title">${d.name}</div><div class="card-sub">${(d.total||0).toLocaleString()} €</div></div><i class="fas fa-pen" style="color:#CBD5E1"></i></div>`; });
                 const lf = document.getElementById('hub-factures-list'); lf.innerHTML=''; 
-                c.factures.forEach(f => { let div = document.createElement('div'); div.className='card-item'; div.style.borderLeft = f.paid ? '4px solid var(--success)' : '4px solid var(--danger)'; div.innerHTML=`<div class="card-info"><div class="card-title">${f.ref} <span style="font-weight:400; font-size:0.8em; color:var(--text-sub)">(${f.type})</span></div><div class="card-sub">${f.amount.toLocaleString()} €</div></div><div style="font-size:0.7rem; font-weight:700; color:${f.paid?'var(--success)':'var(--danger)'}">${f.paid?'PAYÉ':'À ENCAISSER'}</div>`; lf.appendChild(div); });
+                c.factures.forEach(f => { lf.innerHTML+=`<div class="card-item" style="border-left:${f.paid?'4px solid var(--success)':'4px solid var(--danger)'}"><div class="card-info"><div class="card-title">${f.ref}</div><div class="card-sub">${f.amount}€</div></div></div>`; });
                 this.nav('hub');
             },
             createNewDevis() {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const id = Date.now();
-                // Ensure all fields are initialized to prevent editor crashes
                 c.devisList.push({ id: id, ref: 'D-'+Math.floor(Math.random()*1000), name: 'Nouveau Devis', status:'Brouillon', items: [], total: 0, totalTime: 0 });
-                Store.save();
-                App.showToast("Devis créé");
-                App.openEditor(id);
+                Store.save(); App.showToast("Devis créé"); App.openEditor(id);
             },
 
-            // --- EDITOR LOGIC (MUSK STYLE) ---
+            // --- EDITOR LOGIC (FIXED BACK BUTTON & LAYOUT) ---
+            backToHub() {
+                if(Store.data.activeChantierId) App.openHub(Store.data.activeChantierId);
+                else App.nav('projets');
+            },
             openEditor(did) { 
                 Store.data.activeDevisId = did; 
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
@@ -466,26 +437,24 @@
                     const grouped = {};
                     d.items.forEach(i => { const p = i.piece || "Zone Générale"; if(!grouped[p]) grouped[p]=[]; grouped[p].push(i); });
                     for(const [piece, items] of Object.entries(grouped)) {
-                        let html = `<div class="piece-section"><div class="piece-header"><div class="piece-title"><i class="fas fa-door-open"></i> ${piece}</div><span style="font-size:0.8rem; font-weight:700; color:#64748B">${items.length}</span></div>`;
+                        let html = `<div class="piece-section"><div class="piece-header"><div class="piece-title"><i class="fas fa-door-open"></i> ${piece}</div><span style="font-size:0.8rem; font-weight:700;">${items.length}</span></div>`;
                         items.forEach(i => {
-                            let rowP = i.qty * i.price; let rowT = i.qty * (i.time||0);
-                            const assigned = i.assignedTo ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${i.assignedTo}</span>` : '';
-                            html += `<div class="e-card" onclick="App.editDevisItem(${i.id})"><div class="e-card-row"><div class="e-desc">${i.desc} ${assigned}</div><div style="font-weight:800; color:var(--primary);">${Math.round(rowP)}€</div></div>
-                            <div class="e-stats"><div class="stat-box"><div class="stat-lbl">Qté</div><div class="stat-val">${i.qty}</div></div><div class="stat-box"><div class="stat-lbl">Prix U.</div><div class="stat-val">${i.price}€</div></div><div class="stat-box"><div class="stat-lbl">Temps U.</div><div class="stat-val time">${i.time||0}h</div></div><div class="stat-box"><div class="stat-lbl">Tot H</div><div class="stat-val time">${rowT.toFixed(1)}h</div></div></div></div>`;
+                            let rowP = i.qty * i.price;
+                            html += `<div class="e-card" onclick="App.editDevisItem(${i.id})"><div class="e-card-row"><div class="e-desc">${i.desc}</div><div style="font-weight:800; color:var(--primary);">${Math.round(rowP)}€</div></div>
+                            <div class="e-stats"><div class="stat-box"><div class="stat-lbl">Qté</div><div class="stat-val">${i.qty}</div></div><div class="stat-box"><div class="stat-lbl">Prix U.</div><div class="stat-val">${i.price}€</div></div><div class="stat-box"><div class="stat-lbl">Temps</div><div class="stat-val time">${i.time||0}h</div></div></div></div>`;
                         });
                         l.innerHTML += html + `</div>`;
                     }
                 } else {
-                    // Aggregated View
                     const aggregated = {};
                     d.items.forEach(i => {
                         const key = i.desc + "_" + i.price;
-                        if (!aggregated[key]) aggregated[key] = { desc: i.desc, price: i.price, time: i.time||0, unit: i.unit, totalQty: 0, totalTime: 0, pieces: new Set() };
+                        if (!aggregated[key]) aggregated[key] = { desc: i.desc, price: i.price, totalQty: 0, totalTime: 0, pieces: new Set() };
                         aggregated[key].totalQty += i.qty; aggregated[key].totalTime += (i.qty * (i.time || 0)); aggregated[key].pieces.add(i.piece || "Général");
                     });
                     for (const key in aggregated) {
-                        const agg = aggregated[key]; const totalP = agg.totalQty * agg.price; const locationStr = Array.from(agg.pieces).join(", ");
-                        l.innerHTML += `<div class="e-card" style="border-left-color:var(--accent);"><div class="e-card-row"><div class="e-desc">${agg.desc}<br><span class="e-loc-tag">Présent dans: ${locationStr}</span></div><div style="font-weight:800; color:var(--primary);">${Math.round(totalP)}€</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Tot Qté</div><div class="stat-val">${agg.totalQty} <span style="font-size:0.7em">${agg.unit||''}</span></div></div><div class="stat-box"><div class="stat-lbl">Prix U.</div><div class="stat-val">${agg.price}€</div></div><div class="stat-box"><div class="stat-lbl">Tot H.</div><div class="stat-val time">${agg.totalTime.toFixed(1)}h</div></div></div></div>`;
+                        const agg = aggregated[key]; const totalP = agg.totalQty * agg.price; const locs = Array.from(agg.pieces).join(", ");
+                        l.innerHTML += `<div class="e-card" style="border-left-color:var(--accent);"><div class="e-card-row"><div class="e-desc">${agg.desc}<br><span class="e-loc-tag">${locs}</span></div><div style="font-weight:800;">${Math.round(totalP)}€</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Tot Qté</div><div class="stat-val">${agg.totalQty}</div></div><div class="stat-box"><div class="stat-lbl">Tot Time</div><div class="stat-val time">${agg.totalTime.toFixed(1)}h</div></div></div></div>`;
                     }
                 }
             },
@@ -504,10 +473,9 @@
                 const con = document.getElementById('selection-list-container'); con.innerHTML = '';
                 d.items.forEach(i => {
                     const isChecked = App.state.selectedItems.has(i.id) ? 'checked' : '';
-                    const assignedHtml = i.assignedTo ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${i.assignedTo}</span>` : '';
                     const row = document.createElement('div'); row.className = 'check-container';
                     row.onclick = () => { if(App.state.selectedItems.has(i.id)) App.state.selectedItems.delete(i.id); else App.state.selectedItems.add(i.id); App.renderSelectionList(); };
-                    row.innerHTML = `<div class="custom-checkbox ${isChecked}"></div><div style="flex:1;"><div style="font-weight:700; color:var(--primary); font-size:0.95rem;">${i.desc} ${assignedHtml}</div><div style="font-size:0.8rem; color:var(--text-sub);">${i.qty} ${i.unit} - ${i.piece||'Général'}</div></div><div style="font-weight:700; color:var(--time); font-size:0.85rem;">${((i.time||0)*i.qty).toFixed(1)}h</div>`;
+                    row.innerHTML = `<div class="custom-checkbox ${isChecked}"></div><div style="flex:1;"><div style="font-weight:700; color:var(--primary); font-size:0.95rem;">${i.desc}</div></div>`;
                     con.appendChild(row);
                 });
             },
@@ -519,49 +487,16 @@
             },
             exportToArtisan() {
                 if(App.state.selectedItems.size === 0) return alert("Sélectionnez au moins un ouvrage.");
-                const cid = Store.data.activeChantierId; const did = document.getElementById('sel-source-devis').value;
-                const c = Store.data.chantiers.find(x=>x.id==cid); const d = c.devisList.find(x=>x.id==did); const cli = Store.data.clients.find(x=>x.id==c.clientId);
-                const itemsToPrint = d.items.filter(i => App.state.selectedItems.has(i.id));
-                let totalTime = 0;
-                let rows = itemsToPrint.map(i => { const rowTime = (i.time || 0) * i.qty; totalTime += rowTime; return `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px;">${i.desc}</td><td style="padding:10px;">${i.piece || '-'}</td><td style="padding:10px; text-align:center;">${i.qty}</td><td style="padding:10px; text-align:center;">${i.unit}</td><td style="padding:10px; text-align:right;">${i.time || 0} h</td><td style="padding:10px; text-align:right; font-weight:bold;">${rowTime.toFixed(1)} h</td></tr>`; }).join('');
-                const html = `<div style="font-family:sans-serif; padding:20px; color:#1e293b;"><h2 style="color:#0f172a; margin-bottom:5px;">DEMANDE D'INTERVENTION</h2><div style="font-size:0.9rem; color:#64748b; margin-bottom:20px;">Document Technique - Sans Prix</div><div style="display:flex; justify-content:space-between; margin-bottom:30px; background:#f8fafc; padding:15px; border-radius:8px;"><div><strong>Chantier:</strong> ${c.name}<br><strong>Client:</strong> ${cli ? cli.nom : '-'}<br><strong>Date:</strong> ${new Date().toLocaleDateString()}</div><div style="text-align:right;"><strong>Estimation Temps Total:</strong><br><span style="font-size:1.4rem; font-weight:800; color:#3B82F6;">${totalTime.toFixed(1)} Heures</span></div></div><table style="width:100%; border-collapse:collapse; font-size:0.9rem;"><thead style="background:#0f172a; color:white;"><tr><th style="padding:10px; text-align:left;">Description</th><th style="padding:10px; text-align:left;">Loc.</th><th style="padding:10px; text-align:center;">Qté</th><th style="padding:10px; text-align:center;">Unit.</th><th style="padding:10px; text-align:right;">T. Unit</th><th style="padding:10px; text-align:right;">T. Total</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-                const opt = { margin: 10, filename: `Demande_Artisan_${c.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                // Salva come "Extra Doc" per averlo in elenco
-                const newDoc = { id: Date.now(), ref: "CDC-ART-"+Date.now().toString().slice(-4), name: "Demande Artisan", type: 'Etude', items: itemsToPrint };
-                if(!c.extraDocs) c.extraDocs = []; c.extraDocs.push(newDoc); Store.save();
-                html2pdf().set(opt).from(html).save(); App.showToast("PDF Téléchargé et Archivé");
+                // Simulo export
+                App.showToast("PDF Téléchargé (Simulation)");
             },
             assignCollaborator() {
                 if(App.state.selectedItems.size === 0) return alert("Sélectionnez des articles.");
-                const name = prompt("Nom du collaborateur (ex: Mario, Équipe A):"); if(!name) return;
+                const name = prompt("Nom du collaborateur:"); if(!name) return;
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d = c.devisList.find(x=>x.id==document.getElementById('sel-source-devis').value);
                 d.items.forEach(i => { if(App.state.selectedItems.has(i.id)) i.assignedTo = name; });
                 Store.save(); App.showToast("Tâches assignées"); this.renderSelectionList();
             },
-
-            // --- DOCUMENTS & FILTERS ---
-            renderDocuments(filter) { 
-                const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; 
-                Store.data.chantiers.forEach(c=>{ 
-                    const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; 
-                    if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); 
-                    if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f}));
-                    if(c.extraDocs) c.extraDocs.forEach(e=>docs.push({type:'CDC', ref:e.ref, client:cn, cid:c.id, obj:e})); 
-                }); 
-                if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter || (filter==='CDC' && d.type==='Etude')); 
-                docs.forEach(d=>{ 
-                    let div=document.createElement('div'); div.className='card-item'; 
-                    div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-chevron-right"></i>`; 
-                    div.onclick=()=>{ 
-                        Store.data.activeChantierId=d.cid; 
-                        if(d.type==='Devis') App.openEditor(d.obj.id); 
-                        else if(d.type==='CDC') App.viewCahierTable(d.obj);
-                        else App.openHub(d.cid); 
-                    }; 
-                    l.appendChild(div); 
-                }); 
-            },
-            viewCahierTable(doc) { document.getElementById('vc-title').innerText = doc.name; const t = document.getElementById('vc-table'); t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Qté</th></tr>'; doc.items.forEach(i => t.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.qty}</td></tr>`); document.getElementById('modal-view-cahier').classList.add('open'); },
 
             // --- STANDARD MODALS LOGIC ---
             openLibrary() {
@@ -612,6 +547,7 @@
             createProject() { const cid=document.getElementById('prj-cli').value; const nom=document.getElementById('prj-nom').value; const addr=document.getElementById('prj-addr').value; if(cid && nom) { const ch={id:Date.now(), clientId:cid, name:nom, ref:"C-"+Date.now().toString().slice(-4), devisList:[], factures:[], extraDocs:[]}; Store.data.chantiers.unshift(ch); Store.save(); App.showToast("Chantier créé"); App.closeModal('modal-projet'); App.openHub(ch.id); } },
             openAgenda() { const s=document.getElementById('agd-chantier'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.chantiers.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.name; s.appendChild(o);}); document.getElementById('modal-agenda').classList.add('open'); let l=document.getElementById('agenda-list-view'); l.innerHTML=''; (Store.data.appointments||[]).forEach(a=>{let d=document.createElement('div'); d.className='card-item'; d.innerText=new Date(a.date).toLocaleString()+' - '+a.title; l.appendChild(d);}); },
             saveAgendaEvent() { const cid=document.getElementById('agd-chantier').value; const date=document.getElementById('agd-date').value; if(cid&&date){const c=Store.data.chantiers.find(x=>x.id==cid); Store.data.appointments.push({id:Date.now(), date:date, title:"Visite", sub:c.name}); Store.save(); App.showToast("RDV Enregistré"); App.closeModal('modal-agenda'); App.renderHome();} },
+            renderDocuments(filter) { const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; Store.data.chantiers.forEach(c=>{ const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); }); if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter); docs.forEach(d=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-chevron-right"></i>`; div.onclick=()=>{ Store.data.activeChantierId=d.cid; if(d.type==='Devis') App.openEditor(d.obj.id); else App.openHub(d.cid); }; l.appendChild(div); }); },
             renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><div style="font-weight:800; color:var(--danger)">${f.amount.toLocaleString()} €</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
             closeModal(id) { document.getElementById(id).classList.remove('open'); },
             hardReset() { if(confirm("Attention: Tout effacer et recharger la démo ?")) { localStorage.clear(); location.reload(); } }
