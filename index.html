@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA V70 ULTIMATE</title>
+    <title>QOTIA V71 FINAL</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        /* --- STILI CORE --- */
+        /* --- STILI CORE (INVARIATI) --- */
         :root {
             --primary: #0F172A;        
             --bg-body: #F8FAFC;        
@@ -159,7 +159,7 @@
 
     <main id="view-home" class="view-section active">
         <header class="mobile-header">
-            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v70</span></div>
+            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v71</span></div>
             <button style="background:none; border:none; font-size:1.2rem;" onclick="App.nav('settings')"><i class="fas fa-cog"></i></button>
         </header>
         <div class="home-fixed-area">
@@ -200,10 +200,9 @@
                 <div id="hub-devis-list"></div>
                 
                 <div class="section-separator">
-                    <span class="section-title">Ops & Cahier des Charges</span>
+                    <span class="section-title">Opérations</span>
                     <button class="action-create-btn" onclick="App.openSelectCDCModal()"><i class="fas fa-tasks"></i> Gérer</button>
                 </div>
-                <div id="hub-docs-list"></div>
                 
                 <div class="section-separator"><span class="section-title">Factures</span><button class="action-create-btn" onclick="App.openCreateInvoiceModal()"><i class="fas fa-euro-sign"></i> Facture</button></div>
                 <div id="hub-factures-list"></div>
@@ -234,6 +233,19 @@
         <button class="floating-fab" onclick="App.openLibrary()"><i class="fas fa-plus"></i></button>
     </main>
 
+    <main id="view-documents" class="view-section">
+        <header class="mobile-header"><div class="logo-text">ARCHIVES</div></header>
+        <div class="scroll-content">
+            <div style="display:flex;gap:10px;margin-bottom:20px; overflow-x:auto;">
+                <button class="action-create-btn" onclick="App.renderDocuments('all')">Tous</button>
+                <button class="action-create-btn" onclick="App.renderDocuments('Devis')">Devis</button>
+                <button class="action-create-btn" onclick="App.renderDocuments('Facture')">Factures</button>
+                <button class="action-create-btn" style="border-color:var(--time); color:var(--time);" onclick="App.renderDocuments('CDC')">CDC</button>
+            </div>
+            <div id="documents-list"></div>
+        </div>
+    </main>
+
     <main id="view-clients" class="view-section">
         <header class="mobile-header"><div class="logo-text">CLIENTS</div><button class="header-action-btn" onclick="App.openClientModal()">+</button></header>
         <div class="scroll-content"><input type="text" class="app-input" placeholder="Rechercher..." onkeyup="App.renderClients(this.value)"><div id="clients-list"></div></div>
@@ -244,7 +256,6 @@
         <div class="scroll-content" id="projects-list-full"></div>
     </main>
 
-    <main id="view-documents" class="view-section"><header class="mobile-header"><div class="logo-text">ARCHIVES</div></header><div class="scroll-content"><div style="display:flex;gap:10px;margin-bottom:20px;"><button class="action-create-btn" onclick="App.renderDocuments('all')">Tous</button><button class="action-create-btn" onclick="App.renderDocuments('Devis')">Devis</button><button class="action-create-btn" onclick="App.renderDocuments('Facture')">Factures</button></div><div id="documents-list"></div></div></main>
     <main id="view-factures-global" class="view-section"><header class="mobile-header"><button class="header-back-container" onclick="App.nav('home')"><i class="fas fa-chevron-left"></i> Accueil</button><div class="logo-text">À ENCAISSER</div><div style="width:40px"></div></header><div class="scroll-content" id="global-invoice-list"></div></main>
     
     <main id="view-settings" class="view-section"><header class="mobile-header"><div class="logo-text">RÉGLAGES</div></header><div class="scroll-content"><div class="card-item" onclick="App.hardReset()" style="border-color:var(--danger)"><div><b style="color:var(--danger)">Réinitialiser Tout</b><br><span style="font-size:0.8rem;color:#64748B">Recharger données démo</span></div><i class="fas fa-trash" style="color:var(--danger)"></i></div></div></main>
@@ -273,6 +284,8 @@
             <button class="btn-primary" style="flex:1;" onclick="App.assignCollaborator()"><i class="fas fa-user-check"></i> Assigner</button>
         </div>
     </div>
+    
+    <div id="modal-view-cahier" class="full-modal"><div class="modal-header"><h3 id="vc-title">...</h3><button class="header-back-container" style="font-size:1.2rem;" onclick="App.closeModal('modal-view-cahier')">×</button></div><div class="modal-body"><table style="width:100%; border-collapse:collapse;" id="vc-table"></table></div></div>
 
     <div id="modal-client" class="full-modal"><div class="modal-header"><h3>Nouveau Client</h3><button class="header-back-container" onclick="App.closeModal('modal-client')">×</button></div><div class="modal-body"><input type="hidden" id="cli-id"><div class="type-switch"><div class="type-option active" id="type-particulier" onclick="App.toggleClientType('particulier')">Particulier</div><div class="type-option" id="type-societe" onclick="App.toggleClientType('societe')">Société</div></div><input type="text" id="cli-nom" class="app-input" placeholder="Nom Complet"><div id="field-siret" style="display:none;"><input type="text" id="cli-siret" class="app-input" placeholder="TVA / SIRET"></div><input type="text" id="cli-addr" class="app-input" placeholder="Adresse"><input type="tel" id="cli-tel" class="app-input" placeholder="Téléphone"><input type="email" id="cli-email" class="app-input" placeholder="Email"></div><div class="modal-footer"><button class="btn-primary" onclick="App.saveClient()">ENREGISTRER</button></div></div>
     
@@ -290,7 +303,7 @@
         const Store = {
             data: { clients: [], chantiers: [], appointments: [] },
             init() { 
-                const s = localStorage.getItem('qotia_v70_ult'); 
+                const s = localStorage.getItem('qotia_v71_final'); 
                 if(s) this.data = JSON.parse(s); 
                 else this.seed(); 
             },
@@ -308,7 +321,7 @@
                     {
                         id: 101, clientId: 1, name: 'Rénovation Cuisine', ref: 'C-2401',
                         devisList: [{
-                            id: 5001, ref: 'D-2401', name: 'Rénov Complète', status: 'Validé', total: 4250,
+                            id: 5001, ref: 'D-2401', name: 'Rénov Complète', status: 'Validé', total: 4250, totalTime: 40,
                             items: [
                                 {id:1, desc:'Dépose meubles', qty:1, price:350, time:4, unit:'Forfait', piece:'Cuisine'},
                                 {id:2, desc:'Modif Plomberie', qty:1, price:450, time:3, unit:'Forfait', piece:'Cuisine'},
@@ -322,7 +335,7 @@
                     {
                         id: 102, clientId: 2, name: 'Plateau Bureaux', ref: 'C-2402',
                         devisList: [{
-                            id: 5002, ref: 'D-2402-A', name: 'Lot Électricité', status: 'Brouillon', total: 0,
+                            id: 5002, ref: 'D-2402-A', name: 'Lot Électricité', status: 'Brouillon', total: 0, totalTime: 20,
                             items: [
                                 {id:10, desc:'Tirage câbles RJ45', qty:250, price:2.5, time:0.1, unit:'ml', piece:'Open Space'},
                                 {id:11, desc:'Prises sol', qty:12, price:45, time:0.5, unit:'U', piece:'Open Space'},
@@ -338,10 +351,14 @@
                     {id: 2, date: `${tom}T10:00`, title: 'Signature', sub: 'SCI Horizon'}
                 ];
                 // Recalc totals
-                this.data.chantiers.forEach(c => c.devisList.forEach(d => { let t=0; d.items.forEach(i=>t+=i.qty*i.price); d.total=t; }));
+                this.data.chantiers.forEach(c => c.devisList.forEach(d => { 
+                    let t=0, ti=0; 
+                    d.items.forEach(i=>{t+=i.qty*i.price; ti+=i.qty*(i.time||0)}); 
+                    d.total=t; d.totalTime=ti;
+                }));
                 this.save();
             },
-            save() { localStorage.setItem('qotia_v70_ult', JSON.stringify(this.data)); }
+            save() { localStorage.setItem('qotia_v71_final', JSON.stringify(this.data)); }
         };
 
         const App = {
@@ -404,6 +421,15 @@
                 c.factures.forEach(f => { let div = document.createElement('div'); div.className='card-item'; div.style.borderLeft = f.paid ? '4px solid var(--success)' : '4px solid var(--danger)'; div.innerHTML=`<div class="card-info"><div class="card-title">${f.ref} <span style="font-weight:400; font-size:0.8em; color:var(--text-sub)">(${f.type})</span></div><div class="card-sub">${f.amount.toLocaleString()} €</div></div><div style="font-size:0.7rem; font-weight:700; color:${f.paid?'var(--success)':'var(--danger)'}">${f.paid?'PAYÉ':'À ENCAISSER'}</div>`; lf.appendChild(div); });
                 this.nav('hub');
             },
+            createNewDevis() {
+                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
+                const id = Date.now();
+                // Ensure all fields are initialized to prevent editor crashes
+                c.devisList.push({ id: id, ref: 'D-'+Math.floor(Math.random()*1000), name: 'Nouveau Devis', status:'Brouillon', items: [], total: 0, totalTime: 0 });
+                Store.save();
+                App.showToast("Devis créé");
+                App.openEditor(id);
+            },
 
             // --- EDITOR LOGIC (MUSK STYLE) ---
             openEditor(did) { 
@@ -426,7 +452,7 @@
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
                 let totP = 0; let totT = 0;
                 d.items.forEach(i => { totP += i.qty * i.price; totT += i.qty * (i.time || 0); });
-                d.total = totP; Store.save();
+                d.total = totP; d.totalTime = totT; Store.save();
                 document.getElementById('ed-total-price').innerText = Math.round(totP).toLocaleString() + ' €';
                 document.getElementById('ed-total-time').innerText = totT.toFixed(1) + ' h';
             },
@@ -500,7 +526,10 @@
                 let rows = itemsToPrint.map(i => { const rowTime = (i.time || 0) * i.qty; totalTime += rowTime; return `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px;">${i.desc}</td><td style="padding:10px;">${i.piece || '-'}</td><td style="padding:10px; text-align:center;">${i.qty}</td><td style="padding:10px; text-align:center;">${i.unit}</td><td style="padding:10px; text-align:right;">${i.time || 0} h</td><td style="padding:10px; text-align:right; font-weight:bold;">${rowTime.toFixed(1)} h</td></tr>`; }).join('');
                 const html = `<div style="font-family:sans-serif; padding:20px; color:#1e293b;"><h2 style="color:#0f172a; margin-bottom:5px;">DEMANDE D'INTERVENTION</h2><div style="font-size:0.9rem; color:#64748b; margin-bottom:20px;">Document Technique - Sans Prix</div><div style="display:flex; justify-content:space-between; margin-bottom:30px; background:#f8fafc; padding:15px; border-radius:8px;"><div><strong>Chantier:</strong> ${c.name}<br><strong>Client:</strong> ${cli ? cli.nom : '-'}<br><strong>Date:</strong> ${new Date().toLocaleDateString()}</div><div style="text-align:right;"><strong>Estimation Temps Total:</strong><br><span style="font-size:1.4rem; font-weight:800; color:#3B82F6;">${totalTime.toFixed(1)} Heures</span></div></div><table style="width:100%; border-collapse:collapse; font-size:0.9rem;"><thead style="background:#0f172a; color:white;"><tr><th style="padding:10px; text-align:left;">Description</th><th style="padding:10px; text-align:left;">Loc.</th><th style="padding:10px; text-align:center;">Qté</th><th style="padding:10px; text-align:center;">Unit.</th><th style="padding:10px; text-align:right;">T. Unit</th><th style="padding:10px; text-align:right;">T. Total</th></tr></thead><tbody>${rows}</tbody></table></div>`;
                 const opt = { margin: 10, filename: `Demande_Artisan_${c.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().set(opt).from(html).save(); App.showToast("PDF Téléchargé");
+                // Salva come "Extra Doc" per averlo in elenco
+                const newDoc = { id: Date.now(), ref: "CDC-ART-"+Date.now().toString().slice(-4), name: "Demande Artisan", type: 'Etude', items: itemsToPrint };
+                if(!c.extraDocs) c.extraDocs = []; c.extraDocs.push(newDoc); Store.save();
+                html2pdf().set(opt).from(html).save(); App.showToast("PDF Téléchargé et Archivé");
             },
             assignCollaborator() {
                 if(App.state.selectedItems.size === 0) return alert("Sélectionnez des articles.");
@@ -509,6 +538,30 @@
                 d.items.forEach(i => { if(App.state.selectedItems.has(i.id)) i.assignedTo = name; });
                 Store.save(); App.showToast("Tâches assignées"); this.renderSelectionList();
             },
+
+            // --- DOCUMENTS & FILTERS ---
+            renderDocuments(filter) { 
+                const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; 
+                Store.data.chantiers.forEach(c=>{ 
+                    const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; 
+                    if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); 
+                    if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f}));
+                    if(c.extraDocs) c.extraDocs.forEach(e=>docs.push({type:'CDC', ref:e.ref, client:cn, cid:c.id, obj:e})); 
+                }); 
+                if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter || (filter==='CDC' && d.type==='Etude')); 
+                docs.forEach(d=>{ 
+                    let div=document.createElement('div'); div.className='card-item'; 
+                    div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-chevron-right"></i>`; 
+                    div.onclick=()=>{ 
+                        Store.data.activeChantierId=d.cid; 
+                        if(d.type==='Devis') App.openEditor(d.obj.id); 
+                        else if(d.type==='CDC') App.viewCahierTable(d.obj);
+                        else App.openHub(d.cid); 
+                    }; 
+                    l.appendChild(div); 
+                }); 
+            },
+            viewCahierTable(doc) { document.getElementById('vc-title').innerText = doc.name; const t = document.getElementById('vc-table'); t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Qté</th></tr>'; doc.items.forEach(i => t.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.qty}</td></tr>`); document.getElementById('modal-view-cahier').classList.add('open'); },
 
             // --- STANDARD MODALS LOGIC ---
             openLibrary() {
@@ -559,7 +612,6 @@
             createProject() { const cid=document.getElementById('prj-cli').value; const nom=document.getElementById('prj-nom').value; const addr=document.getElementById('prj-addr').value; if(cid && nom) { const ch={id:Date.now(), clientId:cid, name:nom, ref:"C-"+Date.now().toString().slice(-4), devisList:[], factures:[], extraDocs:[]}; Store.data.chantiers.unshift(ch); Store.save(); App.showToast("Chantier créé"); App.closeModal('modal-projet'); App.openHub(ch.id); } },
             openAgenda() { const s=document.getElementById('agd-chantier'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.chantiers.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.name; s.appendChild(o);}); document.getElementById('modal-agenda').classList.add('open'); let l=document.getElementById('agenda-list-view'); l.innerHTML=''; (Store.data.appointments||[]).forEach(a=>{let d=document.createElement('div'); d.className='card-item'; d.innerText=new Date(a.date).toLocaleString()+' - '+a.title; l.appendChild(d);}); },
             saveAgendaEvent() { const cid=document.getElementById('agd-chantier').value; const date=document.getElementById('agd-date').value; if(cid&&date){const c=Store.data.chantiers.find(x=>x.id==cid); Store.data.appointments.push({id:Date.now(), date:date, title:"Visite", sub:c.name}); Store.save(); App.showToast("RDV Enregistré"); App.closeModal('modal-agenda'); App.renderHome();} },
-            renderDocuments(filter) { const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; Store.data.chantiers.forEach(c=>{ const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); }); if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter); docs.forEach(d=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-chevron-right"></i>`; div.onclick=()=>{ Store.data.activeChantierId=d.cid; if(d.type==='Devis') App.openEditor(d.obj.id); else App.openHub(d.cid); }; l.appendChild(div); }); },
             renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><div style="font-weight:800; color:var(--danger)">${f.amount.toLocaleString()} €</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
             closeModal(id) { document.getElementById(id).classList.remove('open'); },
             hardReset() { if(confirm("Attention: Tout effacer et recharger la démo ?")) { localStorage.clear(); location.reload(); } }
