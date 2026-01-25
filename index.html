@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA V73 FIX</title>
+    <title>QOTIA V74 TEAM</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        /* --- CORE STYLES --- */
+        /* --- STILI CORE --- */
         :root {
             --primary: #0F172A;        
             --bg-body: #F8FAFC;        
@@ -42,19 +42,15 @@
             padding-top: env(safe-area-inset-top);
         }
 
-        /* LAYOUT MANAGER */
+        /* LAYOUT */
         .view-section { 
-            display: none; 
-            flex-direction: column; 
-            height: 100%; 
-            width: 100%; 
+            display: none; flex-direction: column; height: 100%; width: 100%; 
             position: absolute; top: 0; left: 0; 
-            background: var(--bg-body); 
-            z-index: 10;
+            background: var(--bg-body); z-index: 10;
         }
         .view-section.active { display: flex; z-index: 20; }
         
-        /* HEADER (Standard) */
+        /* HEADER */
         .mobile-header { 
             flex-shrink: 0; height: var(--h-header); 
             background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
@@ -67,44 +63,21 @@
         .header-back-container { display: flex; align-items: center; gap: 5px; background: transparent; border: none; cursor: pointer; color: var(--primary); font-weight: 700; font-size: 0.9rem; padding: 10px 0; }
         .header-back-container i { font-size: 1.2rem; }
 
-        /* SCROLL CONTENT (Standard) */
         .scroll-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 120px; -webkit-overflow-scrolling: touch; }
 
-        /* --- EDITOR STYLES (FIXED LAYOUT) --- */
-        /* Questo assicura che l'editor abbia una struttura solida */
-        #view-editor {
-            display: none; 
-            flex-direction: column; 
-            height: 100%; 
-            background: #F8FAFC;
-        }
+        /* EDITOR FIXED LAYOUT */
+        #view-editor { display: none; flex-direction: column; height: 100%; background: #F8FAFC; }
         #view-editor.active { display: flex; }
+        .editor-header-musk { flex-shrink: 0; background: white; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; z-index: 30; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        #editor-list-container { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 140px; }
 
-        .editor-header-musk { 
-            flex-shrink: 0; /* IMPEDISCE ALL'HEADER DI RESTIRINGERSI O ESSERE COPERTO */
-            background: white; 
-            border-bottom: 1px solid var(--border); 
-            display: flex; 
-            flex-direction: column;
-            z-index: 30;
-            position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        #editor-list-container {
-            flex: 1; /* RIEMPIE LO SPAZIO RIMANENTE */
-            overflow-y: auto; /* SCROLLA SOLO QUESTO CONTENITORE */
-            padding: 20px;
-            padding-bottom: 140px; /* Spazio extra per il bottone FAB */
-        }
-
+        /* COMPONENTS */
         .client-badge { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
         .project-title { font-size: 1.2rem; font-weight: 900; color: var(--primary); margin-top: 2px; }
         .kpi-row { display: flex; gap: 15px; margin-top: 10px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; }
         .kpi-box { flex: 1; background: #F8FAFC; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid #E2E8F0; }
         .kpi-label { font-size: 0.65rem; color: #64748B; font-weight: 700; text-transform: uppercase; }
         .kpi-val { font-size: 1.1rem; font-weight: 800; }
-        
         .view-toggle { display: flex; padding: 10px 20px; gap: 10px; background: white; }
         .toggle-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #F1F5F9; color: #64748B; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
         .toggle-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 5px rgba(15,23,42,0.2); }
@@ -125,14 +98,12 @@
         
         .floating-fab { position: fixed; bottom: 110px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; font-size: 1.6rem; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; transition: transform 0.1s; }
 
-        /* CARDS GENERALI */
         .card-item { background: white; padding: 18px; margin-bottom: 12px; border-radius: 14px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-card); }
         .card-info { flex: 1; }
         .card-title { font-weight: 800; font-size: 1.05rem; color: var(--primary); margin-bottom: 4px; }
         .card-sub { font-size: 0.9rem; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
         .card-tag { font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: #E2E8F0; color: #475569; display: inline-block; margin-bottom: 4px; }
         
-        /* HOME */
         .home-fixed-area { background: var(--bg-body); padding: 10px 20px 20px 20px; z-index: 40; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .welcome-block { margin-bottom: 15px; }
         .welcome-name { font-size: 1.8rem; font-weight: 900; color: var(--primary); margin: 0; }
@@ -143,20 +114,17 @@
         .btn-chantier i { color: #D97706; font-size: 1.8rem; margin-bottom: 5px; }
         .btn-client i { color: #2563EB; font-size: 1.8rem; margin-bottom: 5px; }
 
-        /* HUB */
         .hub-header-card { background: white; padding: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
         .section-separator { display: flex; align-items: center; justify-content: space-between; margin-top: 25px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #E2E8F0; }
         .section-title { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
         .action-create-btn { background: white; color: var(--primary); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; cursor: pointer; }
 
-        /* SELECTION LIST (OPS) */
         .check-container { display: flex; align-items: center; padding: 12px; background: white; border-bottom: 1px solid #F1F5F9; cursor: pointer; }
         .custom-checkbox { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; margin-right: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .custom-checkbox.checked { background: var(--primary); border-color: var(--primary); }
         .custom-checkbox.checked::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: white; font-size: 0.8rem; }
         .assigned-badge { background: #DCFCE7; color: #166534; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 5px; display: inline-flex; align-items: center; gap: 4px; }
 
-        /* NAV & MODALS */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--h-nav); background: white; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); z-index: 1000; align-items: flex-start; padding-top: 14px; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94A3B8; background: transparent; border: none; font-size: 0.7rem; font-weight: 600; gap: 5px; cursor: pointer; }
         .nav-btn.active { color: var(--primary); }
@@ -185,7 +153,7 @@
 
     <main id="view-home" class="view-section active">
         <header class="mobile-header">
-            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v72</span></div>
+            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v74</span></div>
             <button style="background:none; border:none; font-size:1.2rem;" onclick="App.nav('settings')"><i class="fas fa-cog"></i></button>
         </header>
         <div class="home-fixed-area">
@@ -253,7 +221,6 @@
             </div>
         </div>
         <div id="editor-list-container"></div>
-        
         <button class="floating-fab" onclick="App.openLibrary()"><i class="fas fa-plus"></i></button>
     </main>
 
@@ -282,7 +249,17 @@
 
     <main id="view-factures-global" class="view-section"><header class="mobile-header"><button class="header-back-container" onclick="App.nav('home')"><i class="fas fa-chevron-left"></i> Accueil</button><div class="logo-text">À ENCAISSER</div><div style="width:40px"></div></header><div class="scroll-content" id="global-invoice-list"></div></main>
     
-    <main id="view-settings" class="view-section"><header class="mobile-header"><div class="logo-text">RÉGLAGES</div></header><div class="scroll-content"><div class="card-item" onclick="App.hardReset()" style="border-color:var(--danger)"><div><b style="color:var(--danger)">Réinitialiser Tout</b><br><span style="font-size:0.8rem;color:#64748B">Recharger données démo</span></div><i class="fas fa-trash" style="color:var(--danger)"></i></div></div></main>
+    <main id="view-settings" class="view-section">
+        <header class="mobile-header"><div class="logo-text">RÉGLAGES</div></header>
+        <div class="scroll-content">
+            <div class="section-title">Équipe & Partenaires</div>
+            <div id="settings-partners-list" style="margin-bottom:20px;"></div>
+            <button class="card-item" style="width:100%; justify-content:center; color:var(--primary); font-weight:700;" onclick="App.openPartnerModal()">+ Ajouter un Partenaire</button>
+            
+            <div class="section-title" style="margin-top:30px;">Application</div>
+            <div class="card-item" onclick="App.hardReset()" style="border-color:var(--danger)"><div><b style="color:var(--danger)">Réinitialiser Tout</b></div><i class="fas fa-trash" style="color:var(--danger)"></i></div>
+        </div>
+    </main>
 
     <nav class="bottom-nav">
         <button class="nav-btn active" onclick="App.nav('home')" id="nav-home"><i class="fas fa-home"></i><span>Accueil</span></button>
@@ -292,31 +269,44 @@
         <button class="nav-btn" onclick="App.nav('settings')" id="nav-settings"><i class="fas fa-cog"></i><span>Param.</span></button>
     </nav>
 
+    <div id="modal-partner" class="full-modal">
+        <div class="modal-header"><h3>Nouveau Partenaire</h3><button class="header-back-container" onclick="App.closeModal('modal-partner')">×</button></div>
+        <div class="modal-body">
+            <label style="font-weight:700;">Nom ou Raison Sociale</label>
+            <input type="text" id="ptn-name" class="app-input" placeholder="ex: Mario Rossi">
+            <label style="font-weight:700;">Rôle</label>
+            <select id="ptn-role" class="app-input">
+                <option value="Collaborateur">Collaborateur (Interne)</option>
+                <option value="Artisan">Artisan (Externe)</option>
+            </select>
+        </div>
+        <div class="modal-footer"><button class="btn-primary" onclick="App.savePartner()">ENREGISTRER</button></div>
+    </div>
+
     <div id="modal-select-cdc" class="full-modal">
-        <div class="modal-header"><h3>Opérations Ouvrages</h3><button class="header-back-container" style="font-size:1.2rem;" onclick="App.closeModal('modal-select-cdc')">×</button></div>
+        <div class="modal-header"><h3>Opérations Ouvrages</h3><button class="header-back-container" onclick="App.closeModal('modal-select-cdc')">×</button></div>
         <div class="modal-body">
             <label style="font-weight:700; margin-bottom:10px; display:block;">Source Devis</label>
             <select id="sel-source-devis" class="app-input" onchange="App.renderSelectionList()"></select>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <label style="font-weight:700; color:var(--text-sub);">Sélectionner les articles</label>
+                <label style="font-weight:700; color:var(--text-sub);">Sélectionner</label>
                 <button style="border:none; background:none; color:var(--primary); font-weight:700;" onclick="App.selectAllItems()">Tout</button>
             </div>
             <div id="selection-list-container" style="background:white; border-radius:12px; border:1px solid var(--border); overflow:hidden;"></div>
         </div>
-        <div class="modal-footer">
-            <button class="btn-primary" style="flex:1; background:#FFF; color:var(--primary); border:2px solid var(--primary);" onclick="App.exportToArtisan()"><i class="fas fa-file-pdf"></i> PDF Art.</button>
-            <button class="btn-primary" style="flex:1;" onclick="App.assignCollaborator()"><i class="fas fa-user-check"></i> Assigner</button>
+        <div class="modal-footer" style="flex-direction:column; gap:10px;">
+            <div style="display:flex; gap:10px; width:100%;">
+                <select id="cdc-assignee" class="app-input" style="flex:1; margin:0; font-size:0.9rem; padding:0 10px;"></select>
+                <button class="btn-primary" style="flex:1;" onclick="App.assignCollaborator()"><i class="fas fa-check"></i> Assigner</button>
+            </div>
+            <button class="btn-primary" style="background:#FFF; color:var(--primary); border:2px solid var(--primary); width:100%;" onclick="App.exportToArtisan()"><i class="fas fa-file-pdf"></i> PDF Art.</button>
         </div>
     </div>
     
-    <div id="modal-view-cahier" class="full-modal"><div class="modal-header"><h3 id="vc-title">...</h3><button class="header-back-container" style="font-size:1.2rem;" onclick="App.closeModal('modal-view-cahier')">×</button></div><div class="modal-body"><table style="width:100%; border-collapse:collapse;" id="vc-table"></table></div></div>
-
+    <div id="modal-view-cahier" class="full-modal"><div class="modal-header"><h3 id="vc-title">...</h3><button class="header-back-container" onclick="App.closeModal('modal-view-cahier')">×</button></div><div class="modal-body"><table style="width:100%; border-collapse:collapse;" id="vc-table"></table></div></div>
     <div id="modal-client" class="full-modal"><div class="modal-header"><h3>Nouveau Client</h3><button class="header-back-container" onclick="App.closeModal('modal-client')">×</button></div><div class="modal-body"><input type="hidden" id="cli-id"><div class="type-switch"><div class="type-option active" id="type-particulier" onclick="App.toggleClientType('particulier')">Particulier</div><div class="type-option" id="type-societe" onclick="App.toggleClientType('societe')">Société</div></div><input type="text" id="cli-nom" class="app-input" placeholder="Nom Complet"><div id="field-siret" style="display:none;"><input type="text" id="cli-siret" class="app-input" placeholder="TVA / SIRET"></div><input type="text" id="cli-addr" class="app-input" placeholder="Adresse"><input type="tel" id="cli-tel" class="app-input" placeholder="Téléphone"><input type="email" id="cli-email" class="app-input" placeholder="Email"></div><div class="modal-footer"><button class="btn-primary" onclick="App.saveClient()">ENREGISTRER</button></div></div>
-    
     <div id="modal-library" class="full-modal"><div class="modal-header"><h3>Bibliothèque</h3><button class="header-back-container" onclick="App.closeModal('modal-library')">×</button></div><div class="modal-body"><div style="background:#FFF; border:2px solid var(--primary); padding:10px; border-radius:12px; margin-bottom:15px;"><label style="font-size:0.8rem; font-weight:700; color:var(--text-sub);">Ajouter dans la pièce :</label><select id="lib-target-piece" class="app-input" style="margin:0; height:40px; border:none; font-weight:800; color:var(--primary); padding:0;"></select><input type="text" id="lib-new-piece" placeholder="Nouvelle Pièce..." class="app-input" style="margin-top:5px; display:none; height:40px;"><div style="text-align:right; font-size:0.75rem; color:var(--accent); font-weight:700; cursor:pointer;" onclick="App.toggleNewPieceInput()">+ Créer nouvelle pièce</div></div><div id="lib-container"></div></div></div>
-    
     <div id="modal-edit-item" class="full-modal"><div class="modal-header"><h3>Modifier Article</h3><button class="header-back-container" onclick="App.closeModal('modal-edit-item')">×</button></div><div class="modal-body"><input type="hidden" id="edit-item-idx"><label style="font-weight:700; color:var(--text-sub);">Pièce</label><select id="edit-item-piece" class="app-input" style="font-weight:700;"></select><label style="font-weight:700; display:block; margin-bottom:8px;">Description</label><input type="text" id="edit-item-desc" class="app-input"><div style="display:flex; gap:15px;"><div style="flex:1"><label style="font-weight:700; display:block; margin-bottom:8px;">Qté</label><input type="number" id="edit-item-qty" class="app-input"></div><div style="flex:1"><label style="font-weight:700; display:block; margin-bottom:8px;">Unit.</label><input type="text" id="edit-item-unit" class="app-input" disabled style="background:#f1f5f9;"></div></div><div style="display:flex; gap:15px;"><div style="flex:1"><label style="font-weight:700; display:block; margin-bottom:8px;">Prix U.</label><input type="number" id="edit-item-price" class="app-input"></div><div style="flex:1"><label style="font-weight:700; display:block; margin-bottom:8px; color:#3B82F6;">Temps U.</label><input type="number" id="edit-item-time" class="app-input" style="border-color:#3B82F6; color:#3B82F6;"></div></div><button class="btn-primary" style="background:#fee2e2; color:#dc2626; margin-top:20px;" onclick="App.deleteItem()">SUPPRIMER LIGNE</button></div><div class="modal-footer"><button class="btn-primary" onclick="App.saveItemChanges()">CONFIRMER</button></div></div>
-    
     <div id="modal-projet" class="full-modal"><div class="modal-header"><h3>Nouveau Chantier</h3><button class="header-back-container" onclick="App.closeModal('modal-projet')">×</button></div><div class="modal-body"><div style="display:flex; gap:10px; margin-bottom:15px;"><select id="prj-cli" class="app-input" style="flex:1; margin:0;"></select><button onclick="App.openClientModal()" style="width:55px; border-radius:12px; border:2px solid var(--border); background:white; font-size:1.2rem;">+</button></div><input type="text" id="prj-nom" class="app-input" placeholder="Nom Chantier"><input type="text" id="prj-addr" class="app-input" placeholder="Lieu"></div><div class="modal-footer"><button class="btn-primary" onclick="App.createProject()">CRÉER</button></div></div>
     <div id="modal-agenda" class="full-modal"><div class="modal-header"><h3>Nouveau RDV</h3><button class="header-back-container" onclick="App.closeModal('modal-agenda')">×</button></div><div class="modal-body"><select id="agd-chantier" class="app-input"></select><input type="datetime-local" id="agd-date" class="app-input"><button class="btn-primary" onclick="App.saveAgendaEvent()">ENREGISTRER</button><div style="margin-top:30px; font-weight:800;">Prochains Événements</div><div id="agenda-list-view" style="margin-top:10px;"></div></div></div>
     <div id="modal-invoice" class="full-modal"><div class="modal-header"><h3>Créer Facture</h3><button class="header-back-container" onclick="App.closeModal('modal-invoice')">×</button></div><div class="modal-body"><label style="font-weight:700;">Depuis Devis:</label><select id="inv-devis-select" class="app-input" onchange="App.onInvoiceDevisChange()"></select><div style="background:#F1F5F9; padding:15px; border-radius:12px; text-align:center; margin-bottom:20px;"><div style="font-size:0.8rem; color:#64748B">Montant Devis</div><div style="font-size:1.4rem; font-weight:900;" id="inv-total-quote">0€</div></div><div style="display:flex; gap:10px; margin-bottom:15px;"><button id="btn-acompte" onclick="App.setInvType('acompte')" style="flex:1; height:45px; border-radius:10px; border:1px solid var(--border);">Acompte %</button><button id="btn-solde" onclick="App.setInvType('solde')" style="flex:1; height:45px; border-radius:10px; border:1px solid var(--border);">Solde</button></div><input type="number" id="inv-percent" class="app-input" value="30" onchange="App.calcInvPreview()"><div style="text-align:center; margin-top:20px;"><div>Montant Facture</div><div style="font-size:2rem; font-weight:900; color:var(--primary);" id="inv-preview-amount">0€</div></div></div><div class="modal-footer"><button class="btn-primary" onclick="App.generateInvoice()">CRÉER FACTURE</button></div></div>
@@ -325,14 +315,18 @@
         const Config = { LIB: { "Démolition": [{desc:"Dépose carrelage", unit:"m²", price:25, time:0.5}, {desc:"Evacuation gravats", unit:"forfait", price:150, time:2}], "Maçonnerie": [{desc:"Ragréage sol P3", unit:"m²", price:18, time:0.3}, {desc:"Chape ciment", unit:"m²", price:45, time:0.8}], "Plomberie": [{desc:"Pose WC Suspendu", unit:"U", price:450, time:4}, {desc:"Douche Italienne", unit:"U", price:1800, time:12}], "Peinture": [{desc:"Impression murs", unit:"m²", price:12, time:0.2}, {desc:"Peinture mate 2c", unit:"m²", price:22, time:0.3}], "Electricité": [{desc:"Prise courant", unit:"U", price:65, time:0.5}, {desc:"Tableau Elec", unit:"U", price:1200, time:8}] } };
         
         const Store = {
-            data: { clients: [], chantiers: [], appointments: [] },
+            data: { clients: [], chantiers: [], appointments: [], partners: [] },
             init() { 
-                const s = localStorage.getItem('qotia_v73'); 
+                const s = localStorage.getItem('qotia_v74'); 
                 if(s) this.data = JSON.parse(s); 
                 else this.seed(); 
             },
             seed() {
                 this.data.clients = [{id:1, type:'particulier', nom:'Jean Dupont', addr:'Nice', tel:'0611223344'}];
+                this.data.partners = [
+                    {id:1, name:'Mario Rossi (Interne)', role:'Collaborateur'},
+                    {id:2, name:'Ets Élec Azur', role:'Artisan'}
+                ];
                 this.data.chantiers = [{
                     id: 101, clientId: 1, name: 'Rénovation Cuisine', ref: 'C-2401',
                     devisList: [{ id: 5001, ref: 'D-2401', name: 'Rénov Complète', status: 'Validé', total: 4250, totalTime: 40, items: [{id:1, desc:'Dépose meubles', qty:1, price:350, time:4, unit:'Forfait', piece:'Cuisine'}, {id:2, desc:'Peinture', qty:25, price:28, time:0.5, unit:'m²', piece:'Cuisine'}]}],
@@ -341,7 +335,7 @@
                 this.data.appointments = [{id: 1, date: new Date().toISOString(), title: 'RDV Demo', sub: 'Jean Dupont'}];
                 this.save();
             },
-            save() { localStorage.setItem('qotia_v73', JSON.stringify(this.data)); }
+            save() { localStorage.setItem('qotia_v74', JSON.stringify(this.data)); }
         };
 
         const App = {
@@ -357,6 +351,7 @@
                 if(view==='projets') this.renderProjets();
                 if(view==='documents') this.renderDocuments('all');
                 if(view==='factures-global') this.renderGlobalInvoices();
+                if(view==='settings') this.renderSettings();
             },
             showToast(msg) {
                 const c = document.getElementById('toast-container');
@@ -364,6 +359,25 @@
                 c.appendChild(t); setTimeout(()=>t.classList.add('show'),10); setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},3000);
             },
             
+            // --- PARTNERS (SETTINGS) ---
+            renderSettings() {
+                const l = document.getElementById('settings-partners-list'); l.innerHTML = '';
+                if(!Store.data.partners) Store.data.partners = [];
+                if(Store.data.partners.length === 0) l.innerHTML = '<div style="text-align:center; color:#999; font-style:italic;">Aucun partenaire.</div>';
+                Store.data.partners.forEach(p => {
+                    const icon = p.role === 'Collaborateur' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-tools"></i>';
+                    l.innerHTML += `<div class="card-item"><div class="card-info"><div class="card-title">${icon} ${p.name}</div><div class="card-sub">${p.role}</div></div><i class="fas fa-trash" style="color:#CBD5E1; cursor:pointer;" onclick="App.deletePartner(${p.id})"></i></div>`;
+                });
+            },
+            openPartnerModal() { document.getElementById('ptn-name').value=''; document.getElementById('modal-partner').classList.add('open'); },
+            savePartner() {
+                const name = document.getElementById('ptn-name').value;
+                if(!name) return;
+                Store.data.partners.push({id:Date.now(), name:name, role:document.getElementById('ptn-role').value});
+                Store.save(); App.closeModal('modal-partner'); App.renderSettings();
+            },
+            deletePartner(id) { if(confirm("Supprimer ?")) { Store.data.partners = Store.data.partners.filter(p=>p.id!==id); Store.save(); App.renderSettings(); }},
+
             // --- RENDER FUNCTIONS ---
             renderHome() {
                 document.getElementById('home-date-display').innerText = new Date().toLocaleDateString('fr-FR');
@@ -374,13 +388,13 @@
                 const l = document.getElementById('clients-list'); l.innerHTML = '';
                 Store.data.clients.forEach(c => {
                     if(c.nom && c.nom.toLowerCase().includes(q.toLowerCase())) {
-                        l.innerHTML += `<div class="card-item"><div class="card-info" onclick="App.editClient(${c.id})"><div class="card-title">${c.nom}</div><div class="card-sub">${c.addr || '-'}</div></div><a href="tel:${c.tel}" class="header-action-btn" style="background:transparent; color:#15803d; box-shadow:none;"><i class="fas fa-phone" style="font-size:1.4rem"></i></a></div>`;
+                        l.innerHTML += `<div class="card-item"><div class="card-info" onclick="App.editClient(${c.id})"><div class="card-title">${c.nom}</div><div class="card-sub">${c.addr || '-'}</div></div><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.addr)}" target="_blank" class="header-action-btn" style="background:transparent; color:#2563EB; box-shadow:none;"><i class="fas fa-map-marked-alt" style="font-size:1.4rem"></i></a><a href="tel:${c.tel}" class="header-action-btn" style="background:transparent; color:#15803d; box-shadow:none;"><i class="fas fa-phone" style="font-size:1.4rem"></i></a></div>`;
                     }
                 });
             },
-            renderProjets() { const l = document.getElementById('projects-list-full'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { const cli = Store.data.clients.find(x=>x.id==c.clientId); l.innerHTML += `<div class="card-item" onclick="App.openHub(${c.id})"><div class="card-info"><span class="card-tag">${c.ref}</span><div class="card-title">${c.name}</div><div class="card-sub"><i class="fas fa-user"></i> ${cli?cli.nom:'?'}</div></div><i class="fas fa-chevron-right" style="color:#ccc"></i></div>`; }); },
+            renderProjets() { const l = document.getElementById('projects-list-full'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { const cli = Store.data.clients.find(x=>x.id==c.clientId); l.innerHTML += `<div class="card-item" onclick="App.openHub(${c.id})"><div class="card-info"><span class="card-tag">${c.ref}</span><div class="card-title">${c.name}</div><div class="card-sub"><i class="fas fa-user"></i> ${cli?cli.nom:'?'}</div></div><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.addr)}" target="_blank" class="header-action-btn" style="background:transparent; color:#2563EB; box-shadow:none; padding:0 10px;"><i class="fas fa-map-marked-alt" style="font-size:1.4rem"></i></a></div>`; }); },
             
-            // --- HUB & LOGIC ---
+            // --- HUB ---
             openHub(id) {
                 Store.data.activeChantierId = id; Store.save();
                 const c = Store.data.chantiers.find(x=>x.id==id); const cli = Store.data.clients.find(x=>x.id==c.clientId);
@@ -393,16 +407,17 @@
             },
             createNewDevis() {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
+                const defaultName = 'Devis #' + (c.devisList.length + 1);
+                const name = prompt("Nom du devis :", defaultName);
+                if (!name) return; // User cancelled
+                
                 const id = Date.now();
-                c.devisList.push({ id: id, ref: 'D-'+Math.floor(Math.random()*1000), name: 'Nouveau Devis', status:'Brouillon', items: [], total: 0, totalTime: 0 });
+                c.devisList.push({ id: id, ref: 'D-'+Math.floor(Math.random()*1000), name: name, status:'Brouillon', items: [], total: 0, totalTime: 0 });
                 Store.save(); App.showToast("Devis créé"); App.openEditor(id);
             },
 
-            // --- EDITOR LOGIC (FIXED BACK BUTTON & LAYOUT) ---
-            backToHub() {
-                if(Store.data.activeChantierId) App.openHub(Store.data.activeChantierId);
-                else App.nav('projets');
-            },
+            // --- EDITOR ---
+            backToHub() { if(Store.data.activeChantierId) App.openHub(Store.data.activeChantierId); else App.nav('projets'); },
             openEditor(did) { 
                 Store.data.activeDevisId = did; 
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
@@ -440,7 +455,8 @@
                         let html = `<div class="piece-section"><div class="piece-header"><div class="piece-title"><i class="fas fa-door-open"></i> ${piece}</div><span style="font-size:0.8rem; font-weight:700;">${items.length}</span></div>`;
                         items.forEach(i => {
                             let rowP = i.qty * i.price;
-                            html += `<div class="e-card" onclick="App.editDevisItem(${i.id})"><div class="e-card-row"><div class="e-desc">${i.desc}</div><div style="font-weight:800; color:var(--primary);">${Math.round(rowP)}€</div></div>
+                            const assigned = i.assignedTo ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${i.assignedTo}</span>` : '';
+                            html += `<div class="e-card" onclick="App.editDevisItem(${i.id})"><div class="e-card-row"><div class="e-desc">${i.desc} ${assigned}</div><div style="font-weight:800; color:var(--primary);">${Math.round(rowP)}€</div></div>
                             <div class="e-stats"><div class="stat-box"><div class="stat-lbl">Qté</div><div class="stat-val">${i.qty}</div></div><div class="stat-box"><div class="stat-lbl">Prix U.</div><div class="stat-val">${i.price}€</div></div><div class="stat-box"><div class="stat-lbl">Temps</div><div class="stat-val time">${i.time||0}h</div></div></div></div>`;
                         });
                         l.innerHTML += html + `</div>`;
@@ -465,6 +481,11 @@
                 const s = document.getElementById('sel-source-devis'); s.innerHTML='';
                 if(!c.devisList || c.devisList.length===0) return alert("Aucun devis disponible");
                 c.devisList.forEach(d => { s.innerHTML += `<option value="${d.id}">${d.name}</option>`; });
+                
+                // Populate Assignee Select
+                const sa = document.getElementById('cdc-assignee'); sa.innerHTML = '<option value="">Choisir un partenaire...</option>';
+                if(Store.data.partners) Store.data.partners.forEach(p => sa.innerHTML += `<option value="${p.name}">${p.name} (${p.role})</option>`);
+
                 App.state.selectedItems.clear(); document.getElementById('modal-select-cdc').classList.add('open'); this.renderSelectionList();
             },
             renderSelectionList() {
@@ -473,9 +494,10 @@
                 const con = document.getElementById('selection-list-container'); con.innerHTML = '';
                 d.items.forEach(i => {
                     const isChecked = App.state.selectedItems.has(i.id) ? 'checked' : '';
+                    const assignedHtml = i.assignedTo ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${i.assignedTo}</span>` : '';
                     const row = document.createElement('div'); row.className = 'check-container';
                     row.onclick = () => { if(App.state.selectedItems.has(i.id)) App.state.selectedItems.delete(i.id); else App.state.selectedItems.add(i.id); App.renderSelectionList(); };
-                    row.innerHTML = `<div class="custom-checkbox ${isChecked}"></div><div style="flex:1;"><div style="font-weight:700; color:var(--primary); font-size:0.95rem;">${i.desc}</div></div>`;
+                    row.innerHTML = `<div class="custom-checkbox ${isChecked}"></div><div style="flex:1;"><div style="font-weight:700; color:var(--primary); font-size:0.95rem;">${i.desc} ${assignedHtml}</div></div>`;
                     con.appendChild(row);
                 });
             },
@@ -492,7 +514,9 @@
             },
             assignCollaborator() {
                 if(App.state.selectedItems.size === 0) return alert("Sélectionnez des articles.");
-                const name = prompt("Nom du collaborateur:"); if(!name) return;
+                const name = document.getElementById('cdc-assignee').value;
+                if(!name) return alert("Sélectionnez un partenaire dans la liste.");
+                
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d = c.devisList.find(x=>x.id==document.getElementById('sel-source-devis').value);
                 d.items.forEach(i => { if(App.state.selectedItems.has(i.id)) i.assignedTo = name; });
                 Store.save(); App.showToast("Tâches assignées"); this.renderSelectionList();
