@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA V70 HYBRID</title>
+    <title>QOTIA V70 DATA</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        /* --- STILI ORIGINALI (NON TOCCATI) --- */
+        /* --- STILI ORIGINALI --- */
         :root {
             --primary: #0F172A;        
             --bg-body: #F8FAFC;        
@@ -147,7 +147,7 @@
         .toast { background: #1E293B; color: white; padding: 14px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; opacity: 0; transform: translateY(20px); transition: all 0.3s; margin-top: 10px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         .toast.show { opacity: 1; transform: translateY(0); }
 
-        /* --- NUOVI STILI PER EDITOR (Musk Style) --- */
+        /* --- STILI EDITOR (Musk Style) --- */
         .editor-header-musk { background: white; border-bottom: 1px solid var(--border); padding-bottom: 0; flex-shrink: 0; display:flex; flex-direction:column; }
         .client-badge { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
         .project-title { font-size: 1.2rem; font-weight: 900; color: var(--primary); margin-top: 2px; }
@@ -161,7 +161,6 @@
         .toggle-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #F1F5F9; color: #64748B; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
         .toggle-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 5px rgba(15,23,42,0.2); }
 
-        /* STILI CARTE EDITOR AVANZATO */
         .piece-section { margin-bottom: 20px; }
         .piece-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 5px; cursor: pointer; background: #F1F5F9; border-radius: 8px; margin-bottom: 10px; padding: 10px; }
         .piece-title { font-weight: 800; font-size: 1rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
@@ -299,7 +298,7 @@
 
     <main id="view-documents" class="view-section"><header class="mobile-header"><div class="logo-text">ARCHIVES</div></header><div class="scroll-content"><div style="display:flex;gap:10px;margin-bottom:20px;"><button class="action-create-btn" onclick="App.renderDocuments('all')">Tous</button><button class="action-create-btn" onclick="App.renderDocuments('Devis')">Devis</button><button class="action-create-btn" onclick="App.renderDocuments('Facture')">Factures</button></div><div id="documents-list"></div></div></main>
     <main id="view-factures-global" class="view-section"><header class="mobile-header"><button class="header-back-container" onclick="App.nav('home')"><i class="fas fa-chevron-left"></i> Accueil</button><div class="logo-text">À ENCAISSER</div><div style="width:40px"></div></header><div class="scroll-content" id="global-invoice-list"></div></main>
-    <main id="view-settings" class="view-section"><header class="mobile-header"><div class="logo-text">RÉGLAGES</div></header><div class="scroll-content"><div class="card-item" onclick="App.refreshApp()"><div><b>Rafraîchir App</b><br><span style="font-size:0.8rem;color:#64748B">Recharger l'interface</span></div><i class="fas fa-sync"></i></div><div class="card-item" onclick="App.hardReset()" style="border-color:var(--danger)"><div><b style="color:var(--danger)">Réinitialiser</b><br><span style="font-size:0.8rem;color:#64748B">Effacer toutes les données</span></div><i class="fas fa-trash" style="color:var(--danger)"></i></div></div></main>
+    <main id="view-settings" class="view-section"><header class="mobile-header"><div class="logo-text">RÉGLAGES</div></header><div class="scroll-content"><div class="card-item" onclick="App.refreshApp()"><div><b>Rafraîchir App</b><br><span style="font-size:0.8rem;color:#64748B">Recharger l'interface</span></div><i class="fas fa-sync"></i></div><div class="card-item" onclick="App.hardReset()" style="border-color:var(--danger)"><div><b style="color:var(--danger)">Réinitialiser</b><br><span style="font-size:0.8rem;color:#64748B">Effacer et recharger les données démo</span></div><i class="fas fa-trash" style="color:var(--danger)"></i></div></div></main>
 
     <nav class="bottom-nav">
         <button class="nav-btn active" onclick="App.nav('home')" id="nav-home"><i class="fas fa-home"></i><span>Accueil</span></button>
@@ -374,29 +373,102 @@
     <div id="modal-view-cahier" class="full-modal"><div class="modal-header"><h3 id="vc-title">...</h3><button class="header-back-container" style="font-size:1.2rem;" onclick="App.closeModal('modal-view-cahier')">×</button></div><div class="modal-body"><table style="width:100%; border-collapse:collapse;" id="vc-table"></table></div></div>
 
     <script>
-        // CONFIG con aggiunta TEMPO
+        // CONFIG
         const Config = { LIB: { "Démolition": [{desc:"Dépose carrelage", unit:"m²", price:25, time:0.5}, {desc:"Evacuation gravats", unit:"forfait", price:150, time:2}], "Maçonnerie": [{desc:"Ragréage sol P3", unit:"m²", price:18, time:0.3}, {desc:"Chape ciment", unit:"m²", price:45, time:0.8}], "Plomberie": [{desc:"Pose WC Suspendu", unit:"U", price:450, time:4}, {desc:"Douche Italienne", unit:"U", price:1800, time:12}], "Peinture": [{desc:"Impression murs", unit:"m²", price:12, time:0.2}, {desc:"Peinture mate 2c", unit:"m²", price:22, time:0.3}], "Electricité": [{desc:"Prise courant", unit:"U", price:65, time:0.5}, {desc:"Tableau Elec", unit:"U", price:1200, time:8}] } };
         
         const Store = {
             data: { clients: [], chantiers: [], appointments: [] },
-            init() { const s = localStorage.getItem('qotia_v70_hybrid'); if(s) this.data = JSON.parse(s); else this.seed(); },
+            init() { 
+                const s = localStorage.getItem('qotia_v70_pop'); 
+                if(s) this.data = JSON.parse(s); 
+                else this.seed(); 
+            },
             seed() {
+                // Generazione Dati Reali
                 this.data.clients = [
-                    {id:1, type:'particulier', nom:'Sophie Martin', addr:'12 Av. Jean Medecin, Nice', tel:'0611223344', email:'sophie@mail.com'},
-                    {id:2, type:'societe', nom:'Rossi Construction', siret:'123456789', addr:'5 Rue Longue, Menton', tel:'0499887766', email:'contact@rossi.com'}
+                    {id:1, type:'particulier', nom:'Jean Dupont', addr:'15 Promenade des Anglais, Nice', tel:'0612345678', email:'j.dupont@mail.com'},
+                    {id:2, type:'societe', nom:'SCI Horizon', siret:'888777666', addr:'22 Rue de France, Nice', tel:'0493000000', email:'contact@sci-horizon.fr'},
+                    {id:3, type:'particulier', nom:'Sophie Martin', addr:'5 Chemin du Fort, Antibes', tel:'0799887766', email:'smartin@test.com'}
                 ];
+
+                const today = new Date().toISOString().split('T')[0];
+                const tom = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+
                 this.data.chantiers = [
-                    {id:101, clientId:1, name:'Rénov Appt Nice', ref:'C-2301', devisList:[{id:1001, ref:'D-1001', name:'Peinture Générale', status:'Validé', total:4500, items:[{desc:'Impression murs', qty:100, price:12, time:0.2, piece:'Salon', unit:'m²'}, {desc:'Peinture mate 2c', qty:100, price:22, time:0.3, piece:'Salon', unit:'m²'}]}], factures:[{id:2001, ref:'FAC-001', type:'acompte', amount:1350, paid:true}], extraDocs:[]}
+                    {
+                        id: 101, clientId: 1, name: 'Rénovation Cuisine', ref: 'C-2401',
+                        devisList: [
+                            {
+                                id: 5001, ref: 'D-2401', name: 'Rénov Complète', status: 'Validé', total: 4250,
+                                items: [
+                                    {id:1, desc:'Dépose meubles', qty:1, price:350, time:4, unit:'Forfait', piece:'Cuisine'},
+                                    {id:2, desc:'Modif Plomberie', qty:1, price:450, time:3, unit:'Forfait', piece:'Cuisine'},
+                                    {id:3, desc:'Peinture Murs', qty:25, price:28, time:0.5, unit:'m²', piece:'Cuisine'},
+                                    {id:4, desc:'Pose Carrelage', qty:15, price:65, time:1.2, unit:'m²', piece:'Cuisine'}
+                                ]
+                            }
+                        ],
+                        factures: [
+                            {id: 901, ref: 'FAC-2401', type: 'acompte', amount: 1275, paid: true},
+                            {id: 902, ref: 'FAC-2402', type: 'solde', amount: 2975, paid: false}
+                        ],
+                        extraDocs: []
+                    },
+                    {
+                        id: 102, clientId: 2, name: 'Plateau Bureaux', ref: 'C-2402',
+                        devisList: [
+                            {
+                                id: 5002, ref: 'D-2402-A', name: 'Lot Électricité', status: 'Brouillon', total: 0,
+                                items: [
+                                    {id:10, desc:'Tirage câbles RJ45', qty:250, price:2.5, time:0.1, unit:'ml', piece:'Open Space'},
+                                    {id:11, desc:'Prises sol', qty:12, price:45, time:0.5, unit:'U', piece:'Open Space'},
+                                    {id:12, desc:'Tableau Principal', qty:1, price:1200, time:8, unit:'U', piece:'Local Tech'},
+                                    {id:13, desc:'Eclairage LED', qty:8, price:120, time:1, unit:'U', piece:'Bureau Dir'}
+                                ]
+                            }
+                        ],
+                        factures: [],
+                        extraDocs: []
+                    },
+                     {
+                        id: 103, clientId: 3, name: 'SDB Suite', ref: 'C-2403',
+                        devisList: [
+                             {
+                                id: 5003, ref: 'D-2403', name: 'Sanitaire', status: 'Brouillon', total: 0,
+                                items: [
+                                    {id:20, desc:'Pose WC Suspendu', qty:1, price:450, time:4, unit:'U', piece:'SDB 1'},
+                                    {id:21, desc:'Pose WC Suspendu', qty:1, price:450, time:4, unit:'U', piece:'SDB 2'},
+                                    {id:22, desc:'Douche Italienne', qty:1, price:1800, time:12, unit:'U', piece:'SDB 1'}
+                                ]
+                            }
+                        ],
+                        factures: [],
+                        extraDocs: []
+                    }
                 ];
-                const d = new Date().toISOString().split('T')[0];
-                this.data.appointments = [{id:1, date:`${d}T09:00`, title:'Visite Chantier', sub:'Sophie Martin'}];
+
+                this.data.appointments = [
+                    {id: 1, date: `${today}T09:30`, title: 'Démarrage', sub: 'Jean Dupont'},
+                    {id: 2, date: `${today}T14:00`, title: 'Relevé mesures', sub: 'Sophie Martin'},
+                    {id: 3, date: `${tom}T10:00`, title: 'Signature', sub: 'SCI Horizon'}
+                ];
+
+                // Recalc totals
+                this.data.chantiers.forEach(c => {
+                    c.devisList.forEach(d => {
+                        let tot = 0;
+                        d.items.forEach(i => tot += (i.qty * i.price));
+                        d.total = tot;
+                    });
+                });
+
                 this.save();
             },
-            save() { localStorage.setItem('qotia_v70_hybrid', JSON.stringify(this.data)); }
+            save() { localStorage.setItem('qotia_v70_pop', JSON.stringify(this.data)); }
         };
 
         const App = {
-            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces' }, // Added viewMode
+            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces' },
             init() { Store.init(); this.nav('home'); },
             nav(view) {
                 document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
@@ -417,7 +489,6 @@
                 c.appendChild(t); setTimeout(()=>t.classList.add('show'),10); setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},3000);
             },
             
-            // --- CORE ORIGINAL FUNCTIONS ---
             renderHome() {
                 const d = new Date(); document.getElementById('home-date-display').innerText = d.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
                 const l = document.getElementById('home-today-list'); l.innerHTML = '';
@@ -466,19 +537,18 @@
             },
             createNewDevis() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const newId = Date.now(); c.devisList.push({ id: newId, ref: 'D-'+Math.floor(Math.random()*1000), name: 'Devis #'+(c.devisList.length+1), status: 'Brouillon', items: [], total: 0 }); Store.save(); App.showToast("Devis créé"); App.openEditor(newId); },
             
-            // --- NEW EDITOR FUNCTIONS (MUSK LOGIC) ---
+            // --- NEW EDITOR FUNCTIONS ---
             openEditor(did) { 
                 Store.data.activeDevisId = did; 
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const cli = Store.data.clients.find(x=>x.id==c.clientId);
                 const d = c.devisList.find(x=>x.id==did);
 
-                // Set Header Info
                 document.getElementById('ed-client-name').innerText = cli ? cli.nom : 'Inconnu';
                 document.getElementById('ed-quote-name').innerText = c.name + " - " + d.name;
                 
                 this.nav('editor'); 
-                App.setEditorView('pieces'); // Default view
+                App.setEditorView('pieces'); 
                 App.calcTotals();
             },
 
@@ -507,7 +577,7 @@
                 if(d.items.length === 0) { l.innerHTML = '<div style="text-align:center; padding:40px; color:#94A3B8;"><i class="fas fa-box-open" style="font-size:2rem; margin-bottom:10px;"></i><br>Aucun article.<br>Utilisez + pour ajouter.</div>'; return; }
 
                 if (App.state.viewMode === 'pieces') {
-                    // --- VISTA PER PIECES (Original Logic with Headers) ---
+                    // GROUP BY PIECES
                     const grouped = {};
                     d.items.forEach(i => { const p = i.piece || "Zone Générale"; if(!grouped[p]) grouped[p]=[]; grouped[p].push(i); });
                     
@@ -529,11 +599,10 @@
                         l.innerHTML += html;
                     }
                 } else {
-                    // --- VISTA PER OUVRAGES (AGGREGAZIONE) ---
+                    // GROUP BY OUVRAGE (AGGREGATED)
                     const aggregated = {};
                     
                     d.items.forEach(i => {
-                        // Chiave univoca basata su descrizione e prezzo (per evitare di sommare cose diverse)
                         const key = i.desc + "_" + i.price;
                         if (!aggregated[key]) {
                             aggregated[key] = {
@@ -551,7 +620,6 @@
                         aggregated[key].pieces.add(i.piece || "Général");
                     });
 
-                    // Render degli aggregati
                     for (const key in aggregated) {
                         const agg = aggregated[key];
                         const totalP = agg.totalQty * agg.price;
@@ -576,14 +644,12 @@
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
                 
-                // Populate select with existing rooms
                 const rooms = new Set(d.items.map(i => i.piece).filter(Boolean));
                 const s = document.getElementById('lib-target-piece');
                 s.innerHTML = '<option value="Zone Générale">Zone Générale</option>';
                 rooms.forEach(r => s.innerHTML += `<option value="${r}">${r}</option>`);
                 ['Cuisine', 'SDB', 'Salon', 'Chambre'].forEach(r => { if(!rooms.has(r)) s.innerHTML += `<option value="${r}">${r}</option>`; });
                 
-                // Show items
                 const cont = document.getElementById('lib-container'); cont.innerHTML='';
                 for(let [k,v] of Object.entries(Config.LIB)) { 
                     let h=document.createElement('div'); h.innerHTML=`<div style="font-weight:800; margin-top:15px; margin-bottom:10px;">${k}</div>`; cont.appendChild(h); 
@@ -620,7 +686,6 @@
                 document.getElementById('edit-item-unit').value = item.unit || 'U';
                 document.getElementById('edit-item-time').value = item.time || 0;
                 
-                // Populate piece select for Edit
                 const rooms = new Set(d.items.map(i => i.piece).filter(Boolean));
                 const sel = document.getElementById('edit-item-piece');
                 sel.innerHTML = `<option value="${item.piece}">${item.piece}</option>`;
@@ -659,7 +724,7 @@
             renderDocuments(filter) { const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; Store.data.chantiers.forEach(c=>{ const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); }); if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter); docs.forEach(d=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-chevron-right"></i>`; div.onclick=()=>{ Store.data.activeChantierId=d.cid; if(d.type==='Devis') App.openEditor(d.obj.id); else App.openHub(d.cid); }; l.appendChild(div); }); },
             renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><div style="font-weight:800; color:var(--danger)">${f.amount.toLocaleString()} €</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
             refreshApp() { App.showToast("Rafraîchissement..."); setTimeout(()=>window.location.reload(),500); },
-            hardReset() { if(confirm("Tout effacer ?")) { localStorage.clear(); location.reload(); } }
+            hardReset() { if(confirm("Attention : Cela effacera toutes les données existantes pour recharger les données de démonstration. Continuer ?")) { localStorage.clear(); location.reload(); } }
         };
 
         window.onload = () => App.init();
