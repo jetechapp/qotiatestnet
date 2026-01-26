@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA V79 FINAL</title>
+    <title>QOTIA V80 STABLE</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -151,7 +151,7 @@
 
     <main id="view-home" class="view-section active">
         <header class="mobile-header">
-            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v79</span></div>
+            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v80</span></div>
             <button style="background:none; border:none; font-size:1.2rem;" onclick="App.nav('settings')"><i class="fas fa-cog"></i></button>
         </header>
         <div class="home-fixed-area">
@@ -315,7 +315,7 @@
         const Store = {
             data: { clients: [], chantiers: [], appointments: [], partners: [] },
             init() { 
-                const s = localStorage.getItem('qotia_v79_final'); 
+                const s = localStorage.getItem('qotia_v80'); 
                 if(s) this.data = JSON.parse(s); 
                 else this.seed(); 
             },
@@ -356,7 +356,7 @@
                 this.data.appointments = [ {id: 1, date: `${today}T09:30`, title: 'Démarrage', sub: 'Jean Dupont'}, {id: 2, date: `${today}T14:00`, title: 'Visite', sub: 'SCI Azurea'} ];
                 this.save();
             },
-            save() { localStorage.setItem('qotia_v79_final', JSON.stringify(this.data)); }
+            save() { localStorage.setItem('qotia_v80', JSON.stringify(this.data)); }
         };
 
         const App = {
@@ -441,11 +441,12 @@
                 Store.save(); App.showToast("Devis créé"); App.openEditor(id);
             },
 
-            // --- EDITOR & NAV FIX ---
+            // --- EDITOR & NAV FIX (CRUCIAL) ---
             backToHub() { 
                 if(Store.data.activeChantierId) {
                     App.openHub(Store.data.activeChantierId); 
                 } else if(Store.data.activeDevisId) {
+                    // Fallback se ID perso
                     const c = Store.data.chantiers.find(ch => ch.devisList.some(d => d.id == Store.data.activeDevisId));
                     if(c) App.openHub(c.id); else App.nav('projets');
                 } else {
@@ -455,6 +456,14 @@
             openEditor(did) { 
                 Store.data.activeDevisId = did; 
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
+                // FIX: Force re-link to current chantier if missing context
+                if(!c) {
+                     const found = Store.data.chantiers.find(ch => ch.devisList.some(d => d.id == did));
+                     if(found) {
+                         Store.data.activeChantierId = found.id;
+                         return App.openEditor(did); // Retry with correct ID
+                     }
+                }
                 const cli = Store.data.clients.find(x=>x.id==c.clientId);
                 const d = c.devisList.find(x=>x.id==did);
                 document.getElementById('ed-client-name').innerText = cli ? cli.nom : 'Inconnu';
@@ -598,12 +607,12 @@
                 const c = Store.data.chantiers.find(x=>x.id==cid); const d = c.devisList.find(x=>x.id==did); 
                 const itemsToPrint = d.items.filter(i => App.state.selectedItems.has(i.id));
                 
-                // SAVE ONLY
+                // SAVE ONLY - NO PDF
                 const newDoc = { id: Date.now(), ref: "CDC-"+Date.now().toString().slice(-4), name: "Cahier Charges", type: 'Etude', items: itemsToPrint };
                 if(!c.extraDocs) c.extraDocs = []; c.extraDocs.push(newDoc); Store.save();
                 
                 App.closeModal('modal-select-cdc');
-                App.openHub(c.id); // Refresh Hub UI
+                App.openHub(c.id); // Go back to Hub
                 App.showToast("Enregistré dans le dossier");
             },
             generateCDCPDF(docId) {
@@ -695,7 +704,7 @@
             openClientModal() { ['cli-id','cli-nom','cli-addr','cli-tel','cli-email','cli-siret'].forEach(k=>document.getElementById(k).value=''); App.toggleClientType('particulier'); document.getElementById('modal-client').classList.add('open'); },
             editClient(id) { const c = Store.data.clients.find(x=>x.id==id); document.getElementById('cli-id').value=c.id; document.getElementById('cli-nom').value=c.nom; document.getElementById('cli-addr').value=c.addr; document.getElementById('cli-tel').value=c.tel; document.getElementById('cli-email').value=c.email; document.getElementById('cli-siret').value = c.siret || ''; App.toggleClientType(c.type || 'particulier'); document.getElementById('modal-client').classList.add('open'); },
             
-            // --- FIX CLIENT SAVE REFRESH ---
+            // --- FIX CLIENT SAVE REFRESH (KEY FIX) ---
             saveClient() { 
                 const id = document.getElementById('cli-id').value; 
                 const type = App.state.tempClientType; 
@@ -706,11 +715,11 @@
                 App.showToast("Client enregistré"); 
                 App.closeModal('modal-client'); 
                 App.renderClients(); 
-                // INSTANT UPDATE OF PROJECT WIZARD SELECT
+                // KEY FIX: INSTANT UPDATE OF PROJECT WIZARD SELECT
                 if(document.getElementById('modal-projet').classList.contains('open')) {
                     const s = document.getElementById('prj-cli'); s.innerHTML='';
                     Store.data.clients.forEach(cl => { let o=document.createElement('option'); o.value=cl.id; o.text=cl.nom; s.appendChild(o); });
-                    s.value = c.id; 
+                    s.value = c.id; // Select new client
                 }
             },
             
