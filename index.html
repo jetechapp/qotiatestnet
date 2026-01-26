@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA V79 NAV FIX</title>
+    <title>QOTIA V79 FINAL</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -136,6 +136,9 @@
         .type-switch { display: flex; background: #E2E8F0; padding: 5px; border-radius: 14px; margin-bottom: 20px; }
         .type-option { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95rem; color: #64748B; border-radius: 10px; cursor: pointer; }
         .type-option.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        #modal-client { z-index: 6000 !important; }
+        #modal-projet { z-index: 5000; }
 
         #toast-container { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); z-index: 9000; pointer-events: none; width: 85%; }
         .toast { background: #1E293B; color: white; padding: 14px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; opacity: 0; transform: translateY(20px); transition: all 0.3s; margin-top: 10px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
@@ -282,7 +285,7 @@
                 <select id="cdc-assignee" class="app-input" style="flex:1; margin:0; font-size:0.9rem; padding:0 10px;"></select>
                 <button class="btn-primary" style="flex:1;" onclick="App.assignCollaborator()"><i class="fas fa-check"></i> Assigner</button>
             </div>
-            <button class="btn-primary" style="background:#FFF; color:var(--primary); border:2px solid var(--primary); width:100%;" onclick="App.exportToArtisan()"><i class="fas fa-file-pdf"></i> Générer & Sauvegarder CDC</button>
+            <button class="btn-primary" style="background:#FFF; color:var(--primary); border:2px solid var(--primary); width:100%;" onclick="App.saveCDC()"><i class="fas fa-save"></i> ENREGISTRER DANS LE DOSSIER</button>
         </div>
     </div>
     
@@ -312,7 +315,7 @@
         const Store = {
             data: { clients: [], chantiers: [], appointments: [], partners: [] },
             init() { 
-                const s = localStorage.getItem('qotia_v79'); 
+                const s = localStorage.getItem('qotia_v79_final'); 
                 if(s) this.data = JSON.parse(s); 
                 else this.seed(); 
             },
@@ -353,7 +356,7 @@
                 this.data.appointments = [ {id: 1, date: `${today}T09:30`, title: 'Démarrage', sub: 'Jean Dupont'}, {id: 2, date: `${today}T14:00`, title: 'Visite', sub: 'SCI Azurea'} ];
                 this.save();
             },
-            save() { localStorage.setItem('qotia_v79', JSON.stringify(this.data)); }
+            save() { localStorage.setItem('qotia_v79_final', JSON.stringify(this.data)); }
         };
 
         const App = {
@@ -589,19 +592,19 @@
                 if(App.state.selectedItems.size === d.items.length) App.state.selectedItems.clear(); else d.items.forEach(i => App.state.selectedItems.add(i.id));
                 this.renderSelectionList();
             },
-            exportToArtisan() {
+            saveCDC() {
                 if(App.state.selectedItems.size === 0) return alert("Sélectionnez au moins un ouvrage.");
                 const cid = Store.data.activeChantierId; const did = document.getElementById('sel-source-devis').value;
-                const c = Store.data.chantiers.find(x=>x.id==cid); const d = c.devisList.find(x=>x.id==did); const cli = Store.data.clients.find(x=>x.id==c.clientId);
+                const c = Store.data.chantiers.find(x=>x.id==cid); const d = c.devisList.find(x=>x.id==did); 
                 const itemsToPrint = d.items.filter(i => App.state.selectedItems.has(i.id));
                 
-                // Save CDC to Hub
+                // SAVE ONLY
                 const newDoc = { id: Date.now(), ref: "CDC-"+Date.now().toString().slice(-4), name: "Cahier Charges", type: 'Etude', items: itemsToPrint };
                 if(!c.extraDocs) c.extraDocs = []; c.extraDocs.push(newDoc); Store.save();
                 
                 App.closeModal('modal-select-cdc');
                 App.openHub(c.id); // Refresh Hub UI
-                App.generateCDCPDF(newDoc.id); // Generate PDF
+                App.showToast("Enregistré dans le dossier");
             },
             generateCDCPDF(docId) {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
@@ -630,12 +633,10 @@
                 Store.save(); App.showToast("Tâches assignées"); this.renderSelectionList();
             },
 
-            // --- SMART LIBRARY LOGIC (MODIFIED) ---
+            // --- SMART LIBRARY LOGIC ---
             openLibrary() {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
-                
-                // Smart Room Select
                 const rooms = new Set(d.items.map(i => i.piece).filter(Boolean));
                 ['Cuisine', 'SDB', 'Salon', 'Chambre'].forEach(r => rooms.add(r));
                 
@@ -664,7 +665,6 @@
                         let div=document.createElement('div'); div.className='card-item'; 
                         div.innerHTML = `<div class="card-info"><div class="card-title">${it.desc}</div><div class="card-sub">${it.price}€ / ${it.unit} (${it.time}h)</div></div><i class="fas fa-plus" style="color:var(--accent)"></i>`; 
                         div.onclick=()=>{ 
-                             // WORKFLOW OPTIMIZATION: Add -> Close -> Edit
                              const piece = document.getElementById('lib-target-piece').value;
                              const ch=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const dv=ch.devisList.find(x=>x.id==Store.data.activeDevisId); 
                              const newItem = {id:Date.now(), ...it, qty:0, price:it.price, time:it.time, piece:piece}; 
@@ -695,7 +695,7 @@
             openClientModal() { ['cli-id','cli-nom','cli-addr','cli-tel','cli-email','cli-siret'].forEach(k=>document.getElementById(k).value=''); App.toggleClientType('particulier'); document.getElementById('modal-client').classList.add('open'); },
             editClient(id) { const c = Store.data.clients.find(x=>x.id==id); document.getElementById('cli-id').value=c.id; document.getElementById('cli-nom').value=c.nom; document.getElementById('cli-addr').value=c.addr; document.getElementById('cli-tel').value=c.tel; document.getElementById('cli-email').value=c.email; document.getElementById('cli-siret').value = c.siret || ''; App.toggleClientType(c.type || 'particulier'); document.getElementById('modal-client').classList.add('open'); },
             
-            // --- FIX CLIENT SAVE REFRESH (KEY FIX) ---
+            // --- FIX CLIENT SAVE REFRESH ---
             saveClient() { 
                 const id = document.getElementById('cli-id').value; 
                 const type = App.state.tempClientType; 
@@ -706,12 +706,11 @@
                 App.showToast("Client enregistré"); 
                 App.closeModal('modal-client'); 
                 App.renderClients(); 
-                
-                // KEY FIX: INSTANT UPDATE OF PROJECT WIZARD SELECT
+                // INSTANT UPDATE OF PROJECT WIZARD SELECT
                 if(document.getElementById('modal-projet').classList.contains('open')) {
                     const s = document.getElementById('prj-cli'); s.innerHTML='';
                     Store.data.clients.forEach(cl => { let o=document.createElement('option'); o.value=cl.id; o.text=cl.nom; s.appendChild(o); });
-                    s.value = c.id; // Select new client
+                    s.value = c.id; 
                 }
             },
             
