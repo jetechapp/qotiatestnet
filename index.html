@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA V78 FINAL</title>
+    <title>QOTIA V79 NAV FIX</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -137,10 +137,6 @@
         .type-option { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95rem; color: #64748B; border-radius: 10px; cursor: pointer; }
         .type-option.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        /* Z-INDEX FIX PER MODALI SOVRAPPOSTI */
-        #modal-client { z-index: 6000 !important; }
-        #modal-projet { z-index: 5000; }
-
         #toast-container { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); z-index: 9000; pointer-events: none; width: 85%; }
         .toast { background: #1E293B; color: white; padding: 14px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; opacity: 0; transform: translateY(20px); transition: all 0.3s; margin-top: 10px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -152,7 +148,7 @@
 
     <main id="view-home" class="view-section active">
         <header class="mobile-header">
-            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v78</span></div>
+            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v79</span></div>
             <button style="background:none; border:none; font-size:1.2rem;" onclick="App.nav('settings')"><i class="fas fa-cog"></i></button>
         </header>
         <div class="home-fixed-area">
@@ -316,7 +312,7 @@
         const Store = {
             data: { clients: [], chantiers: [], appointments: [], partners: [] },
             init() { 
-                const s = localStorage.getItem('qotia_v78'); 
+                const s = localStorage.getItem('qotia_v79'); 
                 if(s) this.data = JSON.parse(s); 
                 else this.seed(); 
             },
@@ -337,7 +333,7 @@
                 this.data.chantiers = [
                     {
                         id: 101, clientId: 1, name: 'Rénovation Cuisine', ref: 'C-2401',
-                        devisList: [{ id: 5001, ref: 'D-2401', name: 'Rénov Complète', status: 'Validé', total: 0, totalTime: 0, items: [{id:1, desc:'Dépose meubles', qty:1, price:350, time:4, unit:'Forfait', piece:'Cuisine'}, {id:2, desc:'Peinture', qty:25, price:28, time:0.5, unit:'m²', piece:'Cuisine'}]}],
+                        devisList: [{ id: 5001, ref: 'D-2401', name: 'Rénov Complète', status: 'Validé', total: 4250, totalTime: 40, items: [{id:1, desc:'Dépose meubles', qty:1, price:350, time:4, unit:'Forfait', piece:'Cuisine'}, {id:2, desc:'Peinture', qty:25, price:28, time:0.5, unit:'m²', piece:'Cuisine'}]}],
                         factures: [{id: 901, ref: 'FAC-2401', type: 'acompte', amount: 1275, paid: true}], extraDocs: []
                     },
                     {
@@ -352,18 +348,12 @@
                     },
                     { id: 104, clientId: 4, name: 'Rafraîchissement T2', ref: 'C-2404', devisList: [], factures: [], extraDocs: [] }
                 ];
-                
-                // Recalc totals
                 this.data.chantiers.forEach(c => c.devisList.forEach(d => { let t=0, ti=0; d.items.forEach(i=>{t+=i.qty*i.price; ti+=i.qty*(i.time||0)}); d.total=t; d.totalTime=ti; }));
-                
                 const today = new Date().toISOString().split('T')[0];
-                this.data.appointments = [
-                    {id: 1, date: `${today}T09:30`, title: 'Démarrage', sub: 'Jean Dupont'},
-                    {id: 2, date: `${today}T14:00`, title: 'Visite', sub: 'SCI Azurea'}
-                ];
+                this.data.appointments = [ {id: 1, date: `${today}T09:30`, title: 'Démarrage', sub: 'Jean Dupont'}, {id: 2, date: `${today}T14:00`, title: 'Visite', sub: 'SCI Azurea'} ];
                 this.save();
             },
-            save() { localStorage.setItem('qotia_v78', JSON.stringify(this.data)); }
+            save() { localStorage.setItem('qotia_v79', JSON.stringify(this.data)); }
         };
 
         const App = {
@@ -448,8 +438,17 @@
                 Store.save(); App.showToast("Devis créé"); App.openEditor(id);
             },
 
-            // --- EDITOR ---
-            backToHub() { if(Store.data.activeChantierId) App.openHub(Store.data.activeChantierId); else App.nav('projets'); },
+            // --- EDITOR & NAV FIX ---
+            backToHub() { 
+                if(Store.data.activeChantierId) {
+                    App.openHub(Store.data.activeChantierId); 
+                } else if(Store.data.activeDevisId) {
+                    const c = Store.data.chantiers.find(ch => ch.devisList.some(d => d.id == Store.data.activeDevisId));
+                    if(c) App.openHub(c.id); else App.nav('projets');
+                } else {
+                    App.nav('projets');
+                }
+            },
             openEditor(did) { 
                 Store.data.activeDevisId = did; 
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
@@ -593,19 +592,18 @@
             exportToArtisan() {
                 if(App.state.selectedItems.size === 0) return alert("Sélectionnez au moins un ouvrage.");
                 const cid = Store.data.activeChantierId; const did = document.getElementById('sel-source-devis').value;
-                const c = Store.data.chantiers.find(x=>x.id==cid); const d = c.devisList.find(x=>x.id==did); 
+                const c = Store.data.chantiers.find(x=>x.id==cid); const d = c.devisList.find(x=>x.id==did); const cli = Store.data.clients.find(x=>x.id==c.clientId);
                 const itemsToPrint = d.items.filter(i => App.state.selectedItems.has(i.id));
                 
-                // Save to Archive
+                // Save CDC to Hub
                 const newDoc = { id: Date.now(), ref: "CDC-"+Date.now().toString().slice(-4), name: "Cahier Charges", type: 'Etude', items: itemsToPrint };
                 if(!c.extraDocs) c.extraDocs = []; c.extraDocs.push(newDoc); Store.save();
                 
                 App.closeModal('modal-select-cdc');
-                App.openHub(c.id); // Refresh Hub to show new doc
-                App.generateCDCPDF(newDoc.id); // Trigger PDF
+                App.openHub(c.id); // Refresh Hub UI
+                App.generateCDCPDF(newDoc.id); // Generate PDF
             },
             generateCDCPDF(docId) {
-                // Find doc in current chantier
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const doc = c.extraDocs.find(x=>x.id==docId);
                 const cli = Store.data.clients.find(x=>x.id==c.clientId);
@@ -621,7 +619,7 @@
                 
                 const element = document.createElement('div'); element.innerHTML = html; document.body.appendChild(element);
                 const opt = { margin: 10, filename: `CDC_${doc.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().set(opt).from(element).save().then(() => { document.body.removeChild(element); App.showToast("PDF CDC Généré"); });
+                html2pdf().set(opt).from(element).save().then(() => { document.body.removeChild(element); App.showToast("CDC Généré"); });
             },
             assignCollaborator() {
                 if(App.state.selectedItems.size === 0) return alert("Sélectionnez des articles.");
@@ -726,7 +724,7 @@
             createProject() { const cid=document.getElementById('prj-cli').value; const nom=document.getElementById('prj-nom').value; const addr=document.getElementById('prj-addr').value; if(cid && nom) { const ch={id:Date.now(), clientId:cid, name:nom, ref:"C-"+Date.now().toString().slice(-4), devisList:[], factures:[], extraDocs:[]}; Store.data.chantiers.unshift(ch); Store.save(); App.showToast("Chantier créé"); App.closeModal('modal-projet'); App.openHub(ch.id); } },
             openAgenda() { const s=document.getElementById('agd-chantier'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.chantiers.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.name; s.appendChild(o);}); document.getElementById('modal-agenda').classList.add('open'); let l=document.getElementById('agenda-list-view'); l.innerHTML=''; (Store.data.appointments||[]).forEach(a=>{let d=document.createElement('div'); d.className='card-item'; d.innerText=new Date(a.date).toLocaleString()+' - '+a.title; l.appendChild(d);}); },
             saveAgendaEvent() { const cid=document.getElementById('agd-chantier').value; const date=document.getElementById('agd-date').value; if(cid&&date){const c=Store.data.chantiers.find(x=>x.id==cid); Store.data.appointments.push({id:Date.now(), date:date, title:"Visite", sub:c.name}); Store.save(); App.showToast("RDV Enregistré"); App.closeModal('modal-agenda'); App.renderHome();} },
-            renderDocuments(filter) { const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; Store.data.chantiers.forEach(c=>{ const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); if(c.extraDocs) c.extraDocs.forEach(e=>docs.push({type:'CDC', ref:e.ref, client:cn, cid:c.id, obj:e})); }); if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter||(filter==='CDC'&&d.type==='Etude')); docs.forEach(d=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('${d.type.toLowerCase()}', ${d.obj.id})"></i>`; div.onclick=()=>{ Store.data.activeChantierId=d.cid; if(d.type==='Devis') App.openEditor(d.obj.id); else if(d.type==='CDC') App.viewCahierTable(d.obj); else App.openHub(d.cid); }; l.appendChild(div); }); },
+            renderDocuments(filter) { const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; Store.data.chantiers.forEach(c=>{ const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); if(c.extraDocs) c.extraDocs.forEach(e=>docs.push({type:'CDC', ref:e.ref, client:cn, cid:c.id, obj:e})); }); if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter||(filter==='CDC'&&d.type==='Etude')); docs.forEach(d=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); ${d.type==='CDC' ? `App.generateCDCPDF('${d.obj.id}')` : `App.generateGlobalPDF('${d.type.toLowerCase()}', ${d.obj.id})`}"></i>`; div.onclick=()=>{ Store.data.activeChantierId=d.cid; if(d.type==='Devis') App.openEditor(d.obj.id); else if(d.type==='CDC') App.viewCahierTable(d.obj); else App.openHub(d.cid); }; l.appendChild(div); }); },
             viewCahierTable(doc) { document.getElementById('vc-title').innerText = doc.name; const t = document.getElementById('vc-table'); t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Ass.</th></tr>'; doc.items.forEach(i => t.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; color:#15803d; font-weight:bold;">${i.assignedTo||'-'}</td></tr>`); document.getElementById('modal-view-cahier').classList.add('open'); },
             renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i><div style="font-weight:800; color:var(--danger)">${f.amount.toLocaleString()} €</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
             closeModal(id) { document.getElementById(id).classList.remove('open'); },
