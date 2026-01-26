@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA V77 PDF</title>
+    <title>QOTIA V78 FINAL</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -137,6 +137,10 @@
         .type-option { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95rem; color: #64748B; border-radius: 10px; cursor: pointer; }
         .type-option.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
+        /* Z-INDEX FIX PER MODALI SOVRAPPOSTI */
+        #modal-client { z-index: 6000 !important; }
+        #modal-projet { z-index: 5000; }
+
         #toast-container { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); z-index: 9000; pointer-events: none; width: 85%; }
         .toast { background: #1E293B; color: white; padding: 14px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; opacity: 0; transform: translateY(20px); transition: all 0.3s; margin-top: 10px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -148,7 +152,7 @@
 
     <main id="view-home" class="view-section active">
         <header class="mobile-header">
-            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v77</span></div>
+            <div class="logo-text"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.7em; opacity:0.6; font-weight:400;">v78</span></div>
             <button style="background:none; border:none; font-size:1.2rem;" onclick="App.nav('settings')"><i class="fas fa-cog"></i></button>
         </header>
         <div class="home-fixed-area">
@@ -189,6 +193,7 @@
                 <div id="hub-devis-list"></div>
                 
                 <div class="section-separator"><span class="section-title">Opérations</span><button class="action-create-btn" onclick="App.openSelectCDCModal()"><i class="fas fa-tasks"></i> Gérer</button></div>
+                <div id="hub-docs-list"></div>
                 
                 <div class="section-separator"><span class="section-title">Factures</span><button class="action-create-btn" onclick="App.openCreateInvoiceModal()"><i class="fas fa-euro-sign"></i> Facture</button></div>
                 <div id="hub-factures-list"></div>
@@ -281,7 +286,7 @@
                 <select id="cdc-assignee" class="app-input" style="flex:1; margin:0; font-size:0.9rem; padding:0 10px;"></select>
                 <button class="btn-primary" style="flex:1;" onclick="App.assignCollaborator()"><i class="fas fa-check"></i> Assigner</button>
             </div>
-            <button class="btn-primary" style="background:#FFF; color:var(--primary); border:2px solid var(--primary); width:100%;" onclick="App.exportToArtisan()"><i class="fas fa-file-pdf"></i> Générer PDF Cahier des Charges</button>
+            <button class="btn-primary" style="background:#FFF; color:var(--primary); border:2px solid var(--primary); width:100%;" onclick="App.exportToArtisan()"><i class="fas fa-file-pdf"></i> Générer & Sauvegarder CDC</button>
         </div>
     </div>
     
@@ -311,7 +316,7 @@
         const Store = {
             data: { clients: [], chantiers: [], appointments: [], partners: [] },
             init() { 
-                const s = localStorage.getItem('qotia_v77'); 
+                const s = localStorage.getItem('qotia_v78'); 
                 if(s) this.data = JSON.parse(s); 
                 else this.seed(); 
             },
@@ -347,12 +352,18 @@
                     },
                     { id: 104, clientId: 4, name: 'Rafraîchissement T2', ref: 'C-2404', devisList: [], factures: [], extraDocs: [] }
                 ];
+                
+                // Recalc totals
                 this.data.chantiers.forEach(c => c.devisList.forEach(d => { let t=0, ti=0; d.items.forEach(i=>{t+=i.qty*i.price; ti+=i.qty*(i.time||0)}); d.total=t; d.totalTime=ti; }));
+                
                 const today = new Date().toISOString().split('T')[0];
-                this.data.appointments = [ {id: 1, date: `${today}T09:30`, title: 'Démarrage', sub: 'Jean Dupont'}, {id: 2, date: `${today}T14:00`, title: 'Visite', sub: 'SCI Azurea'} ];
+                this.data.appointments = [
+                    {id: 1, date: `${today}T09:30`, title: 'Démarrage', sub: 'Jean Dupont'},
+                    {id: 2, date: `${today}T14:00`, title: 'Visite', sub: 'SCI Azurea'}
+                ];
                 this.save();
             },
-            save() { localStorage.setItem('qotia_v77', JSON.stringify(this.data)); }
+            save() { localStorage.setItem('qotia_v78', JSON.stringify(this.data)); }
         };
 
         const App = {
@@ -415,6 +426,13 @@
                     ld.innerHTML+=`<div class="card-item"><div class="card-info" onclick="App.openEditor(${d.id})"><div class="card-title">${d.name}</div><div class="card-sub">${(d.total||0).toLocaleString()} €</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('devis', ${d.id})"></i><i class="fas fa-pen" style="color:#CBD5E1; margin-left:10px;" onclick="App.openEditor(${d.id})"></i></div>`; 
                 });
                 
+                const lcdc = document.getElementById('hub-docs-list'); lcdc.innerHTML = '';
+                if(c.extraDocs) {
+                    c.extraDocs.forEach(doc => {
+                        lcdc.innerHTML += `<div class="card-item" style="border-left:4px solid var(--time)"><div class="card-info"><div class="card-title">${doc.name}</div><div class="card-sub">${doc.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateCDCPDF('${doc.id}')"></i></div>`;
+                    });
+                }
+
                 const lf = document.getElementById('hub-factures-list'); lf.innerHTML=''; 
                 c.factures.forEach(f => { 
                     lf.innerHTML+=`<div class="card-item" style="border-left:${f.paid?'4px solid var(--success)':'4px solid var(--danger)'}"><div class="card-info"><div class="card-title">${f.ref}</div><div class="card-sub">${f.amount}€</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i></div>`; 
@@ -488,7 +506,7 @@
                 }
             },
             
-            // --- GLOBAL PDF GENERATION (COMMERCIAL) ---
+            // --- COMMERCIAL PDF ---
             generateGlobalPDF(type, id) {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const cli = Store.data.clients.find(x=>x.id==c.clientId);
@@ -503,8 +521,6 @@
                     obj = c.factures.find(x=>x.id==id);
                     title = "FACTURE";
                     ref = obj.ref;
-                    // For invoices, we usually link to a devis, but here let's assume it's global or we just show the amount
-                    // Simplification: Print a summary invoice
                     items = [{desc: `Facture selon avancement (${obj.type})`, qty: 1, unit:'U', price: obj.amount}];
                 }
 
@@ -534,9 +550,7 @@
                             <div style="font-size:1.5rem; font-weight:900; color:#0f172a;">TOTAL A PAYER: ${totalTTC.toLocaleString()} €</div>
                         </div>
                         <div style="font-size:0.75rem; color:#94a3b8; text-align:center; border-top:1px solid #e2e8f0; padding-top:20px;">
-                            TVA non applicable, art. 293 B du CGI<br>
-                            Validité de l'offre : 30 jours.<br>
-                            IBAN: FR76 1234 5678 9012 3456 7890 123
+                            TVA non applicable, art. 293 B du CGI<br>Validité de l'offre : 30 jours.<br>IBAN: FR76 1234 5678 9012 3456 7890 123
                         </div>
                     </div>`;
 
@@ -545,7 +559,7 @@
                 App.showToast("PDF Téléchargé");
             },
 
-            // --- CDC & PDF ---
+            // --- CDC & PDF TECHNICAL ---
             openSelectCDCModal() {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const s = document.getElementById('sel-source-devis'); s.innerHTML='';
@@ -579,20 +593,35 @@
             exportToArtisan() {
                 if(App.state.selectedItems.size === 0) return alert("Sélectionnez au moins un ouvrage.");
                 const cid = Store.data.activeChantierId; const did = document.getElementById('sel-source-devis').value;
-                const c = Store.data.chantiers.find(x=>x.id==cid); const d = c.devisList.find(x=>x.id==did); const cli = Store.data.clients.find(x=>x.id==c.clientId);
+                const c = Store.data.chantiers.find(x=>x.id==cid); const d = c.devisList.find(x=>x.id==did); 
                 const itemsToPrint = d.items.filter(i => App.state.selectedItems.has(i.id));
+                
+                // Save to Archive
+                const newDoc = { id: Date.now(), ref: "CDC-"+Date.now().toString().slice(-4), name: "Cahier Charges", type: 'Etude', items: itemsToPrint };
+                if(!c.extraDocs) c.extraDocs = []; c.extraDocs.push(newDoc); Store.save();
+                
+                App.closeModal('modal-select-cdc');
+                App.openHub(c.id); // Refresh Hub to show new doc
+                App.generateCDCPDF(newDoc.id); // Trigger PDF
+            },
+            generateCDCPDF(docId) {
+                // Find doc in current chantier
+                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
+                const doc = c.extraDocs.find(x=>x.id==docId);
+                const cli = Store.data.clients.find(x=>x.id==c.clientId);
+                
                 let totalTime = 0;
-                let rows = itemsToPrint.map(i => { 
+                let rows = doc.items.map(i => { 
                     const rowTime = (i.time || 0) * i.qty; totalTime += rowTime;
                     const assigned = i.assignedTo ? `<br><span style="font-size:0.7em; color:#15803d; font-weight:bold;">Assigné: ${i.assignedTo}</span>` : '';
                     return `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px;">${i.desc} ${assigned}</td><td style="padding:10px;">${i.piece || '-'}</td><td style="padding:10px; text-align:center;">${i.qty}</td><td style="padding:10px; text-align:center;">${i.unit}</td><td style="padding:10px; text-align:right;">${i.time || 0} h</td><td style="padding:10px; text-align:right; font-weight:bold;">${rowTime.toFixed(1)} h</td></tr>`; 
                 }).join('');
-                const html = `<div style="font-family:sans-serif; padding:20px; color:#1e293b;"><h2 style="color:#0f172a; margin-bottom:5px;">CAHIER DES CHARGES</h2><div style="font-size:0.9rem; color:#64748b; margin-bottom:20px;">Document Technique - QOTIA</div><div style="display:flex; justify-content:space-between; margin-bottom:30px; background:#f8fafc; padding:15px; border-radius:8px;"><div><strong>Chantier:</strong> ${c.name}<br><strong>Client:</strong> ${cli ? cli.nom : '-'}<br><strong>Date:</strong> ${new Date().toLocaleDateString()}</div><div style="text-align:right;"><strong>Estimation Temps Total:</strong><br><span style="font-size:1.4rem; font-weight:800; color:#3B82F6;">${totalTime.toFixed(1)} Heures</span></div></div><table style="width:100%; border-collapse:collapse; font-size:0.9rem;"><thead style="background:#0f172a; color:white;"><tr><th style="padding:10px; text-align:left;">Description</th><th style="padding:10px; text-align:left;">Loc.</th><th style="padding:10px; text-align:center;">Qté</th><th style="padding:10px; text-align:center;">Unit.</th><th style="padding:10px; text-align:right;">T. Unit</th><th style="padding:10px; text-align:right;">T. Total</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-                const newDoc = { id: Date.now(), ref: "CDC-"+Date.now().toString().slice(-4), name: "CDC Export", type: 'Etude', items: itemsToPrint };
-                if(!c.extraDocs) c.extraDocs = []; c.extraDocs.push(newDoc); Store.save();
+                
+                const html = `<div style="font-family:sans-serif; padding:20px; color:#1e293b;"><h2 style="color:#0f172a; margin-bottom:5px;">CAHIER DES CHARGES</h2><div style="font-size:0.9rem; color:#64748b; margin-bottom:20px;">${doc.ref} - Document Technique</div><div style="display:flex; justify-content:space-between; margin-bottom:30px; background:#f8fafc; padding:15px; border-radius:8px;"><div><strong>Chantier:</strong> ${c.name}<br><strong>Client:</strong> ${cli ? cli.nom : '-'}<br><strong>Date:</strong> ${new Date().toLocaleDateString()}</div><div style="text-align:right;"><strong>Estimation Temps Total:</strong><br><span style="font-size:1.4rem; font-weight:800; color:#3B82F6;">${totalTime.toFixed(1)} Heures</span></div></div><table style="width:100%; border-collapse:collapse; font-size:0.9rem;"><thead style="background:#0f172a; color:white;"><tr><th style="padding:10px; text-align:left;">Description</th><th style="padding:10px; text-align:left;">Loc.</th><th style="padding:10px; text-align:center;">Qté</th><th style="padding:10px; text-align:center;">Unit.</th><th style="padding:10px; text-align:right;">T. Unit</th><th style="padding:10px; text-align:right;">T. Total</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+                
                 const element = document.createElement('div'); element.innerHTML = html; document.body.appendChild(element);
-                const opt = { margin: 10, filename: `CDC_${c.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().set(opt).from(element).save().then(() => { document.body.removeChild(element); App.showToast("PDF Généré & Archivé"); });
+                const opt = { margin: 10, filename: `CDC_${doc.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                html2pdf().set(opt).from(element).save().then(() => { document.body.removeChild(element); App.showToast("PDF CDC Généré"); });
             },
             assignCollaborator() {
                 if(App.state.selectedItems.size === 0) return alert("Sélectionnez des articles.");
@@ -668,7 +697,7 @@
             openClientModal() { ['cli-id','cli-nom','cli-addr','cli-tel','cli-email','cli-siret'].forEach(k=>document.getElementById(k).value=''); App.toggleClientType('particulier'); document.getElementById('modal-client').classList.add('open'); },
             editClient(id) { const c = Store.data.clients.find(x=>x.id==id); document.getElementById('cli-id').value=c.id; document.getElementById('cli-nom').value=c.nom; document.getElementById('cli-addr').value=c.addr; document.getElementById('cli-tel').value=c.tel; document.getElementById('cli-email').value=c.email; document.getElementById('cli-siret').value = c.siret || ''; App.toggleClientType(c.type || 'particulier'); document.getElementById('modal-client').classList.add('open'); },
             
-            // --- FIX CLIENT SAVE REFRESH ---
+            // --- FIX CLIENT SAVE REFRESH (KEY FIX) ---
             saveClient() { 
                 const id = document.getElementById('cli-id').value; 
                 const type = App.state.tempClientType; 
@@ -680,7 +709,7 @@
                 App.closeModal('modal-client'); 
                 App.renderClients(); 
                 
-                // UPDATE PROJECT WIZARD IF OPEN
+                // KEY FIX: INSTANT UPDATE OF PROJECT WIZARD SELECT
                 if(document.getElementById('modal-projet').classList.contains('open')) {
                     const s = document.getElementById('prj-cli'); s.innerHTML='';
                     Store.data.clients.forEach(cl => { let o=document.createElement('option'); o.value=cl.id; o.text=cl.nom; s.appendChild(o); });
