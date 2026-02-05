@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA CLOUD V7.24 - STABLE</title>
+    <title>QOTIA CLOUD V7.25 - VOICE FIX</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -412,12 +412,12 @@
     </div>
 
     <div id="modal-voice-choice" class="full-modal" style="z-index: 9000; height: auto; bottom: 0; top: auto; border-radius: 20px 20px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.2);">
-        <div class="modal-header" style="border-radius: 20px 20px 0 0;">
+        <div class="modal-header" style="border-radius: 20px 20px 0 0; background: #F8FAFC; border-bottom: none;">
             <h3>Choisir l'article</h3>
-            <button class="header-back-container" onclick="App.closeModal('modal-voice-choice')">×</button>
+            <button onclick="App.closeModal('modal-voice-choice')" style="background:#FEE2E2; color:#DC2626; border:none; padding:8px 16px; border-radius:20px; font-weight:700;">FERMER</button>
         </div>
-        <div class="modal-body" style="max-height: 50vh;">
-            <p style="color:#64748B; font-size:0.9rem; margin-bottom:15px;">Plusieurs résultats trouvés. Sélectionnez le bon :</p>
+        <div class="modal-body" style="max-height: 60vh; padding-bottom: 40px;">
+            <p style="color:#64748B; font-size:0.9rem; margin-bottom:15px; text-align:center;">Plusieurs résultats trouvés. Sélectionnez le bon :</p>
             <div id="voice-choice-list"></div>
         </div>
     </div>
@@ -1195,6 +1195,8 @@
                     div.className = 'card-item';
                     div.style.marginBottom = '8px';
                     div.style.background = '#F8FAFC';
+                    // Fix click feedback
+                    div.style.cursor = 'pointer';
                     div.innerHTML = `
                         <div style="flex:1">
                             <div style="font-weight:700; font-size:0.9rem;">${item.desc}</div>
@@ -1202,7 +1204,8 @@
                         </div>
                         <div style="font-weight:bold; color:var(--primary);">${qty} ${item.unit}</div>
                     `;
-                    div.onclick = () => {
+                    div.onclick = (e) => {
+                        e.stopPropagation(); // Prevenire bubbling
                         App.addItemFromAI(item, qty, room);
                         App.closeModal('modal-voice-choice');
                         App.showToast("Ajouté !");
