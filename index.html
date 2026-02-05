@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA CLOUD V7.22 - SMART CHOICE</title>
+    <title>QOTIA CLOUD V7.23 - FULL INTEGRA</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -29,7 +29,6 @@
             --rubble: #78716c; 
             --material: #7c3aed; 
 
-            /* PALETTE COLORI */
             --col-chantier: #F59E0B; 
             --bg-chantier: #FFFBEB;  
             --col-devis: #EA580C;    
@@ -59,11 +58,9 @@
             padding-top: env(safe-area-inset-top);
         }
 
-        /* LAYOUT */
         .view-section { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background: var(--bg-body); z-index: 10; }
         .view-section.active { display: flex; z-index: 20; }
         
-        /* HEADER */
         .mobile-header { flex-shrink: 0; height: var(--h-header); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: sticky; top: 0; z-index: 50; transition: background 0.3s; }
         .logo-text { font-weight: 800; font-size: 1.3rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         .header-action-btn { background: var(--primary); color: white; border: none; border-radius: 30px; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); }
@@ -72,7 +69,6 @@
 
         .scroll-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 120px; -webkit-overflow-scrolling: touch; }
 
-        /* EDITOR FIXED LAYOUT */
         #view-editor { display: none; flex-direction: column; height: 100%; background: #F8FAFC; }
         #view-editor.active { display: flex; }
         .editor-header-musk { flex-shrink: 0; background: var(--col-devis); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; z-index: 30; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); color: white; }
@@ -83,7 +79,7 @@
         
         #editor-list-container { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 140px; }
 
-        /* BARRA STANZE AVANZATA */
+        /* BARRA STANZE ORIZZONTALE */
         .room-bar-container { display: flex; overflow-x: auto; gap: 8px; padding: 10px 20px; background: rgba(0,0,0,0.1); -webkit-overflow-scrolling: touch; scrollbar-width: none; align-items: center; }
         .room-bar-container::-webkit-scrollbar { display: none; }
         .room-bar-label { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-right: 5px; white-space: nowrap; }
@@ -96,7 +92,6 @@
 
         .room-pill-add { background: rgba(0,0,0,0.2); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; flex-shrink: 0; border: 1px dashed rgba(255,255,255,0.5); }
 
-        /* COMPONENTS */
         .client-badge { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
         .project-title { font-size: 1.2rem; font-weight: 900; color: var(--primary); margin-top: 2px; }
         
