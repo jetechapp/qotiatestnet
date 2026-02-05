@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA CLOUD V7.19 - SMART AI</title>
+    <title>QOTIA CLOUD V7.19 - SMART AI (FR)</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,25 +30,14 @@
             --material: #7c3aed; 
 
             /* PALETTE COLORI AGGIORNATA */
-            
-            /* CHANTIER: GIALLO */
             --col-chantier: #F59E0B; 
             --bg-chantier: #FFFBEB;  
-            
-            /* DEVIS: ARANCIONE */
             --col-devis: #EA580C;    
             --bg-devis: #FFF7ED;     
-            
-            /* CLIENT: BLU */
             --col-client: #2563EB;    
-            
-            /* NAVIGATION */
             --col-nav-active: #172554; 
-            
-            /* ALTRI DOCUMENTI */
             --col-cdc: #0891B2;      
             --bg-cdc: #ECFEFF;       
-            
             --col-facture: #059669;  
             --bg-facture: #ECFDF5;   
             
@@ -83,11 +72,10 @@
 
         .scroll-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 120px; -webkit-overflow-scrolling: touch; }
 
-        /* EDITOR FIXED LAYOUT - HEADER STYLING OVERRIDE */
+        /* EDITOR FIXED LAYOUT */
         #view-editor { display: none; flex-direction: column; height: 100%; background: #F8FAFC; }
         #view-editor.active { display: flex; }
         .editor-header-musk { flex-shrink: 0; background: var(--col-devis); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; z-index: 30; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); color: white; }
-        /* Fix text colors inside editor header since background is now colored */
         #view-editor .header-back-container { color: white; opacity: 0.9; }
         #view-editor .logo-text { color: white; } 
         #view-editor .client-badge { color: rgba(255,255,255,0.8); }
@@ -122,7 +110,6 @@
         .stat-val { font-size: 0.8rem; font-weight: 700; color: var(--primary); }
         .stat-val.time { color: var(--time); }
         
-        /* FLOATING ACTION BUTTONS */
         .floating-fab { position: fixed; bottom: 110px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; font-size: 1.6rem; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; transition: transform 0.1s; }
 
         .card-item { background: white; padding: 18px; margin-bottom: 12px; border-radius: 14px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-card); }
@@ -137,7 +124,6 @@
         .welcome-date { font-size: 0.9rem; font-weight: 600; color: var(--accent); text-transform: capitalize; }
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         
-        /* CUSTOM HOME BUTTONS */
         .big-btn { height: 95px; border-radius: 18px; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.08); color: white; }
         .big-btn span { font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 5px; }
         .btn-chantier { background: var(--col-chantier); }
@@ -180,7 +166,6 @@
         .type-option { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95rem; color: #64748B; border-radius: 10px; cursor: pointer; }
         .type-option.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        /* LIST CHANTIERS HEADER STYLE */
         #view-projets .mobile-header { background: var(--col-chantier); }
         #view-projets .logo-text, #view-projets .header-action-btn { color: white; }
         #view-projets .header-action-btn { background: rgba(255,255,255,0.2); }
@@ -562,13 +547,13 @@
                 const btn = document.getElementById('btn-login');
                 const msg = document.getElementById('login-msg');
 
-                if(!email || !pass) return msg.innerText = "Inserisci credenziali";
-                btn.innerText = "Caricamento...";
+                if(!email || !pass) return msg.innerText = "Insérer les identifiants";
+                btn.innerText = "Chargement...";
                 const { data, error } = await sbClient.auth.signInWithPassword({ email: email, password: pass });
 
                 if (error) {
                     btn.innerText = "ENTRER";
-                    msg.innerText = "Errore: " + error.message;
+                    msg.innerText = "Erreur : " + error.message;
                 } else {
                     this.user = data.user;
                     document.getElementById('login-overlay').style.display = 'none';
@@ -587,7 +572,7 @@
             data: { clients: [], chantiers: [], appointments: [], partners: [], settings: { hourlyRate: 45 } },
             
             async init() {
-                App.showToast("Sync con Cloud...");
+                App.showToast("Synchronisation Cloud...");
                 
                 const { data: libData, error: libErr } = await sbClient
                     .from('library_items')
@@ -668,11 +653,11 @@
             init() { Auth.init(); },
 
             openSetupModal() {
-                const rate = prompt("Benvenuto! Per calcolare i prezzi correttamente, inserisci la tua Tariffa Oraria (€/h):", Store.data.settings.hourlyRate);
+                const rate = prompt("Bienvenue ! Pour calculer les prix correctement, entrez votre taux horaire (€/h) :", Store.data.settings.hourlyRate);
                 if(rate) {
                     Store.data.settings.hourlyRate = parseFloat(rate);
                     Store.save();
-                    App.showToast("Tariffa salvata: " + rate + "€/h");
+                    App.showToast("Taux enregistré : " + rate + "€/h");
                 }
             },
 
@@ -855,7 +840,7 @@
             // --- END SIGNATURE ---
 
             deleteDevis(did) {
-                if(!confirm("Eliminare definitivamente questo preventivo?")) return;
+                if(!confirm("Supprimer définitivement ce devis ?")) return;
                 const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
                 c.devisList = c.devisList.filter(d => d.id !== did);
                 Store.save();
@@ -863,7 +848,7 @@
             },
 
             deleteCDC(docId) {
-                if(!confirm("Eliminare questo documento CDC?")) return;
+                if(!confirm("Supprimer ce document CDC ?")) return;
                 const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
                 c.extraDocs = c.extraDocs.filter(d => d.id != docId);
                 Store.save();
@@ -879,11 +864,11 @@
                 const isUsed = dv.items.some(i => i.piece === roomName);
 
                 if(isUsed) {
-                    alert("Impossibile eliminare: questa stanza contiene degli articoli. Rimuovi prima gli articoli.");
+                    alert("Impossible de supprimer : cette pièce contient des articles. Supprimez d'abord les articles.");
                     return;
                 }
 
-                if(!confirm("Rimuovere la stanza '" + roomName + "' dalla lista rapida?")) return;
+                if(!confirm("Supprimer la pièce '" + roomName + "' de la liste rapide ?")) return;
 
                 document.getElementById('input-room-name').value = '';
                 document.getElementById('input-room-details').value = '';
@@ -999,7 +984,7 @@
             // --- NUOVA LOGICA "ROOM SELECTOR" V7 (STICKY & SMART) ---
             openLibrary() {
                 const categories = Object.keys(Config.LIB).sort();
-                if(categories.length === 0) return App.showToast("Caricamento biblioteca...");
+                if(categories.length === 0) return App.showToast("Chargement bibliothèque...");
                 
                 // RESET VARIABILI
                 document.getElementById('lib-search').value = '';
@@ -1009,7 +994,7 @@
                 
                 // RESET TENDINA FAMIGLIE
                 const sel = document.getElementById('lib-category-select');
-                sel.innerHTML = '<option value="">-- Tutte le Famiglie --</option>';
+                sel.innerHTML = '<option value="">-- Toutes Familles --</option>';
                 categories.forEach(cat => sel.innerHTML += `<option value="${cat}">${cat}</option>`);
                 sel.value = ""; 
 
@@ -1153,7 +1138,7 @@
                 let name = document.getElementById('input-room-name').value.trim();
                 const selectVal = document.getElementById('room-select-standard').value;
                 
-                if(!selectVal && !name) return alert("Seleziona una stanza dal menu!");
+                if(!selectVal && !name) return alert("Veuillez sélectionner une pièce dans le menu !");
                 if(selectVal && selectVal !== 'Autre') name = selectVal;
 
                 const details = document.getElementById('input-room-details').value.trim();
@@ -1162,7 +1147,7 @@
                 const sol = parseFloat(document.getElementById('room-calc-sol').innerText);
                 const murs = parseFloat(document.getElementById('room-calc-murs').innerText);
                 
-                if(!name) return alert("Inserisci il nome della stanza!");
+                if(!name) return alert("Entrez le nom de la pièce !");
 
                 let displayName = name;
                 
@@ -1198,7 +1183,7 @@
                     breadcrumb.style.display = 'none';
                     const results = Config.searchIndex.search(searchTerm);
                     if(results.length === 0) {
-                        cont.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8;">Nessun risultato per "${searchTerm}"</div>`;
+                        cont.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8;">Aucun résultat pour "${searchTerm}"</div>`;
                         return;
                     }
                     const finalResults = selectedCat ? results.filter(r => r.item.category === selectedCat) : results;
@@ -1231,7 +1216,7 @@
                     document.getElementById('lib-bc-cat').innerText = activeCat;
                     document.getElementById('lib-bc-sub').innerText = '';
                     let backBtn = document.createElement('div');
-                    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Indietro`;
+                    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Retour`;
                     backBtn.style.cssText = "padding:10px; color:var(--primary); font-weight:700; cursor:pointer; margin-bottom:10px; display:inline-block;";
                     backBtn.onclick = () => { App.state.libCategory = null; document.getElementById('lib-category-select').value = ""; App.renderLibraryItems(); };
                     cont.appendChild(backBtn);
@@ -1256,7 +1241,7 @@
                     document.getElementById('lib-bc-cat').innerText = activeCat;
                     document.getElementById('lib-bc-sub').innerText = App.state.libSubCategory;
                     let backBtn = document.createElement('div');
-                    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Indietro`;
+                    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Retour`;
                     backBtn.style.cssText = "padding:10px; color:var(--primary); font-weight:700; cursor:pointer; margin-bottom:10px; display:inline-block;";
                     backBtn.onclick = () => { App.state.libSubCategory = null; App.renderLibraryItems(); };
                     cont.appendChild(backBtn);
@@ -1292,7 +1277,7 @@
                         
                         if(!isConfirmed) {
                             App.toggleRoomEdit(true);
-                            return alert("Per favore, seleziona e CONFERMA una stanza prima di aggiungere articoli!");
+                            return alert("Veuillez sélectionner et CONFIRMER une pièce avant d'ajouter des articles !");
                         }
 
                         const finalPieceName = roomDisplay.innerText;
@@ -1421,7 +1406,7 @@
                         gravats: gravats
                     };
                     d.items.push(newItem);
-                    App.showToast("Ajouté: " + desc);
+                    App.showToast("Ajouté : " + desc);
                     
                     // Se stiamo usando lo sticky widget, aggiorniamo i bottoni
                     App.renderUsedRoomButtons(piece);
@@ -1448,7 +1433,7 @@
             createProject() { const cid=document.getElementById('prj-cli').value; const nom=document.getElementById('prj-nom').value; const addr=document.getElementById('prj-addr').value; if(cid && nom) { const ch={id:Date.now(), clientId:cid, name:nom, ref:"C-"+Date.now().toString().slice(-4), devisList:[], factures:[], extraDocs:[]}; Store.data.chantiers.unshift(ch); Store.save(); App.showToast("Chantier créé"); App.closeModal('modal-projet'); App.openHub(ch.id); } },
             backToHub() { if(Store.data.activeChantierId) App.openHub(Store.data.activeChantierId); else App.nav('projets'); },
 
-            openCreateInvoiceModal() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); if(!c.devisList || c.devisList.length === 0) return alert("Erreur: Vous devez d'abord créer un devis !"); const s = document.getElementById('inv-devis-select'); s.innerHTML=''; c.devisList.forEach(d => { let o = document.createElement('option'); o.value=d.id; o.text=d.name; s.appendChild(o); }); document.getElementById('modal-invoice').classList.add('open'); App.onInvoiceDevisChange(); },
+            openCreateInvoiceModal() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); if(!c.devisList || c.devisList.length === 0) return alert("Erreur : Vous devez d'abord créer un devis !"); const s = document.getElementById('inv-devis-select'); s.innerHTML=''; c.devisList.forEach(d => { let o = document.createElement('option'); o.value=d.id; o.text=d.name; s.appendChild(o); }); document.getElementById('modal-invoice').classList.add('open'); App.onInvoiceDevisChange(); },
             onInvoiceDevisChange() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); document.getElementById('inv-total-quote').innerText = App.formatMoney(d.total); App.calcInvPreview(); },
             setInvType(t) { App.state.invType = t; document.getElementById('btn-acompte').style.background = t==='acompte'? 'var(--primary)' : 'white'; document.getElementById('btn-acompte').style.color = t==='acompte'? 'white' : '#64748B'; document.getElementById('btn-solde').style.background = t==='solde'? 'var(--primary)' : 'white'; document.getElementById('btn-solde').style.color = t==='solde'? 'white' : '#64748B'; const inp = document.getElementById('inv-percent'); if(t==='solde') { inp.value = 100; inp.disabled = true; } else { inp.value = 30; inp.disabled = false; } App.calcInvPreview(); },
             calcInvPreview() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); const perc = parseInt(document.getElementById('inv-percent').value) || 0; const amt = d.total * (perc/100); document.getElementById('inv-preview-amount').innerText = App.formatMoney(amt); },
@@ -1761,9 +1746,9 @@
             },
 
             assignCollaborator() {
-                if(App.state.selectedItems.size === 0) return alert("Seleziona almeno un lavoro.");
+                if(App.state.selectedItems.size === 0) return alert("Sélectionnez au moins une tâche.");
                 const name = document.getElementById('cdc-assignee').value;
-                if(!name) return alert("Seleziona un partner dalla lista.");
+                if(!name) return alert("Sélectionnez un partenaire dans la liste.");
                 
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const d = c.devisList.find(x=>x.id==document.getElementById('sel-source-devis').value);
@@ -1777,7 +1762,7 @@
                 });
                 
                 Store.save();
-                App.showToast(`${count} lavori assegnati a ${name}`);
+                App.showToast(`${count} tâches assignées à ${name}`);
                 App.renderSelectionList(); // Ricarica la lista per vedere i badge
             },
 
@@ -1786,7 +1771,7 @@
                 const did = document.getElementById('sel-source-devis').value;
                 const d = c.devisList.find(x => x.id == did);
                 
-                if (App.state.selectedItems.size === 0) return alert("Seleziona gli elementi da includere nel CDC.");
+                if (App.state.selectedItems.size === 0) return alert("Sélectionnez les éléments à inclure dans le CDC.");
 
                 const selectedItemsList = d.items.filter(i => App.state.selectedItems.has(i.id));
                 const assigneeName = document.getElementById('cdc-assignee').value || "Général";
@@ -1803,7 +1788,7 @@
                 c.extraDocs.push(newDoc);
                 Store.save();
                 
-                App.showToast("Documento CDC creato!");
+                App.showToast("Document CDC créé !");
                 App.closeModal('modal-select-cdc');
                 App.openHub(c.id);
             },
@@ -1817,24 +1802,24 @@
                 
                 if (!SpeechRecognition) {
                     // Fallback: Se non c'è supporto vocale, usa input testo
-                    const text = prompt("Inserisci comando rapido (es: '5 prese e 20 mq pittura')");
+                    const text = prompt("Entrez une commande (ex: '5 prises et 20 m2 peinture')");
                     if(text) App.processNaturalLanguage(text);
                     return;
                 }
 
                 const recognition = new SpeechRecognition();
-                recognition.lang = 'it-IT'; 
+                recognition.lang = 'fr-FR'; 
                 recognition.interimResults = false;
                 recognition.maxAlternatives = 1;
 
-                App.showToast("🎤 Parla ora... (es: 'Montare 4 porte')");
+                App.showToast("🎤 Parlez maintenant... (ex: 'Poser 4 portes')");
                 if(btn) btn.style.transform = "scale(1.2)"; // Feedback visivo
 
                 recognition.start();
 
                 recognition.onresult = (event) => {
                     const transcript = event.results[0][0].transcript;
-                    App.showToast("Analisi: " + transcript);
+                    App.showToast("Analyse : " + transcript);
                     App.processNaturalLanguage(transcript);
                     if(btn) btn.style.transform = "scale(1)";
                 };
@@ -1843,7 +1828,7 @@
                     console.error(e);
                     if(btn) btn.style.transform = "scale(1)";
                     // Se errore (es. permessi negati), fallback a testo
-                    const text = prompt("Microfono non disponibile. Scrivi qui:");
+                    const text = prompt("Microphone indisponible. Écrivez ici :");
                     if(text) App.processNaturalLanguage(text);
                 };
             },
@@ -1857,7 +1842,7 @@
                 const targetRoom = (currentRoomDisplay === "Sélectionner une pièce") ? "Général" : currentRoomDisplay;
 
                 // 3. Divide la frase in comandi multipli
-                const commands = text.split(/,| e | \+ | poi /);
+                const commands = text.split(/,| e | \+ | poi | et | avec /);
                 
                 let foundItems = 0;
 
@@ -1874,8 +1859,8 @@
                         cmd = cmd.replace(numberMatch[0], '').trim(); // Rimuovi numero dal testo
                     }
 
-                    // B. Pulisci parole inutili per la ricerca
-                    const cleanSearch = cmd.replace(/\b(mq|metri|ml|pezzi|pz|numero|di|da|in)\b/g, '').trim();
+                    // B. Pulisci parole inutili per la ricerca (FRANCESE)
+                    const cleanSearch = cmd.replace(/\b(m2|mètres|metres|ml|pièces|pieces|pz|nombre|de|du|dans|et|pour)\b/g, '').trim();
 
                     if(cleanSearch.length < 2) return; 
 
@@ -1890,17 +1875,17 @@
                         App.addItemFromAI(bestMatch, qty, targetRoom);
                         foundItems++;
                     } else {
-                        console.warn("Nessun articolo trovato per:", cleanSearch);
+                        console.warn("Aucun article trouvé pour :", cleanSearch);
                     }
                 });
 
                 if (foundItems > 0) {
-                    App.showToast(`✅ Aggiunti ${foundItems} articoli in ${targetRoom}`);
+                    App.showToast(`✅ ${foundItems} articles ajoutés dans ${targetRoom}`);
                     Store.save();
                     App.renderEditorItems(); 
                     App.calcTotals();
                 } else {
-                    alert("Nessun articolo corrispondente trovato nel database per: " + text);
+                    alert("Aucun article correspondant trouvé dans la base de données pour : " + text);
                 }
             },
 
