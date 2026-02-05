@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA V80 STABLE</title>
+    <title>QOTIA CLOUD V7.19 - SMART AI</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
     <style>
         /* --- STILI CORE --- */
@@ -17,12 +20,37 @@
             --bg-body: #F8FAFC;        
             --surface: #FFFFFF;
             --border: #CBD5E1;
-            --text-main: #1E293B;      
+            --text-main: #1E293B;        
             --text-sub: #64748B;
             --accent: #F59E0B;
             --danger: #EF4444; 
             --success: #15803d;
             --time: #3B82F6;
+            --rubble: #78716c; 
+            --material: #7c3aed; 
+
+            /* PALETTE COLORI AGGIORNATA */
+            
+            /* CHANTIER: GIALLO */
+            --col-chantier: #F59E0B; 
+            --bg-chantier: #FFFBEB;  
+            
+            /* DEVIS: ARANCIONE */
+            --col-devis: #EA580C;    
+            --bg-devis: #FFF7ED;     
+            
+            /* CLIENT: BLU */
+            --col-client: #2563EB;    
+            
+            /* NAVIGATION */
+            --col-nav-active: #172554; 
+            
+            /* ALTRI DOCUMENTI */
+            --col-cdc: #0891B2;      
+            --bg-cdc: #ECFEFF;       
+            
+            --col-facture: #059669;  
+            --bg-facture: #ECFDF5;   
             
             --h-header: 65px;
             --h-nav: 90px;
@@ -47,7 +75,7 @@
         .view-section.active { display: flex; z-index: 20; }
         
         /* HEADER */
-        .mobile-header { flex-shrink: 0; height: var(--h-header); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: sticky; top: 0; z-index: 50; }
+        .mobile-header { flex-shrink: 0; height: var(--h-header); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: sticky; top: 0; z-index: 50; transition: background 0.3s; }
         .logo-text { font-weight: 800; font-size: 1.3rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         .header-action-btn { background: var(--primary); color: white; border: none; border-radius: 30px; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); }
         .header-back-container { display: flex; align-items: center; gap: 5px; background: transparent; border: none; cursor: pointer; color: var(--primary); font-weight: 700; font-size: 0.9rem; padding: 10px 0; }
@@ -55,22 +83,30 @@
 
         .scroll-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 120px; -webkit-overflow-scrolling: touch; }
 
-        /* EDITOR FIXED LAYOUT */
+        /* EDITOR FIXED LAYOUT - HEADER STYLING OVERRIDE */
         #view-editor { display: none; flex-direction: column; height: 100%; background: #F8FAFC; }
         #view-editor.active { display: flex; }
-        .editor-header-musk { flex-shrink: 0; background: white; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; z-index: 30; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .editor-header-musk { flex-shrink: 0; background: var(--col-devis); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; z-index: 30; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); color: white; }
+        /* Fix text colors inside editor header since background is now colored */
+        #view-editor .header-back-container { color: white; opacity: 0.9; }
+        #view-editor .logo-text { color: white; } 
+        #view-editor .client-badge { color: rgba(255,255,255,0.8); }
+        #view-editor .project-title { color: white; }
+        
         #editor-list-container { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 140px; }
 
         /* COMPONENTS */
         .client-badge { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
         .project-title { font-size: 1.2rem; font-weight: 900; color: var(--primary); margin-top: 2px; }
-        .kpi-row { display: flex; gap: 15px; margin-top: 10px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; }
-        .kpi-box { flex: 1; background: #F8FAFC; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid #E2E8F0; }
+        
+        .kpi-row { display: flex; gap: 10px; margin-top: 10px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .kpi-box { flex: 1; background: white; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid #E2E8F0; }
         .kpi-label { font-size: 0.65rem; color: #64748B; font-weight: 700; text-transform: uppercase; }
-        .kpi-val { font-size: 1.1rem; font-weight: 800; }
-        .view-toggle { display: flex; padding: 10px 20px; gap: 10px; background: white; }
+        .kpi-val { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+        
+        .view-toggle { display: flex; padding: 10px 20px; gap: 10px; background: white; border-bottom: 1px solid var(--border); }
         .toggle-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #F1F5F9; color: #64748B; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
-        .toggle-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 5px rgba(15,23,42,0.2); }
+        .toggle-btn.active { background: var(--col-devis); color: white; box-shadow: 0 2px 5px rgba(234, 88, 12, 0.3); }
 
         .piece-section { margin-bottom: 20px; }
         .piece-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 5px; cursor: pointer; background: #E2E8F0; border-radius: 8px; margin-bottom: 10px; padding: 10px; color: var(--primary); }
@@ -78,14 +114,15 @@
         
         .e-card { background: white; margin: 0 0 10px 0; padding: 15px; border-radius: 12px; border: 1px solid var(--border); border-left: 3px solid var(--primary); box-shadow: var(--shadow-card); }
         .e-card-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .e-desc { font-weight: 700; color: var(--text-main); font-size: 0.95rem; width: 70%; line-height: 1.4; }
-        .e-loc-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #64748B; background: #F1F5F9; padding: 2px 6px; border-radius: 4px; margin-top: 4px; }
-        .e-stats { display: flex; gap: 10px; border-top: 1px solid #F1F5F9; padding-top: 10px; }
+        .e-desc { font-weight: 700; color: var(--text-main); font-size: 0.95rem; width: 65%; line-height: 1.4; }
+        .e-loc-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #64748B; background: #fff; padding: 2px 6px; border-radius: 4px; margin-top: 4px; border:1px solid #e2e8f0; }
+        .e-stats { display: flex; gap: 10px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px; margin-top: 8px; }
         .stat-box { flex: 1; text-align: center; }
-        .stat-lbl { font-size: 0.65rem; color: #94A3B8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
-        .stat-val { font-size: 0.9rem; font-weight: 700; color: var(--primary); }
+        .stat-lbl { font-size: 0.65rem; color: #64748B; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+        .stat-val { font-size: 0.8rem; font-weight: 700; color: var(--primary); }
         .stat-val.time { color: var(--time); }
         
+        /* FLOATING ACTION BUTTONS */
         .floating-fab { position: fixed; bottom: 110px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; font-size: 1.6rem; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; transition: transform 0.1s; }
 
         .card-item { background: white; padding: 18px; margin-bottom: 12px; border-radius: 14px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-card); }
@@ -99,18 +136,23 @@
         .welcome-name { font-size: 1.8rem; font-weight: 900; color: var(--primary); margin: 0; }
         .welcome-date { font-size: 0.9rem; font-weight: 600; color: var(--accent); text-transform: capitalize; }
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .big-btn { height: 95px; border-radius: 18px; border: 1px solid white; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.03); background: white; color: var(--text-main); }
+        
+        /* CUSTOM HOME BUTTONS */
+        .big-btn { height: 95px; border-radius: 18px; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.08); color: white; }
         .big-btn span { font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 5px; }
-        .btn-chantier i { color: #D97706; font-size: 1.8rem; margin-bottom: 5px; }
-        .btn-client i { color: #2563EB; font-size: 1.8rem; margin-bottom: 5px; }
+        .btn-chantier { background: var(--col-chantier); }
+        .btn-client { background: var(--col-client); }
+        .big-btn i { font-size: 1.8rem; margin-bottom: 5px; color: white !important; }
+        .btn-agenda-full { background: white; color: var(--text-main); border: 1px solid var(--border); border-bottom: 3px solid #CBD5E1; }
+        .btn-agenda-full i { color: #64748B !important; }
 
-        .hub-header-card { background: white; padding: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .hub-header-card { background: var(--col-client); padding: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; color: white; }
         .section-separator { display: flex; align-items: center; justify-content: space-between; margin-top: 25px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #E2E8F0; }
         .section-title { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
         .action-create-btn { background: white; color: var(--primary); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; cursor: pointer; }
 
         .check-container { display: flex; align-items: center; padding: 12px; background: white; border-bottom: 1px solid #F1F5F9; cursor: pointer; }
-        .custom-checkbox { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; margin-right: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .custom-checkbox { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; margin-right: 15px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
         .custom-checkbox.checked { background: var(--primary); border-color: var(--primary); }
         .custom-checkbox.checked::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: white; font-size: 0.8rem; }
         .assigned-badge { background: #DCFCE7; color: #166534; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 5px; display: inline-flex; align-items: center; gap: 4px; }
@@ -118,11 +160,12 @@
         /* ROOM QUICK BUTTONS */
         .room-tag-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 15px 0; -webkit-overflow-scrolling: touch; }
         .room-tag-btn { background: #F1F5F9; color: var(--primary); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
-        .room-tag-btn:active, .room-tag-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .room-tag-btn:active, .room-tag-btn.active { background: var(--success); color: white; border-color: var(--success); box-shadow: 0 4px 10px rgba(21, 128, 61, 0.3); }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--h-nav); background: white; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); z-index: 1000; align-items: flex-start; padding-top: 14px; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94A3B8; background: transparent; border: none; font-size: 0.7rem; font-weight: 600; gap: 5px; cursor: pointer; }
-        .nav-btn.active { color: var(--primary); }
+        .nav-btn.active { color: var(--col-nav-active); }
+        .nav-btn.active i { color: var(--col-nav-active); }
         .nav-btn i { font-size: 1.5rem; }
 
         .full-modal { position: fixed; inset: 0; background: #F8FAFC; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 5000; }
@@ -137,8 +180,19 @@
         .type-option { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95rem; color: #64748B; border-radius: 10px; cursor: pointer; }
         .type-option.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
+        /* LIST CHANTIERS HEADER STYLE */
+        #view-projets .mobile-header { background: var(--col-chantier); }
+        #view-projets .logo-text, #view-projets .header-action-btn { color: white; }
+        #view-projets .header-action-btn { background: rgba(255,255,255,0.2); }
+
         #modal-client { z-index: 6000 !important; }
         #modal-projet { z-index: 5000; }
+        #modal-edit-item { z-index: 7000 !important; }
+        #modal-signature { z-index: 8000 !important; }
+
+        /* CANVAS SIGNATURE */
+        .sig-container { position: relative; width: 100%; height: 300px; border: 2px dashed #CBD5E1; border-radius: 12px; background: #fff; touch-action: none; overflow: hidden; margin-bottom: 15px; }
+        canvas { width: 100%; height: 100%; display: block; }
 
         #toast-container { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); z-index: 9000; pointer-events: none; width: 85%; }
         .toast { background: #1E293B; color: white; padding: 14px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; opacity: 0; transform: translateY(20px); transition: all 0.3s; margin-top: 10px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
@@ -148,6 +202,17 @@
 <body>
 
     <div id="toast-container"></div>
+    
+    <div id="login-overlay" style="position:fixed; inset:0; background:#0F172A; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
+        <div style="font-size:2rem; font-weight:900; color:white; margin-bottom:10px;"><i class="fas fa-hammer"></i> QOTIA <span style="font-size:0.5em; opacity:0.6;">CLOUD</span></div>
+        <div style="background:white; padding:25px; border-radius:16px; width:100%; max-width:350px; text-align:center;">
+            <h3 style="margin-top:0; color:#0F172A;">Connexion</h3>
+            <input type="email" id="login-email" class="app-input" placeholder="Email" style="background:#F1F5F9;">
+            <input type="password" id="login-pass" class="app-input" placeholder="Mot de passe" style="background:#F1F5F9;">
+            <button class="btn-primary" onclick="Auth.login()" id="btn-login">ENTRER</button>
+            <div id="login-msg" style="color:#EF4444; font-size:0.8rem; margin-top:10px; font-weight:700;"></div>
+        </div>
+    </div>
 
     <main id="view-home" class="view-section active">
         <header class="mobile-header">
@@ -169,7 +234,7 @@
             <div class="section-separator" style="border:none; margin-top:0;"><div class="section-title">Aujourd'hui</div><button class="action-create-btn" onclick="App.openAgenda()">+ RDV</button></div>
             <div id="home-today-list"></div>
             <div style="margin-top:25px; background: #FEF2F2; padding:15px; border-radius:12px; border:1px solid #FECACA; display:flex; justify-content:space-between; align-items:center;" onclick="App.nav('factures-global')">
-                <div><div style="font-size:0.75rem; color:#991B1B; font-weight:700; text-transform:uppercase;">À Encaisser</div><div class="kpi-val" id="home-unpaid" style="color:#B91C1C; font-size:1.3rem; font-weight:800;">0 €</div></div>
+                <div><div style="font-size:0.75rem; color:#991B1B; font-weight:700; text-transform:uppercase;">À Encaisser</div><div class="kpi-val" id="home-unpaid" style="color:#B91C1C; font-size:1.3rem; font-weight:800;">0,00 €</div></div>
                 <i class="fas fa-chevron-right" style="color:#B91C1C"></i>
             </div>
         </div>
@@ -183,18 +248,24 @@
         </header>
         <div class="scroll-content" style="padding:0; background:#f8fafc;">
             <div class="hub-header-card">
-                <div style="font-size:0.85rem; font-weight:700; color:var(--text-sub); text-transform:uppercase; margin-bottom:5px;" id="hub-client">-</div>
-                <div style="font-size:1.6rem; font-weight:900; color:var(--primary); line-height:1.2;" id="hub-name">-</div>
-                <div style="background:#F1F5F9; padding:6px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; color:#64748B; display:inline-block; margin-top:10px;" id="hub-ref">REF</div>
+                <div style="font-size:0.85rem; font-weight:700; color:rgba(255,255,255,0.8); text-transform:uppercase; margin-bottom:5px;" id="hub-client">-</div>
+                <div style="font-size:1.6rem; font-weight:900; color:white; line-height:1.2;" id="hub-name">-</div>
+                <div style="background:rgba(255,255,255,0.2); padding:6px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; color:white; display:inline-block; margin-top:10px;" id="hub-ref">REF</div>
             </div>
             <div style="padding: 0 20px 120px 20px;">
-                <div class="section-separator"><span class="section-title">Devis</span><button class="action-create-btn" style="background:var(--primary); color:white;" onclick="App.createNewDevis()"><i class="fas fa-plus"></i> Créer</button></div>
+                <div class="section-separator"><span class="section-title" style="color:var(--col-devis)">Devis</span><button class="action-create-btn" style="background:var(--col-devis); color:white; border:none;" onclick="App.createNewDevis()"><i class="fas fa-plus"></i> Créer</button></div>
                 <div id="hub-devis-list"></div>
                 
-                <div class="section-separator"><span class="section-title">Opérations</span><button class="action-create-btn" onclick="App.openSelectCDCModal()"><i class="fas fa-tasks"></i> Gérer</button></div>
+                <div class="section-separator">
+                    <span class="section-title" style="color:var(--col-cdc)">Cahier des Charges</span>
+                    <div style="display:flex; gap:5px;">
+                        <button class="action-create-btn" onclick="App.generateRoomReportPDF()" style="border-color: #3B82F6; color: #3B82F6;"><i class="fas fa-map-marked-alt"></i> Zones PDF</button>
+                        <button class="action-create-btn" onclick="App.openSelectCDCModal()"><i class="fas fa-tasks"></i> Gérer</button>
+                    </div>
+                </div>
                 <div id="hub-docs-list"></div>
                 
-                <div class="section-separator"><span class="section-title">Factures</span><button class="action-create-btn" onclick="App.openCreateInvoiceModal()"><i class="fas fa-euro-sign"></i> Facture</button></div>
+                <div class="section-separator"><span class="section-title" style="color:var(--col-facture)">Factures</span><button class="action-create-btn" onclick="App.openCreateInvoiceModal()"><i class="fas fa-euro-sign"></i> Facture</button></div>
                 <div id="hub-factures-list"></div>
             </div>
         </div>
@@ -204,14 +275,16 @@
         <div class="editor-header-musk">
             <div style="padding:10px 20px 0 20px; display:flex; justify-content:space-between; align-items:center;">
                 <button class="header-back-container" onclick="App.backToHub()"><i class="fas fa-chevron-left"></i> Retour</button>
-                <div style="font-weight:900; color:var(--primary);">ÉDITEUR</div>
+                <div style="font-weight:900; color:white;">RÉDACTION DEVIS</div>
+                <button onclick="App.generateGlobalPDF('devis', Store.data.activeDevisId)" style="border:none; background:none; color:white; font-size:1.3rem; cursor:pointer;"><i class="fas fa-file-pdf"></i></button>
             </div>
             <div style="padding: 10px 20px;">
                 <div class="client-badge" id="ed-client-name">-</div>
                 <div class="project-title" id="ed-quote-name">-</div>
                 <div class="kpi-row">
-                    <div class="kpi-box"><div class="kpi-label">Total €</div><div class="kpi-val" id="ed-total-price" style="color:var(--primary);">0 €</div></div>
+                    <div class="kpi-box"><div class="kpi-label">Total €</div><div class="kpi-val" id="ed-total-price" style="color:var(--col-devis);">0,00 €</div></div>
                     <div class="kpi-box"><div class="kpi-label">Temps (H)</div><div class="kpi-val" id="ed-total-time" style="color:var(--time);">0h</div></div>
+                    <div class="kpi-box"><div class="kpi-label">Gravats</div><div class="kpi-val" id="ed-total-rubble" style="color:var(--rubble);">0</div></div>
                 </div>
             </div>
             <div class="view-toggle">
@@ -220,6 +293,11 @@
             </div>
         </div>
         <div id="editor-list-container"></div>
+        
+        <button onclick="App.startSmartEntry()" style="position:fixed; bottom:20px; left:20px; width:60px; height:60px; border-radius:50%; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); z-index: 100; display:flex; align-items:center; justify-content:center; font-size:1.5rem; transition: transform 0.2s;">
+            <i class="fas fa-microphone-alt"></i>
+        </button>
+
         <button class="floating-fab" onclick="App.openLibrary()"><i class="fas fa-plus"></i></button>
     </main>
 
@@ -242,7 +320,7 @@
     </main>
 
     <main id="view-projets" class="view-section">
-        <header class="mobile-header"><div class="logo-text">CHANTIERS</div><button class="header-action-btn" onclick="App.openProjectWizard()">+</button></header>
+        <header class="mobile-header"><div class="logo-text">LISTE CHANTIERS</div><button class="header-action-btn" onclick="App.openProjectWizard()">+</button></header>
         <div class="scroll-content" id="projects-list-full"></div>
     </main>
 
@@ -251,11 +329,8 @@
     <main id="view-settings" class="view-section">
         <header class="mobile-header"><div class="logo-text">RÉGLAGES</div></header>
         <div class="scroll-content">
-            <div class="section-title">Équipe & Partenaires</div>
             <div id="settings-partners-list" style="margin-bottom:20px;"></div>
             <button class="card-item" style="width:100%; justify-content:center; color:var(--primary); font-weight:700;" onclick="App.openPartnerModal()">+ Ajouter un Partenaire</button>
-            <div class="section-title" style="margin-top:30px;">Application</div>
-            <div class="card-item" onclick="App.hardReset()" style="border-color:var(--danger)"><div><b style="color:var(--danger)">Réinitialiser Tout</b></div><i class="fas fa-trash" style="color:var(--danger)"></i></div>
         </div>
     </main>
 
@@ -274,94 +349,340 @@
         <div class="modal-body">
             <label style="font-weight:700; margin-bottom:10px; display:block;">Source Devis</label>
             <select id="sel-source-devis" class="app-input" onchange="App.renderSelectionList()"></select>
+            
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <label style="font-weight:700; color:var(--text-sub);">Sélectionner</label>
-                <button style="border:none; background:none; color:var(--primary); font-weight:700;" onclick="App.selectAllItems()">Tout</button>
+                <label style="font-weight:700; color:var(--text-sub);">Sélectionner les tâches:</label>
+                <button style="border:none; background:none; color:var(--primary); font-weight:700;" onclick="App.selectAllItems()">Tout cocher</button>
             </div>
-            <div id="selection-list-container" style="background:white; border-radius:12px; border:1px solid var(--border); overflow:hidden;"></div>
+            
+            <div id="selection-list-container" style="background:white; border-radius:12px; border:1px solid var(--border); overflow:hidden; max-height:400px; overflow-y:auto;"></div>
+            
+            <label style="font-weight:700; margin-top:20px; display:block;">Attribuer à:</label>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <select id="cdc-assignee" class="app-input" style="flex:1; margin:0;"></select>
+                <button class="btn-primary" style="width:100px;" onclick="App.assignCollaborator()">OK</button>
+            </div>
+            
         </div>
-        <div class="modal-footer" style="flex-direction:column; gap:10px;">
-            <div style="display:flex; gap:10px; width:100%;">
-                <select id="cdc-assignee" class="app-input" style="flex:1; margin:0; font-size:0.9rem; padding:0 10px;"></select>
-                <button class="btn-primary" style="flex:1;" onclick="App.assignCollaborator()"><i class="fas fa-check"></i> Assigner</button>
-            </div>
-            <button class="btn-primary" style="background:#FFF; color:var(--primary); border:2px solid var(--primary); width:100%;" onclick="App.saveCDC()"><i class="fas fa-save"></i> ENREGISTRER DANS LE DOSSIER</button>
+        <div class="modal-footer">
+            <button class="btn-primary" style="background:#FFF; color:var(--primary); border:2px solid var(--primary); width:100%;" onclick="App.saveCDC()"><i class="fas fa-save"></i> ENREGISTRER CDC</button>
         </div>
     </div>
     
     <div id="modal-view-cahier" class="full-modal"><div class="modal-header"><h3 id="vc-title">...</h3><button class="header-back-container" onclick="App.closeModal('modal-view-cahier')">×</button></div><div class="modal-body"><table style="width:100%; border-collapse:collapse;" id="vc-table"></table></div></div>
     
+    <div id="modal-signature" class="full-modal">
+        <div class="modal-header"><h3>Signature</h3><button class="header-back-container" onclick="App.closeModal('modal-signature')">×</button></div>
+        <div class="modal-body" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
+            <p style="text-align:center; color:#64748B; font-size:0.9rem; margin-bottom:10px;">Signez dans la case ci-dessous :</p>
+            <div class="sig-container">
+                <canvas id="sig-canvas"></canvas>
+            </div>
+            <button onclick="App.clearSignature()" style="background:#F1F5F9; border:none; padding:10px 20px; border-radius:20px; font-weight:700; color:var(--text-sub);">Effacer</button>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-primary" onclick="App.saveSignature()">ACCEPTER & SIGNER</button>
+        </div>
+    </div>
+
     <div id="modal-library" class="full-modal">
-        <div class="modal-header"><h3>Bibliothèque</h3><button class="header-back-container" onclick="App.closeModal('modal-library')">×</button></div>
-        <div class="modal-body">
-            <div style="background:#FFF; border:2px solid var(--primary); padding:10px; border-radius:12px; margin-bottom:15px;">
-                <label style="font-size:0.8rem; font-weight:700; color:var(--text-sub);">Pièce Cible :</label>
-                <div id="lib-room-buttons" class="room-tag-scroll"></div>
-                <input type="text" id="lib-target-piece" class="app-input" style="margin:0; height:40px; font-weight:800; color:var(--primary); text-align:center; border:none; background:#F8FAFC;" readonly>
+        <div class="modal-header">
+            <h3>Bibliothèque</h3>
+            <button onclick="App.closeModal('modal-library')" style="background:#fee2e2; color:#ef4444; border:none; padding:8px 16px; border-radius:30px; font-weight:700; display:flex; align-items:center; gap:5px; cursor:pointer;">
+                <i class="fas fa-times"></i> FERMER
+            </button>
+        </div>
+        <div class="modal-body" style="padding-top: 0;">
+            
+            <div style="position:sticky; top:0; z-index:50; background:#F8FAFC; padding-top:20px; padding-bottom:10px; border-bottom:1px solid #E2E8F0; margin-bottom:15px;">
+                
+                <input type="text" id="lib-search" class="app-input" placeholder="🔍 Rechercher..." onkeyup="App.renderLibraryItems()" style="box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 10px;">
+
+                <div id="room-selector-widget" style="background:#FFF; border:2px dashed var(--border); border-radius:12px; margin-bottom:10px; overflow:hidden; transition:all 0.3s;">
+                    <div id="room-view-mode" style="padding:15px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                            <div>
+                                <div style="font-size:0.7rem; font-weight:700; color:var(--text-sub); text-transform:uppercase;">Pièce Cible</div>
+                                <div id="room-display-final" style="font-size:1.1rem; font-weight:800; color:var(--primary);">Sélectionner...</div>
+                                <div id="room-details-final" style="font-size:0.8rem; color:var(--accent); font-weight:600;"></div>
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                <div id="btn-delete-room" onclick="App.deleteRoom()" style="display:none; width:40px; height:40px; background:#FEE2E2; color:#DC2626; border-radius:50%; align-items:center; justify-content:center; cursor:pointer;">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                                <div onclick="App.toggleRoomEdit(true)" style="width:40px; height:40px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.2); cursor:pointer;">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="room-used-buttons" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+                    </div>
+
+                    <div id="room-edit-mode" style="display:none; padding:15px; background:#F1F5F9; border-top:1px solid var(--border);">
+                        <label style="font-size:0.8rem; font-weight:700; color:var(--text-sub);">Nouvelle Pièce:</label>
+                        <select id="room-select-standard" class="app-input" onchange="App.onRoomSelectChange()">
+                            <option value="">-- Choisir --</option>
+                            <option value="Cuisine">Cuisine</option>
+                            <option value="Salon">Salon</option>
+                            <option value="SDB">SDB</option>
+                            <option value="Chambre">Chambre</option>
+                            <option value="Entrée">Entrée</option>
+                            <option value="Couloir">Couloir</option>
+                            <option value="WC">WC</option>
+                            <option value="Extérieur">Extérieur</option>
+                            <option value="Cave">Cave</option>
+                            <option value="Garage">Garage</option>
+                            <option value="Autre">Autre (Personnalisé)</option>
+                        </select>
+                        <input type="text" id="input-room-name" class="app-input" style="display:none; margin-top:10px;" placeholder="Nom de la pièce...">
+                        <label style="font-size:0.7rem; font-weight:700; margin-top:10px; display:block;">Dimensions</label>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:10px;">
+                            <input type="number" id="room-dim-l" class="app-input" placeholder="L (m)" step="0.01" oninput="App.calcRoomArea()" style="margin:0;">
+                            <input type="number" id="room-dim-w" class="app-input" placeholder="l (m)" step="0.01" oninput="App.calcRoomArea()" style="margin:0;">
+                            <input type="number" id="room-dim-h" class="app-input" placeholder="H (m)" step="0.01" oninput="App.calcRoomArea()" style="margin:0;">
+                        </div>
+                        <div style="display:flex; gap:10px; margin-bottom:10px;">
+                            <div style="flex:1; background:white; border:1px solid var(--border); border-radius:8px; padding:8px; text-align:center;">
+                                <div style="font-size:0.65rem; color:#64748B; font-weight:700; text-transform:uppercase;">Sol (m²)</div>
+                                <div id="room-calc-sol" style="font-weight:800; color:var(--primary);">0</div>
+                            </div>
+                            <div style="flex:1; background:white; border:1px solid var(--border); border-radius:8px; padding:8px; text-align:center;">
+                                <div style="font-size:0.65rem; color:#64748B; font-weight:700; text-transform:uppercase;">Murs (m²)</div>
+                                <div id="room-calc-murs" style="font-weight:800; color:var(--accent);">0</div>
+                            </div>
+                        </div>
+                        <label style="font-size:0.7rem; font-weight:700; margin-top:5px; display:block;">Détails (Option)</label>
+                        <input type="text" id="input-room-details" class="app-input" style="margin-bottom:0;" placeholder="Es. Mur Nord, 1er Etage...">
+                        <button class="btn-primary" style="margin-top:15px; height:45px;" onclick="App.confirmRoom()">CONFIRMER</button>
+                    </div>
+                </div>
+
+                <div id="lib-breadcrumb" style="display:none; font-size:0.8rem; font-weight:700; color:var(--text-sub); margin-bottom:10px;">
+                    <span id="lib-bc-cat"></span> <i class="fas fa-chevron-right" style="font-size:0.7em;"></i> <span id="lib-bc-sub" style="color:var(--primary);"></span>
+                </div>
+                
+                <select id="lib-category-select" class="app-input" onchange="App.renderLibraryItems()" style="font-weight:700; color:var(--primary); height:40px; margin-bottom:0;">
+                    <option value="">-- Toutes Familles --</option>
+                </select>
+
             </div>
             <div id="lib-container"></div>
         </div>
     </div>
 
     <div id="modal-client" class="full-modal"><div class="modal-header"><h3>Nouveau Client</h3><button class="header-back-container" onclick="App.closeModal('modal-client')">×</button></div><div class="modal-body"><input type="hidden" id="cli-id"><div class="type-switch"><div class="type-option active" id="type-particulier" onclick="App.toggleClientType('particulier')">Particulier</div><div class="type-option" id="type-societe" onclick="App.toggleClientType('societe')">Société</div></div><input type="text" id="cli-nom" class="app-input" placeholder="Nom Complet"><div id="field-siret" style="display:none;"><input type="text" id="cli-siret" class="app-input" placeholder="TVA / SIRET"></div><input type="text" id="cli-addr" class="app-input" placeholder="Adresse"><input type="tel" id="cli-tel" class="app-input" placeholder="Téléphone"><input type="email" id="cli-email" class="app-input" placeholder="Email"></div><div class="modal-footer"><button class="btn-primary" onclick="App.saveClient()">ENREGISTRER</button></div></div>
-    <div id="modal-edit-item" class="full-modal"><div class="modal-header"><h3>Modifier Article</h3><button class="header-back-container" onclick="App.closeModal('modal-edit-item')">×</button></div><div class="modal-body"><input type="hidden" id="edit-item-idx"><label style="font-weight:700; color:var(--text-sub);">Pièce</label><select id="edit-item-piece" class="app-input" style="font-weight:700;"></select><label style="font-weight:700; display:block; margin-bottom:8px;">Description</label><input type="text" id="edit-item-desc" class="app-input"><div style="display:flex; gap:15px;"><div style="flex:1"><label style="font-weight:700; display:block; margin-bottom:8px;">Qté</label><input type="number" id="edit-item-qty" class="app-input"></div><div style="flex:1"><label style="font-weight:700; display:block; margin-bottom:8px;">Unit.</label><input type="text" id="edit-item-unit" class="app-input" disabled style="background:#f1f5f9;"></div></div><div style="display:flex; gap:15px;"><div style="flex:1"><label style="font-weight:700; display:block; margin-bottom:8px;">Prix U.</label><input type="number" id="edit-item-price" class="app-input"></div><div style="flex:1"><label style="font-weight:700; display:block; margin-bottom:8px; color:#3B82F6;">Temps U.</label><input type="number" id="edit-item-time" class="app-input" style="border-color:#3B82F6; color:#3B82F6;"></div></div><button class="btn-primary" style="background:#fee2e2; color:#dc2626; margin-top:20px;" onclick="App.deleteItem()">SUPPRIMER LIGNE</button></div><div class="modal-footer"><button class="btn-primary" onclick="App.saveItemChanges()">CONFIRMER</button></div></div>
+    
+    <div id="modal-edit-item" class="full-modal">
+        <div class="modal-header">
+            <h3 id="edit-item-title">Article</h3>
+            <button class="header-back-container" onclick="App.closeModal('modal-edit-item')">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="edit-item-idx">
+            
+            <label style="font-weight:700; color:var(--text-sub);">Pièce</label>
+            <select id="edit-item-piece" class="app-input" style="font-weight:700;"></select>
+            
+            <label style="font-weight:700; display:block; margin-bottom:8px;">Description</label>
+            <input type="text" id="edit-item-desc" class="app-input">
+            
+            <div style="display:flex; gap:15px;">
+                <div style="flex:1">
+                    <label style="font-weight:700; display:block; margin-bottom:8px;">Qté</label>
+                    <input type="number" id="edit-item-qty" class="app-input" oninput="App.calcEditPrice()">
+                </div>
+                <div style="flex:1">
+                    <label style="font-weight:700; display:block; margin-bottom:8px;">Unit.</label>
+                    <input type="text" id="edit-item-unit" class="app-input" disabled style="background:#f1f5f9;">
+                </div>
+            </div>
+            
+            <div style="background:#F1F5F9; padding:12px; border-radius:12px; margin-bottom:15px; border:1px dashed var(--border);">
+                 <div style="font-size:0.75rem; font-weight:700; color:var(--text-sub); text-transform:uppercase; margin-bottom:5px;">Composition du Prix</div>
+                 
+                 <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <div style="flex:1">
+                        <label style="font-size:0.8rem; font-weight:700; color:#3B82F6;">Temps U. (h)</label>
+                        <input type="number" id="edit-item-time" class="app-input" step="0.1" style="border-color:#3B82F6; color:#3B82F6;" oninput="App.calcEditPrice()">
+                    </div>
+                    <div style="flex:1">
+                        <label style="font-size:0.8rem; font-weight:700; color:var(--material);">Matériel U. (€)</label>
+                        <input type="number" id="edit-item-mat" class="app-input" step="0.01" style="border-color:var(--material); color:var(--material);" oninput="App.calcEditPrice()">
+                    </div>
+                 </div>
+                 
+                 <div style="text-align:center; font-size:0.85rem; color:#475569; font-weight:600;" id="edit-item-split-display">
+                      Manodopera: 0,00€ + Materiale: 0,00€
+                 </div>
+            </div>
+
+            <label style="font-weight:700; display:block; margin-bottom:8px;">Prix U. (Calculé)</label>
+            <input type="number" id="edit-item-price" class="app-input" step="0.01" style="font-weight:800;" readonly>
+            
+            <div style="background:#ecfccb; padding:15px; border-radius:12px; margin-bottom:20px; text-align:center; border:2px solid #84cc16;">
+                <div style="font-size:0.7rem; color:#365314; font-weight:700; text-transform:uppercase;">(P.U. x Qté) = TOTALE RIGA</div>
+                <div id="edit-item-total-row" style="font-size:1.8rem; font-weight:900; color:#365314;">0,00 €</div>
+            </div>
+            
+            <label style="font-weight:700; display:block; margin-bottom:8px; color:var(--rubble);">Gravats U. (m3)</label>
+            <input type="number" id="edit-item-rubble" class="app-input" step="0.01" style="border-color:var(--border); color:var(--rubble); font-weight:700;">
+            
+            <button id="btn-delete-item" class="btn-primary" style="background:#fee2e2; color:#dc2626; margin-top:20px;" onclick="App.deleteItem()">SUPPRIMER LIGNE</button>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-primary" onclick="App.saveItemChanges()">CONFIRMER</button>
+        </div>
+    </div>
+
     <div id="modal-projet" class="full-modal"><div class="modal-header"><h3>Nouveau Chantier</h3><button class="header-back-container" onclick="App.closeModal('modal-projet')">×</button></div><div class="modal-body"><div style="display:flex; gap:10px; margin-bottom:15px;"><select id="prj-cli" class="app-input" style="flex:1; margin:0;"></select><button onclick="App.openClientModal()" style="width:55px; border-radius:12px; border:2px solid var(--border); background:white; font-size:1.2rem;">+</button></div><input type="text" id="prj-nom" class="app-input" placeholder="Nom Chantier"><input type="text" id="prj-addr" class="app-input" placeholder="Lieu"></div><div class="modal-footer"><button class="btn-primary" onclick="App.createProject()">CRÉER</button></div></div>
     <div id="modal-agenda" class="full-modal"><div class="modal-header"><h3>Nouveau RDV</h3><button class="header-back-container" onclick="App.closeModal('modal-agenda')">×</button></div><div class="modal-body"><select id="agd-chantier" class="app-input"></select><input type="datetime-local" id="agd-date" class="app-input"><button class="btn-primary" onclick="App.saveAgendaEvent()">ENREGISTRER</button><div style="margin-top:30px; font-weight:800;">Prochains Événements</div><div id="agenda-list-view" style="margin-top:10px;"></div></div></div>
-    <div id="modal-invoice" class="full-modal"><div class="modal-header"><h3>Créer Facture</h3><button class="header-back-container" onclick="App.closeModal('modal-invoice')">×</button></div><div class="modal-body"><label style="font-weight:700;">Depuis Devis:</label><select id="inv-devis-select" class="app-input" onchange="App.onInvoiceDevisChange()"></select><div style="background:#F1F5F9; padding:15px; border-radius:12px; text-align:center; margin-bottom:20px;"><div style="font-size:0.8rem; color:#64748B">Montant Devis</div><div style="font-size:1.4rem; font-weight:900;" id="inv-total-quote">0€</div></div><div style="display:flex; gap:10px; margin-bottom:15px;"><button id="btn-acompte" onclick="App.setInvType('acompte')" style="flex:1; height:45px; border-radius:10px; border:1px solid var(--border);">Acompte %</button><button id="btn-solde" onclick="App.setInvType('solde')" style="flex:1; height:45px; border-radius:10px; border:1px solid var(--border);">Solde</button></div><input type="number" id="inv-percent" class="app-input" value="30" onchange="App.calcInvPreview()"><div style="text-align:center; margin-top:20px;"><div>Montant Facture</div><div style="font-size:2rem; font-weight:900; color:var(--primary);" id="inv-preview-amount">0€</div></div></div><div class="modal-footer"><button class="btn-primary" onclick="App.generateInvoice()">CRÉER FACTURE</button></div></div>
+    <div id="modal-invoice" class="full-modal"><div class="modal-header"><h3>Créer Facture</h3><button class="header-back-container" onclick="App.closeModal('modal-invoice')">×</button></div><div class="modal-body"><label style="font-weight:700;">Depuis Devis:</label><select id="inv-devis-select" class="app-input" onchange="App.onInvoiceDevisChange()"></select><div style="background:#F1F5F9; padding:15px; border-radius:12px; text-align:center; margin-bottom:20px;"><div style="font-size:0.8rem; color:#64748B">Montant Devis</div><div style="font-size:1.4rem; font-weight:900;" id="inv-total-quote">0,00 €</div></div><div style="display:flex; gap:10px; margin-bottom:15px;"><button id="btn-acompte" onclick="App.setInvType('acompte')" style="flex:1; height:45px; border-radius:10px; border:1px solid var(--border);">Acompte %</button><button id="btn-solde" onclick="App.setInvType('solde')" style="flex:1; height:45px; border-radius:10px; border:1px solid var(--border);">Solde</button></div><input type="number" id="inv-percent" class="app-input" value="30" onchange="App.calcInvPreview()"><div style="text-align:center; margin-top:20px;"><div>Montant Facture</div><div style="font-size:2rem; font-weight:900; color:var(--primary);" id="inv-preview-amount">0,00 €</div></div></div><div class="modal-footer"><button class="btn-primary" onclick="App.generateInvoice()">CRÉER FACTURE</button></div></div>
 
     <script>
-        const Config = { LIB: { "Démolition": [{desc:"Dépose carrelage", unit:"m²", price:25, time:0.5}, {desc:"Evacuation gravats", unit:"forfait", price:150, time:2}], "Maçonnerie": [{desc:"Ragréage sol P3", unit:"m²", price:18, time:0.3}, {desc:"Chape ciment", unit:"m²", price:45, time:0.8}], "Plomberie": [{desc:"Pose WC Suspendu", unit:"U", price:450, time:4}, {desc:"Douche Italienne", unit:"U", price:1800, time:12}], "Peinture": [{desc:"Impression murs", unit:"m²", price:12, time:0.2}, {desc:"Peinture mate 2c", unit:"m²", price:22, time:0.3}], "Electricité": [{desc:"Prise courant", unit:"U", price:65, time:0.5}, {desc:"Tableau Elec", unit:"U", price:1200, time:8}] } };
+        const SUPABASE_URL = 'https://uhuxdsubvvnytuftyztq.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVodXhkc3VidnZueXR1ZnR5enRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5MzI3NDMsImV4cCI6MjA4NTUwODc0M30.lXOPs-qDfXuO7ExdpbQJawb_gSWD31FDT0FHSD4xdmE';
         
-        const Store = {
-            data: { clients: [], chantiers: [], appointments: [], partners: [] },
-            init() { 
-                const s = localStorage.getItem('qotia_v80'); 
-                if(s) this.data = JSON.parse(s); 
-                else this.seed(); 
+        const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const Auth = {
+            user: null,
+            async init() {
+                const { data } = await sbClient.auth.getSession();
+                if (data.session) {
+                    this.user = data.session.user;
+                    document.getElementById('login-overlay').style.display = 'none';
+                    Store.init();
+                } else {
+                    document.getElementById('login-overlay').style.display = 'flex';
+                }
             },
+            async login() {
+                const email = document.getElementById('login-email').value;
+                const pass = document.getElementById('login-pass').value;
+                const btn = document.getElementById('btn-login');
+                const msg = document.getElementById('login-msg');
+
+                if(!email || !pass) return msg.innerText = "Inserisci credenziali";
+                btn.innerText = "Caricamento...";
+                const { data, error } = await sbClient.auth.signInWithPassword({ email: email, password: pass });
+
+                if (error) {
+                    btn.innerText = "ENTRER";
+                    msg.innerText = "Errore: " + error.message;
+                } else {
+                    this.user = data.user;
+                    document.getElementById('login-overlay').style.display = 'none';
+                    Store.init();
+                }
+            },
+            async logout() {
+                await sbClient.auth.signOut();
+                location.reload();
+            }
+        };
+
+        let Config = { LIB: {}, searchIndex: null, allItems: [] }; 
+
+        const Store = {
+            data: { clients: [], chantiers: [], appointments: [], partners: [], settings: { hourlyRate: 45 } },
+            
+            async init() {
+                App.showToast("Sync con Cloud...");
+                
+                const { data: libData, error: libErr } = await sbClient
+                    .from('library_items')
+                    .select('*')
+                    .range(0, 10000)
+                    .order('category', { ascending: true })
+                    .order('sub_category', { ascending: true }) 
+                    .order('desc', { ascending: true });
+
+                if(!libErr && libData) {
+                    Config.LIB = {};
+                    Config.allItems = [];
+
+                    libData.forEach(item => {
+                        const cat = item.category || "Autre";
+                        if(!Config.LIB[cat]) Config.LIB[cat] = [];
+                        
+                        const processedItem = {
+                            id: item.id,
+                            category: cat,
+                            sub_category: item.sub_category || "Général",
+                            code: item.ref_code,
+                            desc: item.desc, 
+                            unit: item.unit, 
+                            labor_time: item.labor_time, 
+                            material_cost: item.material_cost || 0, // MAPPING MATERIAL COST
+                            gravats: item.dechet || 0 // MAPPING DECHET FROM DB
+                        };
+
+                        Config.LIB[cat].push(processedItem);
+                        Config.allItems.push(processedItem);
+                    });
+
+                    const options = {
+                        includeScore: true,
+                        threshold: 0.3, 
+                        keys: ['desc', 'category', 'sub_category'] 
+                    };
+                    Config.searchIndex = new Fuse(Config.allItems, options);
+                }
+
+                const { data: userData } = await sbClient
+                    .from('app_state')
+                    .select('data_json')
+                    .eq('user_id', Auth.user.id)
+                    .single();
+
+                if (userData && userData.data_json) {
+                    this.data = userData.data_json;
+                    if(!this.data.settings) this.data.settings = { hourlyRate: 45 };
+                } else {
+                    this.seed();
+                    setTimeout(() => App.openSetupModal(), 1000);
+                }
+                
+                App.nav('home');
+            },
+
             seed() {
-                this.data.clients = [
-                    {id:1, type:'particulier', nom:'Jean Dupont', addr:'10 Av. de la Californie, Nice', tel:'0611223344'},
-                    {id:2, type:'societe', nom:'SCI Azurea', siret:'999888777', addr:'5 Rue Massena, Nice', tel:'0493000000'},
-                    {id:3, type:'particulier', nom:'Sophie Martin', addr:'Villa Rosiers, Cannes', tel:'0655443322'},
-                    {id:4, type:'societe', nom:'Agence Immo Plus', addr:'2 Bd Victor Hugo', tel:'0492929292'},
-                    {id:5, type:'particulier', nom:'Marc Levy', addr:'Antibes', tel:'0612121212'}
-                ];
-                this.data.partners = [
-                    {id:1, name:'Mario Rossi', role:'Collaborateur'}, 
-                    {id:2, name:'Elec Pro 06', role:'Artisan'},
-                    {id:3, name:'Plombier Express', role:'Artisan'},
-                    {id:4, name:'Équipe B', role:'Collaborateur'}
-                ];
-                this.data.chantiers = [
-                    {
-                        id: 101, clientId: 1, name: 'Rénovation Cuisine', ref: 'C-2401',
-                        devisList: [{ id: 5001, ref: 'D-2401', name: 'Rénov Complète', status: 'Validé', total: 4250, totalTime: 40, items: [{id:1, desc:'Dépose meubles', qty:1, price:350, time:4, unit:'Forfait', piece:'Cuisine'}, {id:2, desc:'Peinture', qty:25, price:28, time:0.5, unit:'m²', piece:'Cuisine'}]}],
-                        factures: [{id: 901, ref: 'FAC-2401', type: 'acompte', amount: 1275, paid: true}], extraDocs: []
-                    },
-                    {
-                        id: 102, clientId: 2, name: 'Plateau Bureaux', ref: 'C-2402',
-                        devisList: [{ id: 5002, ref: 'D-2402', name: 'Lot Élec', status: 'Brouillon', total: 0, totalTime: 0, items: []}],
-                        factures: [], extraDocs: []
-                    },
-                    {
-                        id: 103, clientId: 3, name: 'SDB Suite Parentale', ref: 'C-2403',
-                        devisList: [{ id: 5003, ref: 'D-2403', name: 'Sanitaire', status: 'Validé', total: 0, totalTime: 0, items: []}],
-                        factures: [{id: 902, ref: 'FAC-2403', type: 'acompte', amount: 2000, paid: false}], extraDocs: []
-                    },
-                    { id: 104, clientId: 4, name: 'Rafraîchissement T2', ref: 'C-2404', devisList: [], factures: [], extraDocs: [] }
-                ];
-                this.data.chantiers.forEach(c => c.devisList.forEach(d => { let t=0, ti=0; d.items.forEach(i=>{t+=i.qty*i.price; ti+=i.qty*(i.time||0)}); d.total=t; d.totalTime=ti; }));
-                const today = new Date().toISOString().split('T')[0];
-                this.data.appointments = [ {id: 1, date: `${today}T09:30`, title: 'Démarrage', sub: 'Jean Dupont'}, {id: 2, date: `${today}T14:00`, title: 'Visite', sub: 'SCI Azurea'} ];
+                this.data.clients = [];
+                this.data.chantiers = [];
+                this.data.settings = { hourlyRate: 45 }; 
                 this.save();
             },
-            save() { localStorage.setItem('qotia_v80', JSON.stringify(this.data)); }
+
+            async save() {
+                await sbClient.from('app_state').upsert({ 
+                    user_id: Auth.user.id, 
+                    data_json: this.data,
+                    last_update: new Date()
+                });
+            }
         };
 
         const App = {
-            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces', selectedItems: new Set(), lastPiece: 'Général' },
-            init() { Store.init(); this.nav('home'); },
+            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces', selectedItems: new Set(), lastPiece: 'Général', libCategory: null, libSubCategory: null, isEditing: false, tempLibItem: null, sigPad: null },
+            
+            init() { Auth.init(); },
+
+            openSetupModal() {
+                const rate = prompt("Benvenuto! Per calcolare i prezzi correttamente, inserisci la tua Tariffa Oraria (€/h):", Store.data.settings.hourlyRate);
+                if(rate) {
+                    Store.data.settings.hourlyRate = parseFloat(rate);
+                    Store.save();
+                    App.showToast("Tariffa salvata: " + rate + "€/h");
+                }
+            },
+
+            calculateItemPrice(item) {
+                const rate = Store.data.settings.hourlyRate || 45;
+                const laborCost = (item.labor_time || 0) * rate;
+                const matCost = (item.material_cost || 0);
+                return laborCost + matCost;
+            },
+
             nav(view) {
                 document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
                 document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
@@ -374,41 +695,53 @@
                 if(view==='factures-global') this.renderGlobalInvoices();
                 if(view==='settings') this.renderSettings();
             },
+            
             showToast(msg) {
                 const c = document.getElementById('toast-container');
                 const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fas fa-check-circle" style="color:#4ADE80"></i> ${msg}`;
                 c.appendChild(t); setTimeout(()=>t.classList.add('show'),10); setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300)},3000);
             },
-            
-            // --- PARTNERS ---
-            renderSettings() {
-                const l = document.getElementById('settings-partners-list'); l.innerHTML = '';
-                (Store.data.partners||[]).forEach(p => { l.innerHTML += `<div class="card-item"><div class="card-info"><div class="card-title">${p.name}</div><div class="card-sub">${p.role}</div></div><i class="fas fa-trash" style="color:#CBD5E1; cursor:pointer;" onclick="App.deletePartner(${p.id})"></i></div>`; });
-            },
-            openPartnerModal() { document.getElementById('ptn-name').value=''; document.getElementById('modal-partner').classList.add('open'); },
-            savePartner() {
-                const name = document.getElementById('ptn-name').value;
-                if(!name) return;
-                Store.data.partners.push({id:Date.now(), name:name, role:document.getElementById('ptn-role').value});
-                Store.save(); App.closeModal('modal-partner'); App.renderSettings();
-            },
-            deletePartner(id) { if(confirm("Supprimer ?")) { Store.data.partners = Store.data.partners.filter(p=>p.id!==id); Store.save(); App.renderSettings(); }},
 
-            // --- RENDER FUNCTIONS ---
+            formatMoney(amount) {
+                return (amount || 0).toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+            },
+
             renderHome() {
                 document.getElementById('home-date-display').innerText = new Date().toLocaleDateString('fr-FR');
                 const l = document.getElementById('home-today-list'); l.innerHTML = '';
                 (Store.data.appointments||[]).forEach(a=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div style="font-weight:800;font-size:1.1rem;color:var(--primary);width:60px;">RDV</div><div class="card-info"><div class="card-title">${a.title}</div><div class="card-sub">${a.sub}</div></div>`; l.appendChild(div); });
+                let unpaid = 0; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) unpaid += f.amount; })});
+                document.getElementById('home-unpaid').innerText = App.formatMoney(unpaid);
             },
             renderClients(q='') {
                 const l = document.getElementById('clients-list'); l.innerHTML = '';
                 Store.data.clients.forEach(c => {
                     if(c.nom && c.nom.toLowerCase().includes(q.toLowerCase())) {
-                        l.innerHTML += `<div class="card-item"><div class="card-info" onclick="App.editClient(${c.id})"><div class="card-title">${c.nom}</div><div class="card-sub">${c.addr || '-'}</div></div><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.addr)}" target="_blank" class="header-action-btn" style="background:transparent; color:#2563EB; box-shadow:none;"><i class="fas fa-map-marked-alt" style="font-size:1.4rem"></i></a><a href="tel:${c.tel}" class="header-action-btn" style="background:transparent; color:#15803d; box-shadow:none;"><i class="fas fa-phone" style="font-size:1.4rem"></i></a></div>`;
+                        l.innerHTML += `<div class="card-item"><div class="card-info" onclick="App.editClient(${c.id})"><div class="card-title">${c.nom}</div><div class="card-sub">${c.addr || '-'}</div></div></div>`;
                     }
                 });
             },
-            renderProjets() { const l = document.getElementById('projects-list-full'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { const cli = Store.data.clients.find(x=>x.id==c.clientId); l.innerHTML += `<div class="card-item" onclick="App.openHub(${c.id})"><div class="card-info"><span class="card-tag">${c.ref}</span><div class="card-title">${c.name}</div><div class="card-sub"><i class="fas fa-user"></i> ${cli?cli.nom:'?'}</div></div><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.addr)}" target="_blank" class="header-action-btn" style="background:transparent; color:#2563EB; box-shadow:none; padding:0 10px;"><i class="fas fa-map-marked-alt" style="font-size:1.4rem"></i></a></div>`; }); },
+            renderProjets() { const l = document.getElementById('projects-list-full'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { const cli = Store.data.clients.find(x=>x.id==c.clientId); l.innerHTML += `<div class="card-item" style="border-left:4px solid var(--col-chantier); background:var(--bg-chantier);" onclick="App.openHub(${c.id})"><div class="card-info"><span class="card-tag">${c.ref}</span><div class="card-title">${c.name}</div><div class="card-sub"><i class="fas fa-user"></i> ${cli?cli.nom:'?'}</div></div></div>`; }); },
+            
+            renderSettings() {
+                const l = document.getElementById('settings-partners-list'); l.innerHTML = '';
+                l.innerHTML += `<div class="section-title">Ma Tariffa</div>
+                <div class="card-item" onclick="App.openSetupModal()">
+                    <div class="card-info"><div class="card-title">Costo Orario</div><div class="card-sub">Usato per calcolare i prezzi</div></div>
+                    <div style="font-size:1.2rem; font-weight:800; color:var(--primary);">${Store.data.settings.hourlyRate} €/h</div>
+                    <i class="fas fa-pen" style="color:#CBD5E1; margin-left:10px;"></i>
+                </div>
+                <div class="section-title" style="margin-top:20px;">Partenaires</div>`;
+                
+                (Store.data.partners||[]).forEach(p => { l.innerHTML += `<div class="card-item"><div class="card-info"><div class="card-title">${p.name}</div><div class="card-sub">${p.role}</div></div><i class="fas fa-trash" style="color:#CBD5E1; cursor:pointer;" onclick="App.deletePartner(${p.id})"></i></div>`; });
+                
+                const logoutBtn = document.createElement('div');
+                logoutBtn.className = 'card-item'; logoutBtn.style.borderColor = '#EF4444'; logoutBtn.style.marginTop = '30px';
+                logoutBtn.innerHTML = `<div><b style="color:#EF4444">LOGOUT</b></div><i class="fas fa-sign-out-alt" style="color:#EF4444"></i>`;
+                logoutBtn.onclick = Auth.logout;
+                l.appendChild(logoutBtn);
+            },
+
             openHub(id) {
                 Store.data.activeChantierId = id; Store.save();
                 const c = Store.data.chantiers.find(x=>x.id==id); const cli = Store.data.clients.find(x=>x.id==c.clientId);
@@ -416,56 +749,177 @@
                 
                 const ld = document.getElementById('hub-devis-list'); ld.innerHTML=''; 
                 c.devisList.forEach(d => { 
-                    ld.innerHTML+=`<div class="card-item"><div class="card-info" onclick="App.openEditor(${d.id})"><div class="card-title">${d.name}</div><div class="card-sub">${(d.total||0).toLocaleString()} €</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('devis', ${d.id})"></i><i class="fas fa-pen" style="color:#CBD5E1; margin-left:10px;" onclick="App.openEditor(${d.id})"></i></div>`; 
+                    const isSigned = d.signature ? true : false;
+                    const signIcon = isSigned 
+                        ? `<i class="fas fa-pen-nib" style="color:#16a34a; font-size:1.2rem; padding:10px;"></i>` 
+                        : `<i class="fas fa-pen-nib" style="color:#CBD5E1; font-size:1.2rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.promptSignature(${d.id})"></i>`;
+
+                    ld.innerHTML+=`<div class="card-item" style="border-left:4px solid var(--col-devis); background:var(--bg-devis);"><div class="card-info" onclick="App.openEditor(${d.id})"><div class="card-title">${d.name}</div><div class="card-sub">${App.formatMoney(d.total)}</div></div>${signIcon}<i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('devis', ${d.id})"></i><i class="fas fa-trash" style="color:#CBD5E1; font-size:1.2rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.deleteDevis(${d.id})"></i><i class="fas fa-pen" style="color:#CBD5E1; margin-left:10px;" onclick="App.openEditor(${d.id})"></i></div>`; 
                 });
-                
+
                 const lcdc = document.getElementById('hub-docs-list'); lcdc.innerHTML = '';
                 if(c.extraDocs) {
                     c.extraDocs.forEach(doc => {
-                        lcdc.innerHTML += `<div class="card-item" style="border-left:4px solid var(--time)"><div class="card-info"><div class="card-title">${doc.name}</div><div class="card-sub">${doc.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateCDCPDF('${doc.id}')"></i></div>`;
+                        lcdc.innerHTML += `<div class="card-item" style="border-left:4px solid var(--col-cdc); background:var(--bg-cdc);"><div class="card-info"><div class="card-title">${doc.name}</div><div class="card-sub">${doc.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateCDCPDF('${doc.id}')"></i><i class="fas fa-trash" style="color:#CBD5E1; font-size:1.2rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.deleteCDC('${doc.id}')"></i></div>`;
                     });
                 }
 
                 const lf = document.getElementById('hub-factures-list'); lf.innerHTML=''; 
                 c.factures.forEach(f => { 
-                    lf.innerHTML+=`<div class="card-item" style="border-left:${f.paid?'4px solid var(--success)':'4px solid var(--danger)'}"><div class="card-info"><div class="card-title">${f.ref}</div><div class="card-sub">${f.amount}€</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i></div>`; 
+                    lf.innerHTML+=`<div class="card-item" style="border-left:4px solid var(--col-facture); background:var(--bg-facture);"><div class="card-info"><div class="card-title">${f.ref}</div><div class="card-sub">${App.formatMoney(f.amount)}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i></div>`; 
                 });
                 this.nav('hub');
             },
+            
+            // --- SIGNATURE MODULE ---
+            promptSignature(devisId) {
+                Store.data.activeDevisId = devisId;
+                document.getElementById('modal-signature').classList.add('open');
+                setTimeout(() => App.initCanvas(), 300);
+            },
+
+            initCanvas() {
+                const canvas = document.getElementById('sig-canvas');
+                const ctx = canvas.getContext('2d');
+                // Resize canvas to fit container
+                const rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#000';
+
+                let painting = false;
+
+                function start(e) {
+                    painting = true;
+                    draw(e);
+                }
+
+                function end() {
+                    painting = false;
+                    ctx.beginPath();
+                }
+
+                function draw(e) {
+                    if (!painting) return;
+                    e.preventDefault();
+                    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                    
+                    const rect = canvas.getBoundingClientRect();
+                    const x = clientX - rect.left;
+                    const y = clientY - rect.top;
+
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                }
+
+                canvas.onmousedown = start;
+                canvas.onmouseup = end;
+                canvas.onmousemove = draw;
+
+                canvas.ontouchstart = start;
+                canvas.ontouchend = end;
+                canvas.ontouchmove = draw;
+                
+                App.state.sigPad = { canvas, ctx };
+            },
+
+            clearSignature() {
+                const { canvas, ctx } = App.state.sigPad;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            },
+
+            saveSignature() {
+                const { canvas } = App.state.sigPad;
+                // Check if empty (optional, skip for simplicity)
+                const dataUrl = canvas.toDataURL("image/png");
+                
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const d = c.devisList.find(x => x.id == Store.data.activeDevisId);
+                
+                d.signature = dataUrl;
+                d.status = "Accepté";
+                d.signDate = new Date().toLocaleDateString('fr-FR');
+                
+                Store.save();
+                App.showToast("Devis signé et accepté !");
+                App.closeModal('modal-signature');
+                App.openHub(c.id);
+            },
+
+            // --- END SIGNATURE ---
+
+            deleteDevis(did) {
+                if(!confirm("Eliminare definitivamente questo preventivo?")) return;
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                c.devisList = c.devisList.filter(d => d.id !== did);
+                Store.save();
+                App.openHub(c.id);
+            },
+
+            deleteCDC(docId) {
+                if(!confirm("Eliminare questo documento CDC?")) return;
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                c.extraDocs = c.extraDocs.filter(d => d.id != docId);
+                Store.save();
+                App.openHub(c.id);
+            },
+
+            deleteRoom() {
+                const roomName = document.getElementById('room-display-final').innerText;
+                if(roomName === "Sélectionner une pièce") return;
+
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId); 
+                const dv = c.devisList.find(x => x.id == Store.data.activeDevisId);
+                const isUsed = dv.items.some(i => i.piece === roomName);
+
+                if(isUsed) {
+                    alert("Impossibile eliminare: questa stanza contiene degli articoli. Rimuovi prima gli articoli.");
+                    return;
+                }
+
+                if(!confirm("Rimuovere la stanza '" + roomName + "' dalla lista rapida?")) return;
+
+                document.getElementById('input-room-name').value = '';
+                document.getElementById('input-room-details').value = '';
+                document.getElementById('room-dim-l').value = '';
+                document.getElementById('room-dim-w').value = '';
+                document.getElementById('room-dim-h').value = '';
+                document.getElementById('room-calc-sol').innerText = '0';
+                document.getElementById('room-calc-murs').innerText = '0';
+                document.getElementById('room-select-standard').value = ''; 
+                document.getElementById('room-display-final').innerText = "Sélectionner une pièce";
+                document.getElementById('room-display-final').style.color = "var(--primary)";
+                document.getElementById('room-details-final').innerText = "";
+                document.getElementById('room-selector-widget').style.borderColor = "var(--border)";
+                document.getElementById('room-selector-widget').style.background = "#FFF";
+                document.getElementById('btn-delete-room').style.display = 'none'; 
+                
+                App.renderUsedRoomButtons();
+            },
+
             createNewDevis() {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const name = prompt("Nom du devis :", 'Devis #' + (c.devisList.length + 1));
                 if (!name) return;
                 const id = Date.now();
-                c.devisList.push({ id: id, ref: 'D-'+Math.floor(Math.random()*1000), name: name, status:'Brouillon', items: [], total: 0, totalTime: 0 });
-                Store.save(); App.showToast("Devis créé"); App.openEditor(id);
-            },
-
-            // --- EDITOR & NAV FIX (CRUCIAL) ---
-            backToHub() { 
-                if(Store.data.activeChantierId) {
-                    App.openHub(Store.data.activeChantierId); 
-                } else if(Store.data.activeDevisId) {
-                    // Fallback se ID perso
-                    const c = Store.data.chantiers.find(ch => ch.devisList.some(d => d.id == Store.data.activeDevisId));
-                    if(c) App.openHub(c.id); else App.nav('projets');
-                } else {
-                    App.nav('projets');
-                }
+                c.devisList.push({ id: id, ref: 'D-'+Math.floor(Math.random()*1000), name: name, status:'Brouillon', items: [], total: 0, totalTime: 0, totalGravats: 0 });
+                Store.save(); App.openEditor(id);
             },
             openEditor(did) { 
                 Store.data.activeDevisId = did; 
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                // FIX: Force re-link to current chantier if missing context
-                if(!c) {
-                     const found = Store.data.chantiers.find(ch => ch.devisList.some(d => d.id == did));
-                     if(found) {
-                         Store.data.activeChantierId = found.id;
-                         return App.openEditor(did); // Retry with correct ID
-                     }
+                if(!c) { 
+                    const found = Store.data.chantiers.find(ch => ch.devisList.some(d => d.id == did));
+                    if(found) { Store.data.activeChantierId = found.id; return App.openEditor(did); }
+                    return App.nav('projets'); 
                 }
-                const cli = Store.data.clients.find(x=>x.id==c.clientId);
-                const d = c.devisList.find(x=>x.id==did);
+                const cli = Store.data.clients.find(x=>x.id==c.clientId); const d = c.devisList.find(x=>x.id==did);
                 document.getElementById('ed-client-name').innerText = cli ? cli.nom : 'Inconnu';
                 document.getElementById('ed-quote-name').innerText = c.name + " - " + d.name;
                 this.nav('editor'); App.setEditorView('pieces'); App.calcTotals();
@@ -479,17 +933,24 @@
             calcTotals() {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
-                let totP = 0; let totT = 0;
-                d.items.forEach(i => { totP += i.qty * i.price; totT += i.qty * (i.time || 0); });
-                d.total = totP; d.totalTime = totT; Store.save();
-                document.getElementById('ed-total-price').innerText = Math.round(totP).toLocaleString() + ' €';
+                let totP = 0; let totT = 0; let totG = 0;
+                d.items.forEach(i => { 
+                    totP += i.qty * i.price; 
+                    totT += i.qty * (i.time || 0); 
+                    totG += i.qty * (i.gravats || 0); // CALCOLO GRAVATS
+                });
+                d.total = totP; d.totalTime = totT; d.totalGravats = totG; Store.save();
+                document.getElementById('ed-total-price').innerText = App.formatMoney(totP);
                 document.getElementById('ed-total-time').innerText = totT.toFixed(1) + ' h';
+                document.getElementById('ed-total-rubble').innerText = totG.toFixed(2) + ' m³';
             },
             renderEditorItems() {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
                 const l = document.getElementById('editor-list-container'); l.innerHTML=''; 
                 if(d.items.length === 0) { l.innerHTML = '<div style="text-align:center; padding:40px; color:#94A3B8;">Vide</div>'; return; }
+
+                const rate = Store.data.settings.hourlyRate || 45;
 
                 if (App.state.viewMode === 'pieces') {
                     const grouped = {};
@@ -498,8 +959,16 @@
                         let html = `<div class="piece-section"><div class="piece-header"><div class="piece-title"><i class="fas fa-door-open"></i> ${piece}</div><span style="font-size:0.8rem; font-weight:700;">${items.length}</span></div>`;
                         items.forEach(i => {
                             let rowP = i.qty * i.price;
-                            const assigned = i.assignedTo ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${i.assignedTo}</span>` : '';
-                            html += `<div class="e-card" onclick="App.editDevisItem(${i.id})"><div class="e-card-row"><div class="e-desc">${i.desc} ${assigned}</div><div style="font-weight:800; color:var(--primary);">${Math.round(rowP)}€</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Qté</div><div class="stat-val">${i.qty}</div></div><div class="stat-box"><div class="stat-lbl">Prix U.</div><div class="stat-val">${i.price}€</div></div><div class="stat-box"><div class="stat-lbl">Temps</div><div class="stat-val time">${i.time||0}h</div></div></div></div>`;
+                            let laborCostTotal = (i.time || 0) * rate * i.qty;
+                            let matCostTotal = (i.material_cost || 0) * i.qty;
+                            
+                            html += `<div class="e-card" style="background:var(--bg-devis);" onclick="App.editDevisItem(${i.id})"><div class="e-card-row"><div class="e-desc">${i.desc}</div><div style="font-weight:800; color:var(--primary);">${App.formatMoney(rowP)}</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Qté</div><div class="stat-val">${i.qty}</div></div><div class="stat-box"><div class="stat-lbl">Prix U.</div><div class="stat-val">${App.formatMoney(i.price)}</div></div><div class="stat-box"><div class="stat-lbl">Temps</div><div class="stat-val time">${i.time||0}h</div></div></div>
+                            <div class="e-stats" style="border-top:1px dashed #e2e8f0; margin-top:5px;">
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--time)">M.O. (€)</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(laborCostTotal)}</div></div>
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Mat. (€)</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(matCostTotal)}</div></div>
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--rubble)">Gravats</div><div class="stat-val" style="color:var(--rubble); font-size:0.8rem;">${(i.gravats*i.qty).toFixed(2)}</div></div>
+                            </div>
+                            </div>`;
                         });
                         l.innerHTML += html + `</div>`;
                     }
@@ -507,46 +976,642 @@
                     const aggregated = {};
                     d.items.forEach(i => {
                         const key = i.desc + "_" + i.price;
-                        if (!aggregated[key]) aggregated[key] = { desc: i.desc, price: i.price, totalQty: 0, totalTime: 0, pieces: new Set() };
-                        aggregated[key].totalQty += i.qty; aggregated[key].totalTime += (i.qty * (i.time || 0)); aggregated[key].pieces.add(i.piece || "Général");
+                        if (!aggregated[key]) aggregated[key] = { desc: i.desc, price: i.price, totalQty: 0, totalTime: 0, pieces: new Set(), totalLaborCost: 0, totalMatCost: 0 };
+                        aggregated[key].totalQty += i.qty; 
+                        aggregated[key].totalTime += (i.qty * (i.time || 0)); 
+                        aggregated[key].pieces.add(i.piece || "Général");
+                        
+                        aggregated[key].totalLaborCost += ((i.time || 0) * rate * i.qty);
+                        aggregated[key].totalMatCost += ((i.material_cost || 0) * i.qty);
                     });
                     for (const key in aggregated) {
                         const agg = aggregated[key]; const totalP = agg.totalQty * agg.price; const locs = Array.from(agg.pieces).join(", ");
-                        l.innerHTML += `<div class="e-card" style="border-left-color:var(--accent);"><div class="e-card-row"><div class="e-desc">${agg.desc}<br><span class="e-loc-tag">${locs}</span></div><div style="font-weight:800;">${Math.round(totalP)}€</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Tot Qté</div><div class="stat-val">${agg.totalQty}</div></div><div class="stat-box"><div class="stat-lbl">Tot Time</div><div class="stat-val time">${agg.totalTime.toFixed(1)}h</div></div></div></div>`;
+                        l.innerHTML += `<div class="e-card" style="background:var(--bg-devis); border-left-color:var(--accent);"><div class="e-card-row"><div class="e-desc">${agg.desc}<br><span class="e-loc-tag">${locs}</span></div><div style="font-weight:800;">${App.formatMoney(totalP)}</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Tot Qté</div><div class="stat-val">${agg.totalQty}</div></div><div class="stat-box"><div class="stat-lbl">Tot Time</div><div class="stat-val time">${agg.totalTime.toFixed(1)}h</div></div></div>
+                        <div class="e-stats" style="border-top:1px dashed #e2e8f0; margin-top:5px;">
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--time)">Tot M.O.</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(agg.totalLaborCost)}</div></div>
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Tot Mat.</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(agg.totalMatCost)}</div></div>
+                        </div>
+                        </div>`;
                     }
                 }
             },
+
+            // --- NUOVA LOGICA "ROOM SELECTOR" V7 (STICKY & SMART) ---
+            openLibrary() {
+                const categories = Object.keys(Config.LIB).sort();
+                if(categories.length === 0) return App.showToast("Caricamento biblioteca...");
+                
+                // RESET VARIABILI
+                document.getElementById('lib-search').value = '';
+                App.state.libCategory = null; 
+                App.state.libSubCategory = null;
+                document.getElementById('lib-breadcrumb').style.display = 'none';
+                
+                // RESET TENDINA FAMIGLIE
+                const sel = document.getElementById('lib-category-select');
+                sel.innerHTML = '<option value="">-- Tutte le Famiglie --</option>';
+                categories.forEach(cat => sel.innerHTML += `<option value="${cat}">${cat}</option>`);
+                sel.value = ""; 
+
+                // --- RESETTA SELETTORE STANZA ---
+                document.getElementById('input-room-name').value = '';
+                document.getElementById('input-room-details').value = '';
+                document.getElementById('room-dim-l').value = '';
+                document.getElementById('room-dim-w').value = '';
+                document.getElementById('room-dim-h').value = '';
+                document.getElementById('room-calc-sol').innerText = '0';
+                document.getElementById('room-calc-murs').innerText = '0';
+                document.getElementById('room-select-standard').value = ''; 
+                document.getElementById('room-display-final').innerText = "Sélectionner une pièce";
+                document.getElementById('room-display-final').style.color = "var(--primary)";
+                document.getElementById('room-details-final').innerText = "";
+                document.getElementById('room-selector-widget').style.borderColor = "var(--border)";
+                document.getElementById('room-selector-widget').style.background = "#FFF";
+                document.getElementById('btn-delete-room').style.display = 'none'; // Nascondi cestino all'inizio
+                
+                // GENERA I BOTTONI SOLO PER STANZE GIÀ USATE
+                App.renderUsedRoomButtons();
+
+                // Mostra il selettore "compatto" all'inizio
+                App.toggleRoomEdit(false); 
+
+                App.renderLibraryItems();
+                document.getElementById('modal-library').classList.add('open'); 
+            },
+
+            // FUNZIONE CHE CREA I BOTTONI DINAMICI (Con stile "Active")
+            renderUsedRoomButtons(activeRoomName = null) {
+                const ch = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId); 
+                const dv = ch.devisList.find(x => x.id == Store.data.activeDevisId);
+                const container = document.getElementById('room-used-buttons');
+                container.innerHTML = '';
+
+                // Trova stanze uniche
+                const usedRooms = new Set();
+                dv.items.forEach(i => {
+                    if(i.piece) usedRooms.add(i.piece);
+                });
+
+                // Se abbiamo appena creato una stanza nuova che non ha ancora articoli, aggiungiamola alla lista
+                const currentInputName = document.getElementById('room-display-final').innerText;
+                if(currentInputName !== "Sélectionner une pièce") {
+                    usedRooms.add(currentInputName);
+                }
+
+                if(usedRooms.size === 0) {
+                    container.innerHTML = '<span style="font-size:0.7rem; color:#94A3B8;">Aucune pièce créée. Cliquez sur +</span>';
+                    return;
+                }
+
+                usedRooms.forEach(roomName => {
+                    const btn = document.createElement('div');
+                    btn.className = 'room-tag-btn';
+                    
+                    // Stile attivo se corrisponde alla stanza corrente
+                    if (roomName === activeRoomName || roomName === document.getElementById('room-display-final').innerText) {
+                        btn.classList.add('active');
+                        // Aggiorna anche visivamente il box principale se non lo è già
+                        if(document.getElementById('room-display-final').innerText !== roomName) {
+                             App.setRoomActiveVisuals(roomName);
+                        }
+                    }
+
+                    btn.innerText = roomName;
+                    btn.onclick = () => {
+                        App.setRoomActiveVisuals(roomName);
+                        // Ridisegna i bottoni per aggiornare lo stato "active"
+                        App.renderUsedRoomButtons(roomName);
+                    };
+                    container.appendChild(btn);
+                });
+            },
+
+            // Helper per impostare visivamente la stanza attiva
+            setRoomActiveVisuals(roomName) {
+                document.getElementById('room-display-final').innerText = roomName;
+                document.getElementById('room-display-final').style.color = "var(--success)";
+                document.getElementById('room-details-final').innerText = ""; 
+                document.getElementById('room-selector-widget').style.borderColor = "var(--success)";
+                document.getElementById('room-selector-widget').style.background = "#F0FDF4";
+                
+                // Mostra il cestino se una stanza è selezionata
+                document.getElementById('btn-delete-room').style.display = 'flex';
+
+                // Per compatibilità col form edit
+                const parts = roomName.split(' (');
+                document.getElementById('input-room-name').value = parts[0];
+            },
+
+            // Gestione Widget Stanza
+            toggleRoomEdit(show) {
+                const view = document.getElementById('room-view-mode');
+                const edit = document.getElementById('room-edit-mode');
+                if(show) {
+                    view.style.display = 'none';
+                    edit.style.display = 'block';
+                } else {
+                    view.style.display = 'block';
+                    edit.style.display = 'none';
+                }
+            },
+
+            onRoomSelectChange() {
+                const val = document.getElementById('room-select-standard').value;
+                const inputCustom = document.getElementById('input-room-name');
+                if(val === 'Autre') {
+                    inputCustom.style.display = 'block';
+                    inputCustom.value = '';
+                    inputCustom.focus();
+                } else {
+                    inputCustom.style.display = 'none';
+                    inputCustom.value = val;
+                }
+            },
+
+            calcRoomArea() {
+                const l = parseFloat(document.getElementById('room-dim-l').value) || 0;
+                const w = parseFloat(document.getElementById('room-dim-w').value) || 0;
+                const h = parseFloat(document.getElementById('room-dim-h').value) || 0;
+                
+                let areaSol = 0;
+                let areaMurs = 0;
+
+                if(l > 0 && w > 0) {
+                    areaSol = l * w;
+                    if(h > 0) {
+                        const perimetro = (l + w) * 2;
+                        areaMurs = perimetro * h;
+                    }
+                }
+
+                document.getElementById('room-calc-sol').innerText = areaSol > 0 ? areaSol.toFixed(2) : "0";
+                document.getElementById('room-calc-murs').innerText = areaMurs > 0 ? areaMurs.toFixed(2) : "0";
+            },
+
+            confirmRoom() {
+                // Recupera nome (o da select o da input custom)
+                let name = document.getElementById('input-room-name').value.trim();
+                const selectVal = document.getElementById('room-select-standard').value;
+                
+                if(!selectVal && !name) return alert("Seleziona una stanza dal menu!");
+                if(selectVal && selectVal !== 'Autre') name = selectVal;
+
+                const details = document.getElementById('input-room-details').value.trim();
+                
+                // Leggi valori calcolati
+                const sol = parseFloat(document.getElementById('room-calc-sol').innerText);
+                const murs = parseFloat(document.getElementById('room-calc-murs').innerText);
+                
+                if(!name) return alert("Inserisci il nome della stanza!");
+
+                let displayName = name;
+                
+                // Logica Etichetta Intelligente
+                if (sol > 0 && murs > 0) {
+                    displayName += ` (S: ${sol}m² | M: ${murs}m²)`;
+                } else if (sol > 0) {
+                    displayName += ` (S: ${sol}m²)`;
+                } else if (details) {
+                    displayName += ` (${details})`;
+                }
+
+                // Imposta visualmente
+                App.setRoomActiveVisuals(displayName);
+                
+                // Aggiunge subito il bottone in alto
+                App.renderUsedRoomButtons(displayName);
+
+                App.toggleRoomEdit(false);
+            },
+
+            // --- NAVIGAZIONE 3 LIVELLI ---
+            renderLibraryItems() {
+                const cont = document.getElementById('lib-container'); 
+                cont.innerHTML = '';
+                
+                const searchTerm = document.getElementById('lib-search').value;
+                const selectedCat = document.getElementById('lib-category-select').value;
+                const breadcrumb = document.getElementById('lib-breadcrumb');
+                
+                // 1. RICERCA ATTIVA
+                if (searchTerm.length > 1) {
+                    breadcrumb.style.display = 'none';
+                    const results = Config.searchIndex.search(searchTerm);
+                    if(results.length === 0) {
+                        cont.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8;">Nessun risultato per "${searchTerm}"</div>`;
+                        return;
+                    }
+                    const finalResults = selectedCat ? results.filter(r => r.item.category === selectedCat) : results;
+                    App.renderLibItemsList(cont, finalResults.map(r => r.item));
+                    return;
+                }
+
+                // 2. LIVELLO RADICE (Famiglie)
+                if (App.state.libCategory === null && !selectedCat) {
+                    breadcrumb.style.display = 'none';
+                    const categories = Object.keys(Config.LIB).sort();
+                    let grid = document.createElement('div');
+                    grid.style.cssText = "display:grid; grid-template-columns: 1fr 1fr; gap:12px; padding-top:10px;";
+                    categories.forEach(cat => {
+                        let btn = document.createElement('div');
+                        btn.style.cssText = "background:white; border:1px solid var(--border); border-radius:12px; padding:20px 10px; text-align:center; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;";
+                        let icon = '<i class="fas fa-folder" style="font-size:1.5rem; color:#CBD5E1;"></i>';
+                        btn.innerHTML = `${icon}<div style="font-weight:700; color:var(--primary); font-size:0.9rem; word-break:break-word;">${cat}</div>`;
+                        btn.onclick = () => { App.state.libCategory = cat; document.getElementById('lib-category-select').value = cat; App.renderLibraryItems(); };
+                        grid.appendChild(btn);
+                    });
+                    cont.appendChild(grid);
+                    return;
+                }
+
+                // 3. LIVELLO INTERMEDIO (Sotto-Famiglie)
+                const activeCat = selectedCat || App.state.libCategory;
+                if (activeCat && App.state.libSubCategory === null) {
+                    breadcrumb.style.display = 'block';
+                    document.getElementById('lib-bc-cat').innerText = activeCat;
+                    document.getElementById('lib-bc-sub').innerText = '';
+                    let backBtn = document.createElement('div');
+                    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Indietro`;
+                    backBtn.style.cssText = "padding:10px; color:var(--primary); font-weight:700; cursor:pointer; margin-bottom:10px; display:inline-block;";
+                    backBtn.onclick = () => { App.state.libCategory = null; document.getElementById('lib-category-select').value = ""; App.renderLibraryItems(); };
+                    cont.appendChild(backBtn);
+                    const allItemsInCat = Config.LIB[activeCat];
+                    const subCats = [...new Set(allItemsInCat.map(i => i.sub_category))].sort();
+                    let grid = document.createElement('div');
+                    grid.style.cssText = "display:grid; grid-template-columns: 1fr 1fr; gap:12px;";
+                    subCats.forEach(sub => {
+                        let btn = document.createElement('div');
+                        btn.style.cssText = "background:#F8FAFC; border:1px solid var(--border); border-radius:12px; padding:15px 10px; text-align:center; cursor:pointer; font-weight:600; color:var(--text-main);";
+                        btn.innerText = sub;
+                        btn.onclick = () => { App.state.libSubCategory = sub; App.renderLibraryItems(); };
+                        grid.appendChild(btn);
+                    });
+                    cont.appendChild(grid);
+                    return;
+                }
+
+                // 4. LIVELLO FINALE (Articoli)
+                if (activeCat && App.state.libSubCategory) {
+                    breadcrumb.style.display = 'block';
+                    document.getElementById('lib-bc-cat').innerText = activeCat;
+                    document.getElementById('lib-bc-sub').innerText = App.state.libSubCategory;
+                    let backBtn = document.createElement('div');
+                    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Indietro`;
+                    backBtn.style.cssText = "padding:10px; color:var(--primary); font-weight:700; cursor:pointer; margin-bottom:10px; display:inline-block;";
+                    backBtn.onclick = () => { App.state.libSubCategory = null; App.renderLibraryItems(); };
+                    cont.appendChild(backBtn);
+                    const finalItems = Config.LIB[activeCat].filter(i => i.sub_category === App.state.libSubCategory);
+                    App.renderLibItemsList(cont, finalItems);
+                }
+            },
+
+            renderLibItemsList(container, items) {
+                items.forEach(it => { 
+                    const dynamicPrice = App.calculateItemPrice(it);
+                    let div = document.createElement('div'); div.className = 'card-item'; div.style.marginBottom = "8px"; 
+                    
+                    div.innerHTML = `
+                        <div class="card-info">
+                            <div class="card-title" style="font-size:0.95rem;">${it.desc}</div>
+                            <div class="card-sub" style="color:var(--primary); font-weight:700;">
+                                ${App.formatMoney(dynamicPrice)} / ${it.unit} 
+                                <span style="font-weight:400; color:#64748B; font-size:0.8em; margin-left:5px;">
+                                    (T: ${it.labor_time}h | M: ${it.material_cost}€)
+                                </span>
+                            </div>
+                        </div>
+                        <div style="background:var(--accent); color:white; width:35px; height:35px; border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer;">
+                            <i class="fas fa-plus" style="font-size:0.9rem;"></i>
+                        </div>
+                    `; 
+                    
+                    div.onclick = () => { 
+                        // CONTROLLO STANZA
+                        const roomDisplay = document.getElementById('room-display-final');
+                        const isConfirmed = document.getElementById('room-selector-widget').style.borderColor === "var(--success)";
+                        
+                        if(!isConfirmed) {
+                            App.toggleRoomEdit(true);
+                            return alert("Per favore, seleziona e CONFERMA una stanza prima di aggiungere articoli!");
+                        }
+
+                        const finalPieceName = roomDisplay.innerText;
+                        
+                        // APRE IL MODALE DI INSERIMENTO (Invece di salvare subito)
+                        App.openAddItemModal(it, finalPieceName);
+                    }; 
+                    container.appendChild(div); 
+                });
+            },
+
+            openAddItemModal(item, room) {
+                App.state.isEditing = false;
+                App.state.tempLibItem = item;
+                
+                document.getElementById('edit-item-title').innerText = "Nouvel Article";
+                document.getElementById('edit-item-desc').value = item.desc;
+                document.getElementById('edit-item-qty').value = 1;
+                document.getElementById('edit-item-unit').value = item.unit;
+                document.getElementById('edit-item-price').value = App.calculateItemPrice(item).toFixed(2);
+                
+                // SET FIELDS FOR CALCULATION
+                document.getElementById('edit-item-time').value = item.labor_time || 0;
+                document.getElementById('edit-item-mat').value = item.material_cost || 0;
+                
+                document.getElementById('edit-item-rubble').value = item.gravats || 0; 
+                document.getElementById('btn-delete-item').style.display = 'none'; 
+
+                // Gestione Select Stanza
+                const sel = document.getElementById('edit-item-piece');
+                sel.innerHTML = '';
+                // Aggiunge la stanza selezionata se non c'è
+                let o = document.createElement('option');
+                o.value = room; o.text = room; o.selected = true;
+                sel.appendChild(o);
+                
+                document.getElementById('modal-edit-item').classList.add('open');
+                
+                // Trigger calc initial
+                App.calcEditPrice();
+            },
+
+            editDevisItem(id) {
+                App.state.isEditing = true;
+                document.getElementById('edit-item-title').innerText = "Modifier Article";
+                document.getElementById('btn-delete-item').style.display = 'block';
+
+                const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); const item=d.items.find(x=>x.id==id);
+                document.getElementById('edit-item-idx').value = id; document.getElementById('edit-item-desc').value = item.desc; document.getElementById('edit-item-qty').value = item.qty; 
+                document.getElementById('edit-item-price').value = item.price.toFixed(2); 
+                document.getElementById('edit-item-unit').value = item.unit || 'U'; 
+                
+                document.getElementById('edit-item-time').value = item.time || 0;
+                document.getElementById('edit-item-mat').value = item.material_cost || 0; // LOAD MAT COST
+                
+                document.getElementById('edit-item-rubble').value = item.gravats || 0;
+                
+                const rooms = new Set(d.items.map(i => i.piece).filter(Boolean)); 
+                // Aggiungi la stanza sticky corrente alla lista
+                const currentSticky = document.getElementById('room-display-final').innerText;
+                if(currentSticky !== "Sélectionner une pièce") rooms.add(currentSticky);
+
+                const sel = document.getElementById('edit-item-piece'); sel.innerHTML = ''; 
+                rooms.forEach(r => { const isSel = r === item.piece ? 'selected' : ''; sel.innerHTML += `<option value="${r}" ${isSel}>${r}</option>`; });
+                document.getElementById('modal-edit-item').classList.add('open');
+                
+                // Trigger calc initial
+                App.calcEditPrice();
+            },
+
+            // CALCULATION LOGIC IN MODAL
+            calcEditPrice() {
+                const qty = parseFloat(document.getElementById('edit-item-qty').value) || 0;
+                const t = parseFloat(document.getElementById('edit-item-time').value) || 0;
+                const m = parseFloat(document.getElementById('edit-item-mat').value) || 0;
+                const rate = Store.data.settings.hourlyRate || 45;
+                
+                // COST BREAKDOWN
+                const laborCost = t * rate;
+                
+                // UPDATE BREAKDOWN DISPLAY
+                document.getElementById('edit-item-split-display').innerText = 
+                    `Manodopera: ${App.formatMoney(laborCost)} + Materiale: ${App.formatMoney(m)}`;
+
+                // UNIT PRICE FORMULA: (Time * Rate) + Material
+                const unitPrice = laborCost + m;
+                document.getElementById('edit-item-price').value = unitPrice.toFixed(2);
+                
+                // TOTAL ROW CALCULATION
+                const totalRow = unitPrice * qty;
+                document.getElementById('edit-item-total-row').innerText = App.formatMoney(totalRow);
+            },
+
+            saveItemChanges() { 
+                const desc = document.getElementById('edit-item-desc').value;
+                const qty = parseFloat(document.getElementById('edit-item-qty').value)||0;
+                const price = parseFloat(document.getElementById('edit-item-price').value)||0;
+                
+                const time = parseFloat(document.getElementById('edit-item-time').value)||0;
+                const material = parseFloat(document.getElementById('edit-item-mat').value)||0;
+                
+                const gravats = parseFloat(document.getElementById('edit-item-rubble').value)||0;
+                const piece = document.getElementById('edit-item-piece').value;
+                
+                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); 
+                const d = c.devisList.find(x=>x.id==Store.data.activeDevisId); 
+
+                if (App.state.isEditing) {
+                    // MODIFICA ESISTENTE
+                    const id = parseInt(document.getElementById('edit-item-idx').value); 
+                    const item = d.items.find(x=>x.id==id); 
+                    item.desc = desc; item.qty = qty; item.price = price; 
+                    item.time = time; item.material_cost = material; // SAVE MAT
+                    item.piece = piece; item.gravats = gravats;
+                } else {
+                    // NUOVO INSERIMENTO
+                    const newItem = { 
+                        id: Date.now(), 
+                        desc: desc, 
+                        unit: document.getElementById('edit-item-unit').value, 
+                        time: time, 
+                        material_cost: material, // SAVE MAT
+                        price: price, 
+                        qty: qty, 
+                        piece: piece,
+                        gravats: gravats
+                    };
+                    d.items.push(newItem);
+                    App.showToast("Ajouté: " + desc);
+                    
+                    // Se stiamo usando lo sticky widget, aggiorniamo i bottoni
+                    App.renderUsedRoomButtons(piece);
+                }
+
+                Store.save(); 
+                App.closeModal('modal-edit-item'); 
+                App.calcTotals(); 
+                App.renderEditorItems(); 
+            },
+
+            deleteItem() { if(confirm("Supprimer ?")) { const id=parseInt(document.getElementById('edit-item-idx').value); const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); d.items=d.items.filter(x=>x.id!==id); Store.save(); App.closeModal('modal-edit-item'); App.calcTotals(); App.renderEditorItems(); } },
             
-            // --- COMMERCIAL PDF ---
+            closeModal(id) { document.getElementById(id).classList.remove('open'); },
+            openPartnerModal() { document.getElementById('ptn-name').value=''; document.getElementById('modal-partner').classList.add('open'); },
+            savePartner() { const name = document.getElementById('ptn-name').value; if(!name) return; Store.data.partners.push({id:Date.now(), name:name, role:document.getElementById('ptn-role').value}); Store.save(); App.closeModal('modal-partner'); App.renderSettings(); },
+            deletePartner(id) { if(confirm("Supprimer ?")) { Store.data.partners = Store.data.partners.filter(p=>p.id!==id); Store.save(); App.renderSettings(); }},
+            
+            openClientModal() { ['cli-id','cli-nom','cli-addr','cli-tel','cli-email','cli-siret'].forEach(k=>document.getElementById(k).value=''); App.toggleClientType('particulier'); document.getElementById('modal-client').classList.add('open'); },
+            toggleClientType(type) { App.state.tempClientType = type; document.getElementById('type-particulier').classList.remove('active'); document.getElementById('type-societe').classList.remove('active'); document.getElementById('type-'+type).classList.add('active'); if(type === 'societe') { document.getElementById('field-siret').style.display = 'block'; document.getElementById('cli-nom').placeholder = 'Raison Sociale'; } else { document.getElementById('field-siret').style.display = 'none'; document.getElementById('cli-nom').placeholder = 'Nom et Prénom'; } },
+            saveClient() { const id = document.getElementById('cli-id').value; const type = App.state.tempClientType; const c = { id: id?parseInt(id):Date.now(), type: type, nom: document.getElementById('cli-nom').value, siret: type === 'societe' ? document.getElementById('cli-siret').value : '', addr: document.getElementById('cli-addr').value, tel: document.getElementById('cli-tel').value, email: document.getElementById('cli-email').value }; if(!c.nom) return alert("Nom obligatoire"); if(id) { const idx = Store.data.clients.findIndex(x=>x.id==id); Store.data.clients[idx]=c; } else { Store.data.clients.push(c); } Store.save(); App.closeModal('modal-client'); App.renderClients(); if(document.getElementById('modal-projet').classList.contains('open')) { const s = document.getElementById('prj-cli'); s.innerHTML=''; Store.data.clients.forEach(cl => { let o=document.createElement('option'); o.value=cl.id; o.text=cl.nom; s.appendChild(o); }); s.value = c.id; } },
+            editClient(id) { const c = Store.data.clients.find(x=>x.id==id); document.getElementById('cli-id').value=c.id; document.getElementById('cli-nom').value=c.nom; document.getElementById('cli-addr').value=c.addr; document.getElementById('cli-tel').value=c.tel; document.getElementById('cli-email').value=c.email; document.getElementById('cli-siret').value = c.siret || ''; App.toggleClientType(c.type || 'particulier'); document.getElementById('modal-client').classList.add('open'); },
+            openProjectWizard() { const s=document.getElementById('prj-cli'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.clients.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.nom; s.appendChild(o); }); document.getElementById('modal-projet').classList.add('open'); },
+            createProject() { const cid=document.getElementById('prj-cli').value; const nom=document.getElementById('prj-nom').value; const addr=document.getElementById('prj-addr').value; if(cid && nom) { const ch={id:Date.now(), clientId:cid, name:nom, ref:"C-"+Date.now().toString().slice(-4), devisList:[], factures:[], extraDocs:[]}; Store.data.chantiers.unshift(ch); Store.save(); App.showToast("Chantier créé"); App.closeModal('modal-projet'); App.openHub(ch.id); } },
+            backToHub() { if(Store.data.activeChantierId) App.openHub(Store.data.activeChantierId); else App.nav('projets'); },
+
+            openCreateInvoiceModal() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); if(!c.devisList || c.devisList.length === 0) return alert("Erreur: Vous devez d'abord créer un devis !"); const s = document.getElementById('inv-devis-select'); s.innerHTML=''; c.devisList.forEach(d => { let o = document.createElement('option'); o.value=d.id; o.text=d.name; s.appendChild(o); }); document.getElementById('modal-invoice').classList.add('open'); App.onInvoiceDevisChange(); },
+            onInvoiceDevisChange() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); document.getElementById('inv-total-quote').innerText = App.formatMoney(d.total); App.calcInvPreview(); },
+            setInvType(t) { App.state.invType = t; document.getElementById('btn-acompte').style.background = t==='acompte'? 'var(--primary)' : 'white'; document.getElementById('btn-acompte').style.color = t==='acompte'? 'white' : '#64748B'; document.getElementById('btn-solde').style.background = t==='solde'? 'var(--primary)' : 'white'; document.getElementById('btn-solde').style.color = t==='solde'? 'white' : '#64748B'; const inp = document.getElementById('inv-percent'); if(t==='solde') { inp.value = 100; inp.disabled = true; } else { inp.value = 30; inp.disabled = false; } App.calcInvPreview(); },
+            calcInvPreview() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); const perc = parseInt(document.getElementById('inv-percent').value) || 0; const amt = d.total * (perc/100); document.getElementById('inv-preview-amount').innerText = App.formatMoney(amt); },
+            generateInvoice() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const amtString = document.getElementById('inv-preview-amount').innerText.replace(' €','').replace(/\s/g,'').replace(/\./g,'').replace(',','.'); c.factures.push({ id: Date.now(), ref: "FAC-"+Date.now().toString().slice(-4), type: App.state.invType, amount: parseFloat(amtString), paid: false }); Store.save(); App.showToast("Facture émise"); App.closeModal('modal-invoice'); App.openHub(c.id); },
+            openAgenda() { const s=document.getElementById('agd-chantier'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.chantiers.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.name; s.appendChild(o);}); document.getElementById('modal-agenda').classList.add('open'); let l=document.getElementById('agenda-list-view'); l.innerHTML=''; (Store.data.appointments||[]).forEach(a=>{let d=document.createElement('div'); d.className='card-item'; d.innerText=new Date(a.date).toLocaleString()+' - '+a.title; l.appendChild(d);}); },
+            saveAgendaEvent() { const cid=document.getElementById('agd-chantier').value; const date=document.getElementById('agd-date').value; if(cid&&date){const c=Store.data.chantiers.find(x=>x.id==cid); Store.data.appointments.push({id:Date.now(), date:date, title:"Visite", sub:c.name}); Store.save(); App.showToast("RDV Enregistré"); App.closeModal('modal-agenda'); App.renderHome();} },
+            renderDocuments(filter) { const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; Store.data.chantiers.forEach(c=>{ const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); if(c.extraDocs) c.extraDocs.forEach(e=>docs.push({type:'CDC', ref:e.ref, client:cn, cid:c.id, obj:e})); }); if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter||(filter==='CDC'&&d.type==='Etude')); docs.forEach(d=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); ${d.type==='CDC' ? `App.generateCDCPDF('${d.obj.id}')` : `App.generateGlobalPDF('${d.type.toLowerCase()}', ${d.obj.id})`}"></i>`; div.onclick=()=>{ Store.data.activeChantierId=d.cid; if(d.type==='Devis') App.openEditor(d.obj.id); else if(d.type==='CDC') App.viewCahierTable(d.obj); else App.openHub(d.cid); }; l.appendChild(div); }); },
+            viewCahierTable(doc) { document.getElementById('vc-title').innerText = doc.name; const t = document.getElementById('vc-table'); t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Ass.</th></tr>'; doc.items.forEach(i => t.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; color:#15803d; font-weight:bold;">${i.assignedTo||'-'}</td></tr>`); document.getElementById('modal-view-cahier').classList.add('open'); },
+            renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i><div style="font-weight:800; color:var(--danger)">${App.formatMoney(f.amount)}</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
+
+            // --- NOUVELLE FONCTION : RAPPORT PAR PIÈCES (PDF) ---
+            generateRoomReportPDF() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const did = Store.data.activeDevisId;
+                if(!did) return alert("Veuillez ouvrir un devis d'abord.");
+                
+                const d = c.devisList.find(x => x.id == did);
+                const cli = Store.data.clients.find(x => x.id == c.clientId);
+
+                // Groupement des items par pièce
+                const rooms = {};
+                d.items.forEach(item => {
+                    const p = item.piece || "Non assigné";
+                    if (!rooms[p]) rooms[p] = [];
+                    rooms[p].push(item);
+                });
+
+                let roomsHtml = "";
+                for (const [roomName, items] of Object.entries(rooms)) {
+                    let itemsRows = items.map(i => `
+                        <tr style="border-bottom: 1px solid #E2E8F0;">
+                            <td style="padding: 10px; width: 70%; font-weight: 500;">${i.desc}</td>
+                            <td style="padding: 10px; text-align: center;">${i.qty} ${i.unit || 'U'}</td>
+                            <td style="padding: 10px; text-align: right; color: #64748B; font-size: 0.85rem;">
+                                ${i.assignedTo ? '👤 ' + i.assignedTo : '-'}
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    roomsHtml += `
+                        <div style="margin-bottom: 25px; break-inside: avoid;">
+                            <div style="background: #0F172A; color: white; padding: 8px 15px; border-radius: 6px; font-weight: 800; text-transform: uppercase; font-size: 0.9rem;">
+                                📍 ${roomName}
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+                                ${itemsRows}
+                            </table>
+                        </div>
+                    `;
+                }
+
+                // Add Gravats Summary to CDC
+                let gravatsInfo = "";
+                if(d.totalGravats > 0) {
+                    gravatsInfo = `<div style="background:#FEE2E2; color:#B91C1C; padding:15px; border-radius:8px; margin-bottom:20px; font-weight:bold; border:1px solid #FECACA;">
+                        <i class="fas fa-truck-loading"></i> Volume Total Gravats Estimé : ${d.totalGravats.toFixed(2)} m³
+                    </div>`;
+                }
+
+                const html = `
+                    <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; color: #1E293B;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0F172A; padding-bottom: 20px; margin-bottom: 30px;">
+                            <div>
+                                <h1 style="margin: 0; font-size: 1.5rem;">ORDRE D'EXÉCUTION</h1>
+                                <div style="color: #64748B;">Projet : <strong>${c.name}</strong></div>
+                            </div>
+                            <div style="text-align: right; font-size: 0.85rem;">
+                                Date : ${new Date().toLocaleDateString('fr-FR')}<br>
+                                Réf : ${d.ref}
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 30px; font-size: 0.9rem;">
+                            <strong>Client :</strong> ${cli ? cli.nom : 'Non spécifié'}<br>
+                            <strong>Adresse :</strong> ${c.addr || 'Voir fiche projet'}
+                        </div>
+
+                        ${gravatsInfo}
+
+                        ${roomsHtml}
+
+                        <div style="margin-top: 50px; border-top: 1px solid #CBD5E1; padding-top: 20px; font-size: 0.75rem; color: #94A3B8; text-align: center;">
+                            Généré via QOTIA CLOUD V7 - Document interne destiné aux équipes de chantier.
+                        </div>
+                    </div>
+                `;
+
+                const opt = {
+                    margin: 10,
+                    filename: `RAPPORT_ZONES_${c.name.replace(/\s+/g, '_')}.pdf`,
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(html).save();
+                App.showToast("Rapport par pièces généré !");
+            },
+
             generateGlobalPDF(type, id) {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const cli = Store.data.clients.find(x=>x.id==c.clientId);
-                let obj, items, title, ref;
-
+                const rate = Store.data.settings.hourlyRate || 45;
+                let items, title, ref, extraInfo = "";
+                let signatureBlock = "";
+                
                 if (type === 'devis') {
-                    obj = c.devisList.find(x=>x.id==id);
-                    items = obj.items;
-                    title = "DEVIS";
-                    ref = obj.ref;
-                } else {
-                    obj = c.factures.find(x=>x.id==id);
-                    title = "FACTURE";
-                    ref = obj.ref;
-                    items = [{desc: `Facture selon avancement (${obj.type})`, qty: 1, unit:'U', price: obj.amount}];
-                }
+                    const obj = c.devisList.find(x=>x.id==id);
+                    items = obj.items; title = "DEVIS"; ref = obj.ref;
+                    if(obj.totalGravats > 0) {
+                        extraInfo = `<div style="text-align:right; margin-top:10px; font-size:0.9rem; color:#64748B;">Volume Gravats Estimé: <strong>${obj.totalGravats.toFixed(2)} m³</strong></div>`;
+                    }
+                    // SIGNATURE BLOCK
+                    if(obj.signature) {
+                        signatureBlock = `
+                            <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid;">
+                                <div style="font-weight:bold; color:#16a34a; margin-bottom:10px;">BON POUR ACCORD</div>
+                                <div style="font-size:0.8rem; margin-bottom:10px;">Signé électroniquement le ${obj.signDate || ''}</div>
+                                <img src="${obj.signature}" style="max-width: 250px; max-height: 100px; width: auto; height: auto; display:block;" />
+                            </div>
+                        `;
+                    } else {
+                        signatureBlock = `
+                            <div style="margin-top:50px; margin-bottom:20px; display:flex; justify-content:space-between; page-break-inside: avoid; break-inside: avoid;">
+                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Entreprise</div>
+                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Client (Bon pour accord)</div>
+                            </div>
+                        `;
+                    }
 
+                } else {
+                    const obj = c.factures.find(x=>x.id==id);
+                    title = "FACTURE"; ref = obj.ref; items = [{desc: `Facture selon avancement (${obj.type})`, qty: 1, unit:'U', price: obj.amount, time:0, material_cost:0}];
+                }
+                
                 let totalTTC = 0;
                 let rows = items.map(i => {
-                    const rowT = i.qty * i.price;
-                    totalTTC += rowT;
-                    return `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px;">${i.desc}</td><td style="padding:10px; text-align:center;">${i.qty}</td><td style="padding:10px; text-align:center;">${i.unit||'U'}</td><td style="padding:10px; text-align:right;">${i.price}€</td><td style="padding:10px; text-align:right; font-weight:bold;">${rowT}€</td></tr>`;
-                }).join('');
+                    const rowT = i.qty * i.price; totalTTC += rowT;
+                    
+                    // Calc single costs
+                    const costLabor = (i.time || 0) * rate;
+                    const costMat = (i.material_cost || 0);
 
+                    return `
+                        <tr style="border-bottom:1px solid #eee;">
+                            <td style="padding:10px;">${i.desc}</td>
+                            <td style="padding:10px; text-align:center;">${i.qty}</td>
+                            <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${costLabor > 0 ? App.formatMoney(costLabor) : '-'}</td>
+                            <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${costMat > 0 ? App.formatMoney(costMat) : '-'}</td>
+                            <td style="padding:10px; text-align:right;">${App.formatMoney(i.price)}</td>
+                            <td style="padding:10px; text-align:right; font-weight:bold;">${App.formatMoney(rowT)}</td>
+                        </tr>`;
+                }).join('');
+                
                 const html = `
                     <div style="font-family:sans-serif; padding:30px; color:#334155;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px;">
-                            <div><h1 style="color:#0f172a; margin:0;">${title}</h1><div style="color:#64748b; font-size:0.9rem;">${ref}</div></div>
-                            <div style="text-align:right;"><strong>QOTIA ENTREPRISE</strong><br>123 Rue Exemple<br>06000 NICE<br>contact@qotia.fr</div>
+                            <div>
+                                <h1 style="color:#0f172a; margin:0;">${title}</h1>
+                                <div style="color:#64748b; font-size:0.9rem;">${ref}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <strong>QOTIA ENTREPRISE</strong><br>123 Rue Exemple<br>06000 NICE
+                            </div>
                         </div>
                         <div style="background:#f1f5f9; padding:20px; border-radius:10px; margin-bottom:30px;">
                             <strong>CLIENT:</strong><br>
@@ -554,189 +1619,321 @@
                             ${cli.addr}<br>${cli.tel||''}
                         </div>
                         <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin-bottom:30px;">
-                            <thead style="background:#0f172a; color:white;"><tr><th style="padding:12px; text-align:left;">Description</th><th style="padding:12px; text-align:center;">Qté</th><th style="padding:12px; text-align:center;">Unit</th><th style="padding:12px; text-align:right;">P.U.</th><th style="padding:12px; text-align:right;">Total</th></tr></thead>
+                            <thead style="background:#0f172a; color:white;">
+                                <tr>
+                                    <th style="padding:12px; text-align:left;">Description</th>
+                                    <th style="padding:12px; text-align:center;">Qté</th>
+                                    <th style="padding:12px; text-align:center;">M.O. (U)</th>
+                                    <th style="padding:12px; text-align:center;">Mat. (U)</th>
+                                    <th style="padding:12px; text-align:right;">P.U.</th>
+                                    <th style="padding:12px; text-align:right;">Total</th>
+                                </tr>
+                            </thead>
                             <tbody>${rows}</tbody>
                         </table>
-                        <div style="text-align:right; margin-bottom:50px;">
-                            <div style="font-size:1.5rem; font-weight:900; color:#0f172a;">TOTAL A PAYER: ${totalTTC.toLocaleString()} €</div>
+                        <div style="text-align:right; margin-bottom:20px;">
+                            <div style="font-size:1.5rem; font-weight:900; color:#0f172a;">TOTAL A PAYER: ${App.formatMoney(totalTTC)}</div>
+                            ${extraInfo}
                         </div>
-                        <div style="font-size:0.75rem; color:#94a3b8; text-align:center; border-top:1px solid #e2e8f0; padding-top:20px;">
-                            TVA non applicable, art. 293 B du CGI<br>Validité de l'offre : 30 jours.<br>IBAN: FR76 1234 5678 9012 3456 7890 123
-                        </div>
-                    </div>`;
-
+                        ${signatureBlock}
+                        <div style="height:30px;"></div> </div>`;
                 const opt = { margin: 10, filename: `${title}_${ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
                 html2pdf().set(opt).from(html).save();
                 App.showToast("PDF Téléchargé");
             },
 
-            // --- CDC & PDF TECHNICAL ---
-            openSelectCDCModal() {
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                const s = document.getElementById('sel-source-devis'); s.innerHTML='';
-                if(!c.devisList || c.devisList.length===0) return alert("Aucun devis disponible");
-                c.devisList.forEach(d => { s.innerHTML += `<option value="${d.id}">${d.name}</option>`; });
-                
-                const sa = document.getElementById('cdc-assignee'); sa.innerHTML = '<option value="">Choisir un partenaire...</option>';
-                if(Store.data.partners) Store.data.partners.forEach(p => sa.innerHTML += `<option value="${p.name}">${p.name} (${p.role})</option>`);
-
-                App.state.selectedItems.clear(); document.getElementById('modal-select-cdc').classList.add('open'); this.renderSelectionList();
-            },
-            renderSelectionList() {
-                const cid = Store.data.activeChantierId; const did = document.getElementById('sel-source-devis').value;
-                const c = Store.data.chantiers.find(x=>x.id==cid); const d = c.devisList.find(x=>x.id==did);
-                const con = document.getElementById('selection-list-container'); con.innerHTML = '';
-                d.items.forEach(i => {
-                    const isChecked = App.state.selectedItems.has(i.id) ? 'checked' : '';
-                    const assignedHtml = i.assignedTo ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${i.assignedTo}</span>` : '';
-                    const row = document.createElement('div'); row.className = 'check-container';
-                    row.onclick = () => { if(App.state.selectedItems.has(i.id)) App.state.selectedItems.delete(i.id); else App.state.selectedItems.add(i.id); App.renderSelectionList(); };
-                    row.innerHTML = `<div class="custom-checkbox ${isChecked}"></div><div style="flex:1;"><div style="font-weight:700; color:var(--primary); font-size:0.95rem;">${i.desc} ${assignedHtml}</div></div>`;
-                    con.appendChild(row);
-                });
-            },
-            selectAllItems() {
-                const cid = Store.data.activeChantierId; const did = document.getElementById('sel-source-devis').value;
-                const c = Store.data.chantiers.find(x=>x.id==cid); const d = c.devisList.find(x=>x.id==did);
-                if(App.state.selectedItems.size === d.items.length) App.state.selectedItems.clear(); else d.items.forEach(i => App.state.selectedItems.add(i.id));
-                this.renderSelectionList();
-            },
-            saveCDC() {
-                if(App.state.selectedItems.size === 0) return alert("Sélectionnez au moins un ouvrage.");
-                const cid = Store.data.activeChantierId; const did = document.getElementById('sel-source-devis').value;
-                const c = Store.data.chantiers.find(x=>x.id==cid); const d = c.devisList.find(x=>x.id==did); 
-                const itemsToPrint = d.items.filter(i => App.state.selectedItems.has(i.id));
-                
-                // SAVE ONLY - NO PDF
-                const newDoc = { id: Date.now(), ref: "CDC-"+Date.now().toString().slice(-4), name: "Cahier Charges", type: 'Etude', items: itemsToPrint };
-                if(!c.extraDocs) c.extraDocs = []; c.extraDocs.push(newDoc); Store.save();
-                
-                App.closeModal('modal-select-cdc');
-                App.openHub(c.id); // Go back to Hub
-                App.showToast("Enregistré dans le dossier");
-            },
             generateCDCPDF(docId) {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                const doc = c.extraDocs.find(x=>x.id==docId);
-                const cli = Store.data.clients.find(x=>x.id==c.clientId);
+                const doc = c.extraDocs.find(x => x.id == docId);
+                if (!doc) return;
+
+                const items = doc.items;
                 
-                let totalTime = 0;
-                let rows = doc.items.map(i => { 
-                    const rowTime = (i.time || 0) * i.qty; totalTime += rowTime;
-                    const assigned = i.assignedTo ? `<br><span style="font-size:0.7em; color:#15803d; font-weight:bold;">Assigné: ${i.assignedTo}</span>` : '';
-                    return `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px;">${i.desc} ${assigned}</td><td style="padding:10px;">${i.piece || '-'}</td><td style="padding:10px; text-align:center;">${i.qty}</td><td style="padding:10px; text-align:center;">${i.unit}</td><td style="padding:10px; text-align:right;">${i.time || 0} h</td><td style="padding:10px; text-align:right; font-weight:bold;">${rowTime.toFixed(1)} h</td></tr>`; 
+                // Calculate Gravats for this specific CDC
+                let cdcGravats = 0;
+                let rows = items.map(i => {
+                    cdcGravats += i.qty * (i.gravats || 0);
+                    return `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; font-weight:bold;">${i.qty} ${i.unit}</td></tr>`;
                 }).join('');
-                
-                const html = `<div style="font-family:sans-serif; padding:20px; color:#1e293b;"><h2 style="color:#0f172a; margin-bottom:5px;">CAHIER DES CHARGES</h2><div style="font-size:0.9rem; color:#64748b; margin-bottom:20px;">${doc.ref} - Document Technique</div><div style="display:flex; justify-content:space-between; margin-bottom:30px; background:#f8fafc; padding:15px; border-radius:8px;"><div><strong>Chantier:</strong> ${c.name}<br><strong>Client:</strong> ${cli ? cli.nom : '-'}<br><strong>Date:</strong> ${new Date().toLocaleDateString()}</div><div style="text-align:right;"><strong>Estimation Temps Total:</strong><br><span style="font-size:1.4rem; font-weight:800; color:#3B82F6;">${totalTime.toFixed(1)} Heures</span></div></div><table style="width:100%; border-collapse:collapse; font-size:0.9rem;"><thead style="background:#0f172a; color:white;"><tr><th style="padding:10px; text-align:left;">Description</th><th style="padding:10px; text-align:left;">Loc.</th><th style="padding:10px; text-align:center;">Qté</th><th style="padding:10px; text-align:center;">Unit.</th><th style="padding:10px; text-align:right;">T. Unit</th><th style="padding:10px; text-align:right;">T. Total</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-                
-                const element = document.createElement('div'); element.innerHTML = html; document.body.appendChild(element);
-                const opt = { margin: 10, filename: `CDC_${doc.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().set(opt).from(element).save().then(() => { document.body.removeChild(element); App.showToast("CDC Généré"); });
-            },
-            assignCollaborator() {
-                if(App.state.selectedItems.size === 0) return alert("Sélectionnez des articles.");
-                const name = document.getElementById('cdc-assignee').value;
-                if(!name) return alert("Sélectionnez un partenaire.");
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d = c.devisList.find(x=>x.id==document.getElementById('sel-source-devis').value);
-                d.items.forEach(i => { if(App.state.selectedItems.has(i.id)) i.assignedTo = name; });
-                Store.save(); App.showToast("Tâches assignées"); this.renderSelectionList();
+
+                let gravatsInfo = "";
+                if(cdcGravats > 0) {
+                    gravatsInfo = `<div style="margin-top:20px; padding:10px; background:#f1f5f9; border-radius:5px;"><strong>Volume Gravats pour ces travaux:</strong> ${cdcGravats.toFixed(2)} m³</div>`;
+                }
+
+                const html = `
+                    <div style="font-family:sans-serif; padding:30px;">
+                        <h1>${doc.name}</h1>
+                        <h3>Projet: ${c.name} - ${doc.ref}</h3>
+                        <table style="width:100%; border-collapse:collapse; margin-top:20px;">
+                            <thead style="background:#0f172a; color:white;"><tr><th style="padding:10px; text-align:left;">Tâche</th><th style="padding:10px; text-align:left;">Zone</th><th style="padding:10px; text-align:left;">Qté</th></tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                        ${gravatsInfo}
+                    </div>
+                `;
+                const opt = { margin: 10, filename: `${doc.name}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                html2pdf().set(opt).from(html).save();
             },
 
-            // --- SMART LIBRARY LOGIC ---
-            openLibrary() {
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
-                const rooms = new Set(d.items.map(i => i.piece).filter(Boolean));
-                ['Cuisine', 'SDB', 'Salon', 'Chambre'].forEach(r => rooms.add(r));
+            // --- FUNZIONI CAHIER DES CHARGES (CDC) ---
+            openSelectCDCModal() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                if (!c.devisList || c.devisList.length === 0) return alert("Crea prima un devis!");
                 
-                const currentPiece = App.state.lastPiece || "Général";
-                document.getElementById('lib-target-piece').value = currentPiece;
-
-                const btnContainer = document.getElementById('lib-room-buttons');
-                btnContainer.innerHTML = '';
-                rooms.forEach(r => {
-                    const btn = document.createElement('div');
-                    btn.className = `room-tag-btn ${r === currentPiece ? 'active' : ''}`;
-                    btn.innerText = r;
-                    btn.onclick = () => {
-                        App.state.lastPiece = r;
-                        document.getElementById('lib-target-piece').value = r;
-                        document.querySelectorAll('.room-tag-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                    };
-                    btnContainer.appendChild(btn);
+                // Popola Devis
+                const s = document.getElementById('sel-source-devis');
+                s.innerHTML = '';
+                c.devisList.forEach(d => {
+                    let o = document.createElement('option');
+                    o.value = d.id; o.text = d.name;
+                    s.appendChild(o);
                 });
 
-                const cont = document.getElementById('lib-container'); cont.innerHTML='';
-                for(let [k,v] of Object.entries(Config.LIB)) { 
-                    let h=document.createElement('div'); h.innerHTML=`<div style="font-weight:800; margin-top:15px; margin-bottom:10px;">${k}</div>`; cont.appendChild(h); 
-                    v.forEach(it=>{ 
-                        let div=document.createElement('div'); div.className='card-item'; 
-                        div.innerHTML = `<div class="card-info"><div class="card-title">${it.desc}</div><div class="card-sub">${it.price}€ / ${it.unit} (${it.time}h)</div></div><i class="fas fa-plus" style="color:var(--accent)"></i>`; 
-                        div.onclick=()=>{ 
-                             const piece = document.getElementById('lib-target-piece').value;
-                             const ch=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const dv=ch.devisList.find(x=>x.id==Store.data.activeDevisId); 
-                             const newItem = {id:Date.now(), ...it, qty:0, price:it.price, time:it.time, piece:piece}; 
-                             dv.items.push(newItem); 
-                             Store.save(); 
-                             App.closeModal('modal-library'); 
-                             App.calcTotals(); 
-                             App.renderEditorItems(); 
-                             setTimeout(() => App.editDevisItem(newItem.id), 200);
-                        }; 
-                        cont.appendChild(div); 
-                    }); 
-                } 
-                document.getElementById('modal-library').classList.add('open'); 
+                // Popola Partner
+                const pSel = document.getElementById('cdc-assignee');
+                pSel.innerHTML = '<option value="">-- Seleziona Partner --</option>';
+                (Store.data.partners || []).forEach(p => {
+                    let o = document.createElement('option');
+                    o.value = p.name; o.text = `${p.name} (${p.role})`;
+                    pSel.appendChild(o);
+                });
+
+                App.state.selectedItems = new Set();
+                App.renderSelectionList();
+                document.getElementById('modal-select-cdc').classList.add('open');
             },
-            toggleNewPieceInput() { const i=document.getElementById('lib-new-piece'); if(i.style.display==='none'){i.style.display='block';i.focus();}else{i.style.display='none';}},
-            editDevisItem(id) {
-                const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); const item=d.items.find(x=>x.id==id);
-                document.getElementById('edit-item-idx').value = id; document.getElementById('edit-item-desc').value = item.desc; document.getElementById('edit-item-qty').value = item.qty; document.getElementById('edit-item-price').value = item.price; document.getElementById('edit-item-unit').value = item.unit || 'U'; document.getElementById('edit-item-time').value = item.time || 0;
-                const rooms = new Set(d.items.map(i => i.piece).filter(Boolean)); ['Cuisine','SDB','Salon'].forEach(r=>rooms.add(r)); const sel = document.getElementById('edit-item-piece'); sel.innerHTML = ''; 
-                rooms.forEach(r => { const isSel = r === item.piece ? 'selected' : ''; sel.innerHTML += `<option value="${r}" ${isSel}>${r}</option>`; });
-                document.getElementById('modal-edit-item').classList.add('open');
-                setTimeout(() => document.getElementById('edit-item-qty').focus(), 100);
+
+            renderSelectionList() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const did = document.getElementById('sel-source-devis').value;
+                if (!did) return;
+                
+                const d = c.devisList.find(x => x.id == did);
+                const cont = document.getElementById('selection-list-container');
+                cont.innerHTML = '';
+
+                d.items.forEach(item => {
+                    const isChecked = App.state.selectedItems.has(item.id) ? 'checked' : '';
+                    const assignedInfo = item.assignedTo 
+                        ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${item.assignedTo}</span>` 
+                        : '';
+                    
+                    const el = document.createElement('div');
+                    el.className = 'check-container';
+                    el.onclick = (e) => App.toggleItemSelection(item.id, el);
+                    el.innerHTML = `
+                        <div class="custom-checkbox ${isChecked}"></div>
+                        <div style="flex:1">
+                            <div style="font-weight:700; font-size:0.9rem;">${item.desc}</div>
+                            <div style="font-size:0.8rem; color:var(--text-sub); display:flex; align-items:center;">
+                                ${item.piece || 'Général'} ${assignedInfo}
+                            </div>
+                        </div>
+                    `;
+                    cont.appendChild(el);
+                });
             },
-            saveItemChanges() { const id=parseInt(document.getElementById('edit-item-idx').value); const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); const item=d.items.find(x=>x.id==id); item.desc=document.getElementById('edit-item-desc').value; item.qty=parseFloat(document.getElementById('edit-item-qty').value)||0; item.price=parseFloat(document.getElementById('edit-item-price').value)||0; item.time=parseFloat(document.getElementById('edit-item-time').value)||0; item.piece=document.getElementById('edit-item-piece').value; Store.save(); App.showToast("Enregistré"); App.closeModal('modal-edit-item'); App.calcTotals(); App.renderEditorItems(); },
-            deleteItem() { if(confirm("Supprimer ?")) { const id=parseInt(document.getElementById('edit-item-idx').value); const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); d.items=d.items.filter(x=>x.id!==id); Store.save(); App.closeModal('modal-edit-item'); App.calcTotals(); App.renderEditorItems(); } },
-            toggleClientType(type) { App.state.tempClientType = type; document.getElementById('type-particulier').classList.remove('active'); document.getElementById('type-societe').classList.remove('active'); document.getElementById('type-'+type).classList.add('active'); if(type === 'societe') { document.getElementById('field-siret').style.display = 'block'; document.getElementById('cli-nom').placeholder = 'Raison Sociale'; } else { document.getElementById('field-siret').style.display = 'none'; document.getElementById('cli-nom').placeholder = 'Nom et Prénom'; } },
-            openClientModal() { ['cli-id','cli-nom','cli-addr','cli-tel','cli-email','cli-siret'].forEach(k=>document.getElementById(k).value=''); App.toggleClientType('particulier'); document.getElementById('modal-client').classList.add('open'); },
-            editClient(id) { const c = Store.data.clients.find(x=>x.id==id); document.getElementById('cli-id').value=c.id; document.getElementById('cli-nom').value=c.nom; document.getElementById('cli-addr').value=c.addr; document.getElementById('cli-tel').value=c.tel; document.getElementById('cli-email').value=c.email; document.getElementById('cli-siret').value = c.siret || ''; App.toggleClientType(c.type || 'particulier'); document.getElementById('modal-client').classList.add('open'); },
-            
-            // --- FIX CLIENT SAVE REFRESH (KEY FIX) ---
-            saveClient() { 
-                const id = document.getElementById('cli-id').value; 
-                const type = App.state.tempClientType; 
-                const c = { id: id?parseInt(id):Date.now(), type: type, nom: document.getElementById('cli-nom').value, siret: type === 'societe' ? document.getElementById('cli-siret').value : '', addr: document.getElementById('cli-addr').value, tel: document.getElementById('cli-tel').value, email: document.getElementById('cli-email').value }; 
-                if(!c.nom) return alert("Nom obligatoire"); 
-                if(id) { const idx = Store.data.clients.findIndex(x=>x.id==id); Store.data.clients[idx]=c; } else { Store.data.clients.push(c); } 
-                Store.save(); 
-                App.showToast("Client enregistré"); 
-                App.closeModal('modal-client'); 
-                App.renderClients(); 
-                // KEY FIX: INSTANT UPDATE OF PROJECT WIZARD SELECT
-                if(document.getElementById('modal-projet').classList.contains('open')) {
-                    const s = document.getElementById('prj-cli'); s.innerHTML='';
-                    Store.data.clients.forEach(cl => { let o=document.createElement('option'); o.value=cl.id; o.text=cl.nom; s.appendChild(o); });
-                    s.value = c.id; // Select new client
+
+            toggleItemSelection(id, el) {
+                if (App.state.selectedItems.has(id)) {
+                    App.state.selectedItems.delete(id);
+                    el.querySelector('.custom-checkbox').classList.remove('checked');
+                } else {
+                    App.state.selectedItems.add(id);
+                    el.querySelector('.custom-checkbox').classList.add('checked');
                 }
             },
-            
-            openCreateInvoiceModal() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); if(!c.devisList || c.devisList.length === 0) return alert("Erreur: Vous devez d'abord créer un devis !"); const s = document.getElementById('inv-devis-select'); s.innerHTML=''; c.devisList.forEach(d => { let o = document.createElement('option'); o.value=d.id; o.text=d.name; s.appendChild(o); }); document.getElementById('modal-invoice').classList.add('open'); App.onInvoiceDevisChange(); },
-            onInvoiceDevisChange() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); document.getElementById('inv-total-quote').innerText = d.total.toLocaleString() + ' €'; App.calcInvPreview(); },
-            setInvType(t) { App.state.invType = t; document.getElementById('btn-acompte').style.background = t==='acompte'? 'var(--primary)' : 'white'; document.getElementById('btn-acompte').style.color = t==='acompte'? 'white' : '#64748B'; document.getElementById('btn-solde').style.background = t==='solde'? 'var(--primary)' : 'white'; document.getElementById('btn-solde').style.color = t==='solde'? 'white' : '#64748B'; const inp = document.getElementById('inv-percent'); if(t==='solde') { inp.value = 100; inp.disabled = true; } else { inp.value = 30; inp.disabled = false; } App.calcInvPreview(); },
-            calcInvPreview() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); const perc = parseInt(document.getElementById('inv-percent').value) || 0; const amt = d.total * (perc/100); document.getElementById('inv-preview-amount').innerText = amt.toLocaleString('fr-FR', {maximumFractionDigits:0}) + ' €'; },
-            generateInvoice() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const amtString = document.getElementById('inv-preview-amount').innerText.replace(' €','').replace(/\s/g,'').replace(/\./g,''); c.factures.push({ id: Date.now(), ref: "FAC-"+Date.now().toString().slice(-4), type: App.state.invType, amount: parseFloat(amtString), paid: false }); Store.save(); App.showToast("Facture émise"); App.closeModal('modal-invoice'); App.openHub(c.id); },
-            openProjectWizard() { const s=document.getElementById('prj-cli'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.clients.forEach(c=>{ let o=document.createElement('option'); o.value=c.id; o.text=c.nom; s.appendChild(o); }); document.getElementById('modal-projet').classList.add('open'); },
-            createProject() { const cid=document.getElementById('prj-cli').value; const nom=document.getElementById('prj-nom').value; const addr=document.getElementById('prj-addr').value; if(cid && nom) { const ch={id:Date.now(), clientId:cid, name:nom, ref:"C-"+Date.now().toString().slice(-4), devisList:[], factures:[], extraDocs:[]}; Store.data.chantiers.unshift(ch); Store.save(); App.showToast("Chantier créé"); App.closeModal('modal-projet'); App.openHub(ch.id); } },
-            openAgenda() { const s=document.getElementById('agd-chantier'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.chantiers.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.name; s.appendChild(o);}); document.getElementById('modal-agenda').classList.add('open'); let l=document.getElementById('agenda-list-view'); l.innerHTML=''; (Store.data.appointments||[]).forEach(a=>{let d=document.createElement('div'); d.className='card-item'; d.innerText=new Date(a.date).toLocaleString()+' - '+a.title; l.appendChild(d);}); },
-            saveAgendaEvent() { const cid=document.getElementById('agd-chantier').value; const date=document.getElementById('agd-date').value; if(cid&&date){const c=Store.data.chantiers.find(x=>x.id==cid); Store.data.appointments.push({id:Date.now(), date:date, title:"Visite", sub:c.name}); Store.save(); App.showToast("RDV Enregistré"); App.closeModal('modal-agenda'); App.renderHome();} },
-            renderDocuments(filter) { const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; Store.data.chantiers.forEach(c=>{ const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); if(c.extraDocs) c.extraDocs.forEach(e=>docs.push({type:'CDC', ref:e.ref, client:cn, cid:c.id, obj:e})); }); if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter||(filter==='CDC'&&d.type==='Etude')); docs.forEach(d=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); ${d.type==='CDC' ? `App.generateCDCPDF('${d.obj.id}')` : `App.generateGlobalPDF('${d.type.toLowerCase()}', ${d.obj.id})`}"></i>`; div.onclick=()=>{ Store.data.activeChantierId=d.cid; if(d.type==='Devis') App.openEditor(d.obj.id); else if(d.type==='CDC') App.viewCahierTable(d.obj); else App.openHub(d.cid); }; l.appendChild(div); }); },
-            viewCahierTable(doc) { document.getElementById('vc-title').innerText = doc.name; const t = document.getElementById('vc-table'); t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Ass.</th></tr>'; doc.items.forEach(i => t.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; color:#15803d; font-weight:bold;">${i.assignedTo||'-'}</td></tr>`); document.getElementById('modal-view-cahier').classList.add('open'); },
-            renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i><div style="font-weight:800; color:var(--danger)">${f.amount.toLocaleString()} €</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
-            closeModal(id) { document.getElementById(id).classList.remove('open'); },
-            hardReset() { if(confirm("Attention: Tout effacer et recharger la démo ?")) { localStorage.clear(); location.reload(); } }
+
+            selectAllItems() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const did = document.getElementById('sel-source-devis').value;
+                const d = c.devisList.find(x => x.id == did);
+                
+                const allSelected = (App.state.selectedItems.size === d.items.length);
+                
+                if (allSelected) {
+                    App.state.selectedItems.clear();
+                } else {
+                    d.items.forEach(i => App.state.selectedItems.add(i.id));
+                }
+                App.renderSelectionList();
+            },
+
+            assignCollaborator() {
+                if(App.state.selectedItems.size === 0) return alert("Seleziona almeno un lavoro.");
+                const name = document.getElementById('cdc-assignee').value;
+                if(!name) return alert("Seleziona un partner dalla lista.");
+                
+                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
+                const d = c.devisList.find(x=>x.id==document.getElementById('sel-source-devis').value);
+                
+                let count = 0;
+                d.items.forEach(i => {
+                    if(App.state.selectedItems.has(i.id)) {
+                        i.assignedTo = name;
+                        count++;
+                    }
+                });
+                
+                Store.save();
+                App.showToast(`${count} lavori assegnati a ${name}`);
+                App.renderSelectionList(); // Ricarica la lista per vedere i badge
+            },
+
+            saveCDC() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const did = document.getElementById('sel-source-devis').value;
+                const d = c.devisList.find(x => x.id == did);
+                
+                if (App.state.selectedItems.size === 0) return alert("Seleziona gli elementi da includere nel CDC.");
+
+                const selectedItemsList = d.items.filter(i => App.state.selectedItems.has(i.id));
+                const assigneeName = document.getElementById('cdc-assignee').value || "Général";
+                
+                const newDoc = {
+                    id: Date.now(),
+                    name: `CDC - ${assigneeName}`,
+                    ref: `CDC-${Date.now().toString().slice(-4)}`,
+                    date: new Date().toISOString(),
+                    items: JSON.parse(JSON.stringify(selectedItemsList)) // Copia statica
+                };
+
+                if (!c.extraDocs) c.extraDocs = [];
+                c.extraDocs.push(newDoc);
+                Store.save();
+                
+                App.showToast("Documento CDC creato!");
+                App.closeModal('modal-select-cdc');
+                App.openHub(c.id);
+            },
+
+            // --- INIZIO INTEGRAZIONE SMART ENTRY (VOCE -> DB) ---
+
+            startSmartEntry() {
+                // 1. Verifica supporto browser
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const btn = document.querySelector('button[onclick="App.startSmartEntry()"]');
+                
+                if (!SpeechRecognition) {
+                    // Fallback: Se non c'è supporto vocale, usa input testo
+                    const text = prompt("Inserisci comando rapido (es: '5 prese e 20 mq pittura')");
+                    if(text) App.processNaturalLanguage(text);
+                    return;
+                }
+
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'it-IT'; 
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+
+                App.showToast("🎤 Parla ora... (es: 'Montare 4 porte')");
+                if(btn) btn.style.transform = "scale(1.2)"; // Feedback visivo
+
+                recognition.start();
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    App.showToast("Analisi: " + transcript);
+                    App.processNaturalLanguage(transcript);
+                    if(btn) btn.style.transform = "scale(1)";
+                };
+
+                recognition.onerror = (e) => {
+                    console.error(e);
+                    if(btn) btn.style.transform = "scale(1)";
+                    // Se errore (es. permessi negati), fallback a testo
+                    const text = prompt("Microfono non disponibile. Scrivi qui:");
+                    if(text) App.processNaturalLanguage(text);
+                };
+            },
+
+            processNaturalLanguage(text) {
+                if(!text) return;
+                text = text.toLowerCase();
+
+                // 2. Identifica la stanza attiva dall'interfaccia
+                const currentRoomDisplay = document.getElementById('room-display-final').innerText;
+                const targetRoom = (currentRoomDisplay === "Sélectionner une pièce") ? "Général" : currentRoomDisplay;
+
+                // 3. Divide la frase in comandi multipli
+                const commands = text.split(/,| e | \+ | poi /);
+                
+                let foundItems = 0;
+
+                commands.forEach(cmd => {
+                    cmd = cmd.trim();
+                    if(!cmd) return;
+
+                    // A. Estrai Quantità (numero all'inizio)
+                    let qty = 1; 
+                    const numberMatch = cmd.match(/^(\d+)([.,]\d+)?/); 
+                    
+                    if (numberMatch) {
+                        qty = parseFloat(numberMatch[0].replace(',', '.'));
+                        cmd = cmd.replace(numberMatch[0], '').trim(); // Rimuovi numero dal testo
+                    }
+
+                    // B. Pulisci parole inutili per la ricerca
+                    const cleanSearch = cmd.replace(/\b(mq|metri|ml|pezzi|pz|numero|di|da|in)\b/g, '').trim();
+
+                    if(cleanSearch.length < 2) return; 
+
+                    // C. Cerca SOLO nel Database caricato (Config.searchIndex)
+                    const results = Config.searchIndex.search(cleanSearch);
+
+                    if (results.length > 0) {
+                        // Prende il risultato migliore dal TUO database
+                        const bestMatch = results[0].item;
+                        
+                        // Inserisce usando ID e Prezzi ufficiali
+                        App.addItemFromAI(bestMatch, qty, targetRoom);
+                        foundItems++;
+                    } else {
+                        console.warn("Nessun articolo trovato per:", cleanSearch);
+                    }
+                });
+
+                if (foundItems > 0) {
+                    App.showToast(`✅ Aggiunti ${foundItems} articoli in ${targetRoom}`);
+                    Store.save();
+                    App.renderEditorItems(); 
+                    App.calcTotals();
+                } else {
+                    alert("Nessun articolo corrispondente trovato nel database per: " + text);
+                }
+            },
+
+            addItemFromAI(libItem, qty, room) {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const d = c.devisList.find(x => x.id == Store.data.activeDevisId);
+
+                // Recupera tariffa oraria
+                const rate = Store.data.settings.hourlyRate || 45;
+                
+                // Calcola costi basati sui dati DB
+                const laborCost = (libItem.labor_time || 0) * rate;
+                const materialCost = (libItem.material_cost || 0);
+                
+                const newItem = {
+                    id: Date.now() + Math.floor(Math.random() * 10000),
+                    desc: libItem.desc,            // Testo Ufficiale DB
+                    unit: libItem.unit,            // Unità Ufficiale DB
+                    time: libItem.labor_time || 0, // Tempo Ufficiale DB
+                    material_cost: materialCost,   // Costo Mat Ufficiale DB
+                    gravats: libItem.gravats || 0, // Gravats Ufficiali DB
+                    price: laborCost + materialCost, // Prezzo Calcolato
+                    qty: qty,                      // Quantità Utente
+                    piece: room                    // Stanza Selezionata
+                };
+
+                d.items.push(newItem);
+                
+                // Assicura che il tag della stanza appaia nella lista rapida
+                App.renderUsedRoomButtons(room);
+            }
+
+            // --- FINE INTEGRAZIONE ---
         };
 
         window.onload = () => App.init();
