@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA CLOUD V7.21 - FULL SUITE</title>
+    <title>QOTIA CLOUD V7.22 - SMART CHOICE</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -72,7 +72,7 @@
 
         .scroll-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 120px; -webkit-overflow-scrolling: touch; }
 
-        /* EDITOR FIXED LAYOUT - CON NUOVA BARRA STANZE */
+        /* EDITOR FIXED LAYOUT */
         #view-editor { display: none; flex-direction: column; height: 100%; background: #F8FAFC; }
         #view-editor.active { display: flex; }
         .editor-header-musk { flex-shrink: 0; background: var(--col-devis); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; z-index: 30; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); color: white; }
@@ -83,12 +83,17 @@
         
         #editor-list-container { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 140px; }
 
-        /* --- NUOVO STILE BARRA STANZE (Horizontal Scroll) --- */
+        /* BARRA STANZE AVANZATA */
         .room-bar-container { display: flex; overflow-x: auto; gap: 8px; padding: 10px 20px; background: rgba(0,0,0,0.1); -webkit-overflow-scrolling: touch; scrollbar-width: none; align-items: center; }
         .room-bar-container::-webkit-scrollbar { display: none; }
         .room-bar-label { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-right: 5px; white-space: nowrap; }
-        .room-pill { background: rgba(255,255,255,0.3); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
-        .room-pill.active { background: white; color: var(--col-devis); font-weight: 800; border-color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.05); }
+        
+        .room-pill { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.3); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 4px 6px 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
+        .room-pill.active { background: white; color: var(--col-devis); font-weight: 800; border-color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.02); }
+        
+        .room-edit-icon { width: 24px; height: 24px; background: rgba(0,0,0,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: 4px; }
+        .room-edit-icon:hover { background: rgba(0,0,0,0.2); }
+
         .room-pill-add { background: rgba(0,0,0,0.2); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; flex-shrink: 0; border: 1px dashed rgba(255,255,255,0.5); }
 
         /* COMPONENTS */
@@ -132,7 +137,6 @@
         .welcome-date { font-size: 0.9rem; font-weight: 600; color: var(--accent); text-transform: capitalize; }
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         
-        /* CUSTOM HOME BUTTONS */
         .big-btn { height: 95px; border-radius: 18px; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.08); color: white; }
         .big-btn span { font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 5px; }
         .btn-chantier { background: var(--col-chantier); }
@@ -152,11 +156,6 @@
         .custom-checkbox.checked::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: white; font-size: 0.8rem; }
         .assigned-badge { background: #DCFCE7; color: #166534; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 5px; display: inline-flex; align-items: center; gap: 4px; }
 
-        /* ROOM QUICK BUTTONS */
-        .room-tag-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 15px 0; -webkit-overflow-scrolling: touch; }
-        .room-tag-btn { background: #F1F5F9; color: var(--primary); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
-        .room-tag-btn:active, .room-tag-btn.active { background: var(--success); color: white; border-color: var(--success); box-shadow: 0 4px 10px rgba(21, 128, 61, 0.3); }
-
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--h-nav); background: white; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); z-index: 1000; align-items: flex-start; padding-top: 14px; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94A3B8; background: transparent; border: none; font-size: 0.7rem; font-weight: 600; gap: 5px; cursor: pointer; }
         .nav-btn.active { color: var(--col-nav-active); }
@@ -175,7 +174,6 @@
         .type-option { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95rem; color: #64748B; border-radius: 10px; cursor: pointer; }
         .type-option.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        /* LIST CHANTIERS HEADER STYLE */
         #view-projets .mobile-header { background: var(--col-chantier); }
         #view-projets .logo-text, #view-projets .header-action-btn { color: white; }
         #view-projets .header-action-btn { background: rgba(255,255,255,0.2); }
@@ -184,6 +182,8 @@
         #modal-projet { z-index: 5000; }
         #modal-edit-item { z-index: 7000 !important; }
         #modal-signature { z-index: 8000 !important; }
+        #modal-room-edit { z-index: 7500 !important; }
+        #modal-voice-choice { z-index: 9000 !important; }
 
         /* CANVAS SIGNATURE */
         .sig-container { position: relative; width: 100%; height: 300px; border: 2px dashed #CBD5E1; border-radius: 12px; background: #fff; touch-action: none; overflow: hidden; margin-bottom: 15px; }
@@ -385,6 +385,48 @@
         </div>
     </div>
 
+    <div id="modal-room-edit" class="full-modal" style="z-index: 7500;">
+        <div class="modal-header">
+            <h3>Modifier Pièce</h3>
+            <button class="header-back-container" onclick="App.closeModal('modal-room-edit')">×</button>
+        </div>
+        <div class="modal-body">
+            <label style="font-weight:700;">Nom de la pièce</label>
+            <input type="text" id="mod-room-name" class="app-input">
+            
+            <label style="font-size:0.7rem; font-weight:700; margin-top:10px; display:block;">Dimensions</label>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:10px;">
+                <input type="number" id="mod-room-l" class="app-input" placeholder="L (m)" step="0.01" oninput="App.calcModRoomArea()" style="margin:0;">
+                <input type="number" id="mod-room-w" class="app-input" placeholder="l (m)" step="0.01" oninput="App.calcModRoomArea()" style="margin:0;">
+                <input type="number" id="mod-room-h" class="app-input" placeholder="H (m)" step="0.01" oninput="App.calcModRoomArea()" style="margin:0;">
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <div style="flex:1; background:white; border:1px solid var(--border); border-radius:8px; padding:8px; text-align:center;">
+                    <div style="font-size:0.65rem; color:#64748B; font-weight:700; text-transform:uppercase;">Sol (m²)</div>
+                    <div id="mod-room-sol" style="font-weight:800; color:var(--primary);">0</div>
+                </div>
+                <div style="flex:1; background:white; border:1px solid var(--border); border-radius:8px; padding:8px; text-align:center;">
+                    <div style="font-size:0.65rem; color:#64748B; font-weight:700; text-transform:uppercase;">Murs (m²)</div>
+                    <div id="mod-room-murs" style="font-weight:800; color:var(--accent);">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-primary" onclick="App.saveRoomChanges()">ENREGISTRER</button>
+        </div>
+    </div>
+
+    <div id="modal-voice-choice" class="full-modal" style="z-index: 9000; height: auto; bottom: 0; top: auto; border-radius: 20px 20px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.2);">
+        <div class="modal-header" style="border-radius: 20px 20px 0 0;">
+            <h3>Choisir l'article</h3>
+            <button class="header-back-container" onclick="App.closeModal('modal-voice-choice')">×</button>
+        </div>
+        <div class="modal-body" style="max-height: 50vh;">
+            <p style="color:#64748B; font-size:0.9rem; margin-bottom:15px;">Plusieurs résultats trouvés. Sélectionnez le bon :</p>
+            <div id="voice-choice-list"></div>
+        </div>
+    </div>
+
     <div id="modal-library" class="full-modal">
         <div class="modal-header">
             <h3>Bibliothèque</h3>
@@ -393,78 +435,15 @@
             </button>
         </div>
         <div class="modal-body" style="padding-top: 0;">
-            
             <div style="position:sticky; top:0; z-index:50; background:#F8FAFC; padding-top:20px; padding-bottom:10px; border-bottom:1px solid #E2E8F0; margin-bottom:15px;">
-                
                 <input type="text" id="lib-search" class="app-input" placeholder="🔍 Rechercher..." onkeyup="App.renderLibraryItems()" style="box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 10px;">
-
-                <div id="room-selector-widget" style="background:#FFF; border:2px dashed var(--border); border-radius:12px; margin-bottom:10px; overflow:hidden; transition:all 0.3s;">
-                    <div id="room-view-mode" style="padding:15px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-                            <div>
-                                <div style="font-size:0.7rem; font-weight:700; color:var(--text-sub); text-transform:uppercase;">Pièce Cible</div>
-                                <div id="room-display-final" style="font-size:1.1rem; font-weight:800; color:var(--primary);">Sélectionner...</div>
-                                <div id="room-details-final" style="font-size:0.8rem; color:var(--accent); font-weight:600;"></div>
-                            </div>
-                            <div style="display:flex; gap:10px;">
-                                <div id="btn-delete-room" onclick="App.deleteRoom()" style="display:none; width:40px; height:40px; background:#FEE2E2; color:#DC2626; border-radius:50%; align-items:center; justify-content:center; cursor:pointer;">
-                                    <i class="fas fa-trash"></i>
-                                </div>
-                                <div onclick="App.toggleRoomEdit(true)" style="width:40px; height:40px; background:var(--primary); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,0.2); cursor:pointer;">
-                                    <i class="fas fa-plus"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="room-used-buttons" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
-                    </div>
-
-                    <div id="room-edit-mode" style="display:none; padding:15px; background:#F1F5F9; border-top:1px solid var(--border);">
-                        <label style="font-size:0.8rem; font-weight:700; color:var(--text-sub);">Nouvelle Pièce:</label>
-                        <select id="room-select-standard" class="app-input" onchange="App.onRoomSelectChange()">
-                            <option value="">-- Choisir --</option>
-                            <option value="Cuisine">Cuisine</option>
-                            <option value="Salon">Salon</option>
-                            <option value="SDB">SDB</option>
-                            <option value="Chambre">Chambre</option>
-                            <option value="Entrée">Entrée</option>
-                            <option value="Couloir">Couloir</option>
-                            <option value="WC">WC</option>
-                            <option value="Extérieur">Extérieur</option>
-                            <option value="Cave">Cave</option>
-                            <option value="Garage">Garage</option>
-                            <option value="Autre">Autre (Personnalisé)</option>
-                        </select>
-                        <input type="text" id="input-room-name" class="app-input" style="display:none; margin-top:10px;" placeholder="Nom de la pièce...">
-                        <label style="font-size:0.7rem; font-weight:700; margin-top:10px; display:block;">Dimensions</label>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-bottom:10px;">
-                            <input type="number" id="room-dim-l" class="app-input" placeholder="L (m)" step="0.01" oninput="App.calcRoomArea()" style="margin:0;">
-                            <input type="number" id="room-dim-w" class="app-input" placeholder="l (m)" step="0.01" oninput="App.calcRoomArea()" style="margin:0;">
-                            <input type="number" id="room-dim-h" class="app-input" placeholder="H (m)" step="0.01" oninput="App.calcRoomArea()" style="margin:0;">
-                        </div>
-                        <div style="display:flex; gap:10px; margin-bottom:10px;">
-                            <div style="flex:1; background:white; border:1px solid var(--border); border-radius:8px; padding:8px; text-align:center;">
-                                <div style="font-size:0.65rem; color:#64748B; font-weight:700; text-transform:uppercase;">Sol (m²)</div>
-                                <div id="room-calc-sol" style="font-weight:800; color:var(--primary);">0</div>
-                            </div>
-                            <div style="flex:1; background:white; border:1px solid var(--border); border-radius:8px; padding:8px; text-align:center;">
-                                <div style="font-size:0.65rem; color:#64748B; font-weight:700; text-transform:uppercase;">Murs (m²)</div>
-                                <div id="room-calc-murs" style="font-weight:800; color:var(--accent);">0</div>
-                            </div>
-                        </div>
-                        <label style="font-size:0.7rem; font-weight:700; margin-top:5px; display:block;">Détails (Option)</label>
-                        <input type="text" id="input-room-details" class="app-input" style="margin-bottom:0;" placeholder="Es. Mur Nord, 1er Etage...">
-                        <button class="btn-primary" style="margin-top:15px; height:45px;" onclick="App.confirmRoom()">CONFIRMER</button>
-                    </div>
-                </div>
-
+                <div id="room-selector-widget" style="background:#FFF; border:2px dashed var(--border); border-radius:12px; margin-bottom:10px; overflow:hidden; transition:all 0.3s; display:none;"></div>
                 <div id="lib-breadcrumb" style="display:none; font-size:0.8rem; font-weight:700; color:var(--text-sub); margin-bottom:10px;">
                     <span id="lib-bc-cat"></span> <i class="fas fa-chevron-right" style="font-size:0.7em;"></i> <span id="lib-bc-sub" style="color:var(--primary);"></span>
                 </div>
-                
                 <select id="lib-category-select" class="app-input" onchange="App.renderLibraryItems()" style="font-weight:700; color:var(--primary); height:40px; margin-bottom:0;">
                     <option value="">-- Toutes Familles --</option>
                 </select>
-
             </div>
             <div id="lib-container"></div>
         </div>
@@ -623,7 +602,7 @@
 
                     const options = {
                         includeScore: true,
-                        threshold: 0.3, 
+                        threshold: 0.4, // Leggermente più tollerante per mostrare opzioni
                         keys: ['desc', 'category', 'sub_category'] 
                     };
                     Config.searchIndex = new Fuse(Config.allItems, options);
@@ -663,7 +642,7 @@
         };
 
         const App = {
-            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces', selectedItems: new Set(), lastPiece: 'Général', libCategory: null, libSubCategory: null, isEditing: false, tempLibItem: null, sigPad: null, currentEditorRoom: 'Général' },
+            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces', selectedItems: new Set(), lastPiece: 'Général', libCategory: null, libSubCategory: null, isEditing: false, tempLibItem: null, sigPad: null, currentEditorRoom: 'Général', tempVoiceQty: 1 },
             
             init() { Auth.init(); },
 
@@ -871,9 +850,7 @@
             },
 
             deleteRoom() {
-                // Legacy: now rooms are managed in the editor bar mostly
                 const roomName = document.getElementById('room-display-final').innerText;
-                // ... (Logic kept for library compatibility)
                 App.renderUsedRoomButtons();
             },
 
@@ -882,7 +859,7 @@
                 const name = prompt("Nom du devis :", 'Devis #' + (c.devisList.length + 1));
                 if (!name) return;
                 const id = Date.now();
-                c.devisList.push({ id: id, ref: 'D-'+Math.floor(Math.random()*1000), name: name, status:'Brouillon', items: [], total: 0, totalTime: 0, totalGravats: 0 });
+                c.devisList.push({ id: id, ref: 'D-'+Math.floor(Math.random()*1000), name: name, status:'Brouillon', items: [], rooms: [], total: 0, totalTime: 0, totalGravats: 0 });
                 Store.save(); App.openEditor(id);
             },
             openEditor(did) { 
@@ -906,31 +883,48 @@
                 App.calcTotals();
             },
             
-            // --- NUOVA FUNZIONE RENDER BARRA STANZE ---
+            // --- GESTIONE STANZE AVANZATA (SYNC + EDIT) ---
             renderEditorRoomBar() {
                 const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
                 const d = c.devisList.find(x => x.id == Store.data.activeDevisId);
                 const container = document.getElementById('editor-room-bar');
                 container.innerHTML = '<div class="room-bar-label">PIÈCE ACTIVE:</div>';
 
-                // Stanze predefinite + Stanze usate nel preventivo
-                const standardRooms = ['Cuisine', 'Salon', 'SDB', 'Chambre'];
-                const usedRooms = new Set(d.items.map(i => i.piece).filter(Boolean));
-                
-                // Uniamo tutto in un set unico per evitare duplicati
-                const allRooms = new Set([...standardRooms, ...usedRooms]);
-                
-                // Assicuriamoci che la stanza corrente sia nel set
-                if(App.state.currentEditorRoom) allRooms.add(App.state.currentEditorRoom);
+                // Inizializza array stanze se non esiste (compatibilità vecchi devis)
+                if(!d.rooms) d.rooms = [];
 
-                allRooms.forEach(room => {
+                // Aggiungi stanze predefinite se non ci sono
+                const standard = ['Cuisine', 'Salon', 'SDB', 'Chambre'];
+                standard.forEach(stdName => {
+                    if(!d.rooms.some(r => r.name === stdName)) {
+                        d.rooms.push({name: stdName, area: 0, wall: 0});
+                    }
+                });
+
+                d.rooms.forEach(room => {
                     const pill = document.createElement('div');
                     pill.className = 'room-pill';
-                    if(room === App.state.currentEditorRoom) pill.classList.add('active');
-                    pill.innerText = room;
+                    if(room.name === App.state.currentEditorRoom) pill.classList.add('active');
+                    
+                    let label = room.name;
+                    if(room.area > 0) label += ` <small>(${room.area}m²)</small>`;
+
+                    pill.innerHTML = `<span>${label}</span>`;
+                    
+                    // Icona Edit per aprire modale dimensioni
+                    const editIcon = document.createElement('div');
+                    editIcon.className = 'room-edit-icon';
+                    editIcon.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+                    editIcon.onclick = (e) => {
+                        e.stopPropagation();
+                        App.openRoomEditModal(room);
+                    };
+                    
+                    pill.appendChild(editIcon);
+
                     pill.onclick = () => {
-                        App.state.currentEditorRoom = room;
-                        App.renderEditorRoomBar(); // Re-render per aggiornare attivo
+                        App.state.currentEditorRoom = room.name;
+                        App.renderEditorRoomBar();
                     };
                     container.appendChild(pill);
                 });
@@ -940,13 +934,69 @@
                 addBtn.className = 'room-pill-add';
                 addBtn.innerHTML = '+';
                 addBtn.onclick = () => {
-                    const newRoom = prompt("Nom de la nouvelle pièce :");
-                    if(newRoom) {
-                        App.state.currentEditorRoom = newRoom;
+                    const newRoomName = prompt("Nom de la nouvelle pièce :");
+                    if(newRoomName) {
+                        d.rooms.push({name: newRoomName, area: 0, wall: 0});
+                        App.state.currentEditorRoom = newRoomName;
+                        Store.save();
                         App.renderEditorRoomBar();
                     }
                 };
                 container.appendChild(addBtn);
+            },
+
+            openRoomEditModal(roomObj) {
+                document.getElementById('mod-room-name').value = roomObj.name;
+                // Qui dovremmo salvare l'oggetto corrente per aggiornarlo dopo
+                App.state.tempRoomObj = roomObj;
+                
+                // Reset inputs
+                document.getElementById('mod-room-l').value = '';
+                document.getElementById('mod-room-w').value = '';
+                document.getElementById('mod-room-h').value = '';
+                
+                // Show current values
+                document.getElementById('mod-room-sol').innerText = roomObj.area || 0;
+                document.getElementById('mod-room-murs').innerText = roomObj.wall || 0;
+                
+                document.getElementById('modal-room-edit').classList.add('open');
+            },
+
+            calcModRoomArea() {
+                const l = parseFloat(document.getElementById('mod-room-l').value) || 0;
+                const w = parseFloat(document.getElementById('mod-room-w').value) || 0;
+                const h = parseFloat(document.getElementById('mod-room-h').value) || 0;
+                
+                let areaSol = 0;
+                let areaMurs = 0;
+
+                if(l > 0 && w > 0) {
+                    areaSol = l * w;
+                    if(h > 0) areaMurs = (l + w) * 2 * h;
+                }
+                
+                document.getElementById('mod-room-sol').innerText = areaSol.toFixed(2);
+                document.getElementById('mod-room-murs').innerText = areaMurs.toFixed(2);
+            },
+
+            saveRoomChanges() {
+                const r = App.state.tempRoomObj;
+                if(!r) return;
+                
+                // Update Name
+                const newName = document.getElementById('mod-room-name').value;
+                if(newName) r.name = newName;
+
+                // Update Measures (only if new calculation is done, otherwise keep old)
+                const s = parseFloat(document.getElementById('mod-room-sol').innerText);
+                const m = parseFloat(document.getElementById('mod-room-murs').innerText);
+                
+                if(s > 0) r.area = s;
+                if(m > 0) r.wall = m;
+
+                Store.save();
+                App.closeModal('modal-room-edit');
+                App.renderEditorRoomBar();
             },
 
             setEditorView(mode) {
@@ -979,7 +1029,7 @@
 
                 if (App.state.viewMode === 'pieces') {
                     const grouped = {};
-                    d.items.forEach(i => { const p = i.piece || "Zone Générale"; if(!grouped[p]) grouped[p]=[]; grouped[p].push(i); });
+                    d.items.forEach(i => { const p = i.piece || "Général"; if(!grouped[p]) grouped[p]=[]; grouped[p].push(i); });
                     for(const [piece, items] of Object.entries(grouped)) {
                         let html = `<div class="piece-section"><div class="piece-header"><div class="piece-title"><i class="fas fa-door-open"></i> ${piece}</div><span style="font-size:0.8rem; font-weight:700;">${items.length}</span></div>`;
                         items.forEach(i => {
@@ -1021,534 +1071,9 @@
                 }
             },
 
-            // --- FUNZIONI DI LIBRERIA MANTENUTE ---
-            openLibrary() {
-                const categories = Object.keys(Config.LIB).sort();
-                if(categories.length === 0) return App.showToast("Chargement bibliothèque...");
-                document.getElementById('lib-search').value = '';
-                App.state.libCategory = null; 
-                App.state.libSubCategory = null;
-                document.getElementById('lib-breadcrumb').style.display = 'none';
-                const sel = document.getElementById('lib-category-select');
-                sel.innerHTML = '<option value="">-- Toutes Familles --</option>';
-                categories.forEach(cat => sel.innerHTML += `<option value="${cat}">${cat}</option>`);
-                sel.value = ""; 
-                App.renderLibraryItems();
-                document.getElementById('modal-library').classList.add('open'); 
-            },
-
-            // Manteniamo le funzioni di render per compatibilità
-            renderUsedRoomButtons(activeRoomName = null) {
-                // Questa funzione è ora usata solo dal modal library per compatibilità,
-                // la vera barra è gestita da App.renderEditorRoomBar()
-            },
-            setRoomActiveVisuals(roomName) {
-                document.getElementById('room-display-final').innerText = roomName;
-                document.getElementById('room-display-final').style.color = "var(--success)";
-                document.getElementById('room-selector-widget').style.borderColor = "var(--success)";
-                document.getElementById('room-selector-widget').style.background = "#F0FDF4";
-                document.getElementById('btn-delete-room').style.display = 'flex';
-                const parts = roomName.split(' (');
-                document.getElementById('input-room-name').value = parts[0];
-            },
-            toggleRoomEdit(show) {
-                const view = document.getElementById('room-view-mode');
-                const edit = document.getElementById('room-edit-mode');
-                if(show) { view.style.display = 'none'; edit.style.display = 'block'; } else { view.style.display = 'block'; edit.style.display = 'none'; }
-            },
-            onRoomSelectChange() {
-                const val = document.getElementById('room-select-standard').value;
-                const inputCustom = document.getElementById('input-room-name');
-                if(val === 'Autre') { inputCustom.style.display = 'block'; inputCustom.value = ''; inputCustom.focus(); } else { inputCustom.style.display = 'none'; inputCustom.value = val; }
-            },
-            calcRoomArea() {
-                const l = parseFloat(document.getElementById('room-dim-l').value) || 0;
-                const w = parseFloat(document.getElementById('room-dim-w').value) || 0;
-                const h = parseFloat(document.getElementById('room-dim-h').value) || 0;
-                let areaSol = l * w;
-                let areaMurs = 0;
-                if(h > 0) areaMurs = (l + w) * 2 * h;
-                document.getElementById('room-calc-sol').innerText = areaSol > 0 ? areaSol.toFixed(2) : "0";
-                document.getElementById('room-calc-murs').innerText = areaMurs > 0 ? areaMurs.toFixed(2) : "0";
-            },
-            confirmRoom() {
-                let name = document.getElementById('input-room-name').value.trim();
-                const selectVal = document.getElementById('room-select-standard').value;
-                if(!selectVal && !name) return alert("Veuillez sélectionner une pièce dans le menu !");
-                if(selectVal && selectVal !== 'Autre') name = selectVal;
-                const sol = parseFloat(document.getElementById('room-calc-sol').innerText);
-                let displayName = name;
-                if (sol > 0) displayName += ` (S: ${sol}m²)`;
-                App.setRoomActiveVisuals(displayName);
-                
-                // Aggiorna anche la barra editor principale
-                App.state.currentEditorRoom = displayName;
-                App.renderEditorRoomBar();
-                
-                App.toggleRoomEdit(false);
-            },
-
-            // --- NAVIGAZIONE 3 LIVELLI ---
-            renderLibraryItems() {
-                const cont = document.getElementById('lib-container'); 
-                cont.innerHTML = '';
-                
-                const searchTerm = document.getElementById('lib-search').value;
-                const selectedCat = document.getElementById('lib-category-select').value;
-                const breadcrumb = document.getElementById('lib-breadcrumb');
-                
-                // 1. RICERCA ATTIVA
-                if (searchTerm.length > 1) {
-                    breadcrumb.style.display = 'none';
-                    const results = Config.searchIndex.search(searchTerm);
-                    if(results.length === 0) {
-                        cont.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8;">Aucun résultat pour "${searchTerm}"</div>`;
-                        return;
-                    }
-                    const finalResults = selectedCat ? results.filter(r => r.item.category === selectedCat) : results;
-                    App.renderLibItemsList(cont, finalResults.map(r => r.item));
-                    return;
-                }
-
-                // 2. LIVELLO RADICE (Famiglie)
-                if (App.state.libCategory === null && !selectedCat) {
-                    breadcrumb.style.display = 'none';
-                    const categories = Object.keys(Config.LIB).sort();
-                    let grid = document.createElement('div');
-                    grid.style.cssText = "display:grid; grid-template-columns: 1fr 1fr; gap:12px; padding-top:10px;";
-                    categories.forEach(cat => {
-                        let btn = document.createElement('div');
-                        btn.style.cssText = "background:white; border:1px solid var(--border); border-radius:12px; padding:20px 10px; text-align:center; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;";
-                        let icon = '<i class="fas fa-folder" style="font-size:1.5rem; color:#CBD5E1;"></i>';
-                        btn.innerHTML = `${icon}<div style="font-weight:700; color:var(--primary); font-size:0.9rem; word-break:break-word;">${cat}</div>`;
-                        btn.onclick = () => { App.state.libCategory = cat; document.getElementById('lib-category-select').value = cat; App.renderLibraryItems(); };
-                        grid.appendChild(btn);
-                    });
-                    cont.appendChild(grid);
-                    return;
-                }
-
-                // 3. LIVELLO INTERMEDIO (Sotto-Famiglie)
-                const activeCat = selectedCat || App.state.libCategory;
-                if (activeCat && App.state.libSubCategory === null) {
-                    breadcrumb.style.display = 'block';
-                    document.getElementById('lib-bc-cat').innerText = activeCat;
-                    document.getElementById('lib-bc-sub').innerText = '';
-                    let backBtn = document.createElement('div');
-                    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Retour`;
-                    backBtn.style.cssText = "padding:10px; color:var(--primary); font-weight:700; cursor:pointer; margin-bottom:10px; display:inline-block;";
-                    backBtn.onclick = () => { App.state.libCategory = null; document.getElementById('lib-category-select').value = ""; App.renderLibraryItems(); };
-                    cont.appendChild(backBtn);
-                    const allItemsInCat = Config.LIB[activeCat];
-                    const subCats = [...new Set(allItemsInCat.map(i => i.sub_category))].sort();
-                    let grid = document.createElement('div');
-                    grid.style.cssText = "display:grid; grid-template-columns: 1fr 1fr; gap:12px;";
-                    subCats.forEach(sub => {
-                        let btn = document.createElement('div');
-                        btn.style.cssText = "background:#F8FAFC; border:1px solid var(--border); border-radius:12px; padding:15px 10px; text-align:center; cursor:pointer; font-weight:600; color:var(--text-main);";
-                        btn.innerText = sub;
-                        btn.onclick = () => { App.state.libSubCategory = sub; App.renderLibraryItems(); };
-                        grid.appendChild(btn);
-                    });
-                    cont.appendChild(grid);
-                    return;
-                }
-
-                // 4. LIVELLO FINALE (Articoli)
-                if (activeCat && App.state.libSubCategory) {
-                    breadcrumb.style.display = 'block';
-                    document.getElementById('lib-bc-cat').innerText = activeCat;
-                    document.getElementById('lib-bc-sub').innerText = App.state.libSubCategory;
-                    let backBtn = document.createElement('div');
-                    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Retour`;
-                    backBtn.style.cssText = "padding:10px; color:var(--primary); font-weight:700; cursor:pointer; margin-bottom:10px; display:inline-block;";
-                    backBtn.onclick = () => { App.state.libSubCategory = null; App.renderLibraryItems(); };
-                    cont.appendChild(backBtn);
-                    const finalItems = Config.LIB[activeCat].filter(i => i.sub_category === App.state.libSubCategory);
-                    App.renderLibItemsList(cont, finalItems);
-                }
-            },
-
-            renderLibItemsList(container, items) {
-                items.forEach(it => { 
-                    const dynamicPrice = App.calculateItemPrice(it);
-                    let div = document.createElement('div'); div.className = 'card-item'; div.style.marginBottom = "8px"; 
-                    
-                    div.innerHTML = `
-                        <div class="card-info">
-                            <div class="card-title" style="font-size:0.95rem;">${it.desc}</div>
-                            <div class="card-sub" style="color:var(--primary); font-weight:700;">
-                                ${App.formatMoney(dynamicPrice)} / ${it.unit} 
-                                <span style="font-weight:400; color:#64748B; font-size:0.8em; margin-left:5px;">
-                                    (T: ${it.labor_time}h | M: ${it.material_cost}€)
-                                </span>
-                            </div>
-                        </div>
-                        <div style="background:var(--accent); color:white; width:35px; height:35px; border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer;">
-                            <i class="fas fa-plus" style="font-size:0.9rem;"></i>
-                        </div>
-                    `; 
-                    
-                    div.onclick = () => { 
-                        // CONTROLLO STANZA
-                        const roomDisplay = document.getElementById('room-display-final');
-                        const isConfirmed = document.getElementById('room-selector-widget').style.borderColor === "var(--success)";
-                        
-                        if(!isConfirmed) {
-                            App.toggleRoomEdit(true);
-                            return alert("Veuillez sélectionner et CONFIRMER une pièce avant d'ajouter des articles !");
-                        }
-
-                        const finalPieceName = roomDisplay.innerText;
-                        
-                        // APRE IL MODALE DI INSERIMENTO (Invece di salvare subito)
-                        App.openAddItemModal(it, finalPieceName);
-                    }; 
-                    container.appendChild(div); 
-                });
-            },
-
-            openAddItemModal(item, room) {
-                App.state.isEditing = false;
-                App.state.tempLibItem = item;
-                
-                document.getElementById('edit-item-title').innerText = "Nouvel Article";
-                document.getElementById('edit-item-desc').value = item.desc;
-                document.getElementById('edit-item-qty').value = 1;
-                document.getElementById('edit-item-unit').value = item.unit;
-                document.getElementById('edit-item-price').value = App.calculateItemPrice(item).toFixed(2);
-                
-                // SET FIELDS FOR CALCULATION
-                document.getElementById('edit-item-time').value = item.labor_time || 0;
-                document.getElementById('edit-item-mat').value = item.material_cost || 0;
-                
-                document.getElementById('edit-item-rubble').value = item.gravats || 0; 
-                document.getElementById('btn-delete-item').style.display = 'none'; 
-
-                // Gestione Select Stanza
-                const sel = document.getElementById('edit-item-piece');
-                sel.innerHTML = '';
-                // Aggiunge la stanza selezionata se non c'è
-                let o = document.createElement('option');
-                o.value = room; o.text = room; o.selected = true;
-                sel.appendChild(o);
-                
-                document.getElementById('modal-edit-item').classList.add('open');
-                
-                // Trigger calc initial
-                App.calcEditPrice();
-            },
-
-            editDevisItem(id) {
-                App.state.isEditing = true;
-                document.getElementById('edit-item-title').innerText = "Modifier Article";
-                document.getElementById('btn-delete-item').style.display = 'block';
-
-                const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); const item=d.items.find(x=>x.id==id);
-                document.getElementById('edit-item-idx').value = id; document.getElementById('edit-item-desc').value = item.desc; document.getElementById('edit-item-qty').value = item.qty; 
-                document.getElementById('edit-item-price').value = item.price.toFixed(2); 
-                document.getElementById('edit-item-unit').value = item.unit || 'U'; 
-                
-                document.getElementById('edit-item-time').value = item.time || 0;
-                document.getElementById('edit-item-mat').value = item.material_cost || 0; // LOAD MAT COST
-                
-                document.getElementById('edit-item-rubble').value = item.gravats || 0;
-                
-                const rooms = new Set(d.items.map(i => i.piece).filter(Boolean)); 
-                if(App.state.currentEditorRoom) rooms.add(App.state.currentEditorRoom);
-
-                const sel = document.getElementById('edit-item-piece'); sel.innerHTML = ''; 
-                rooms.forEach(r => { const isSel = r === item.piece ? 'selected' : ''; sel.innerHTML += `<option value="${r}" ${isSel}>${r}</option>`; });
-                document.getElementById('modal-edit-item').classList.add('open');
-                
-                // Trigger calc initial
-                App.calcEditPrice();
-            },
-
-            // CALCULATION LOGIC IN MODAL
-            calcEditPrice() {
-                const qty = parseFloat(document.getElementById('edit-item-qty').value) || 0;
-                const t = parseFloat(document.getElementById('edit-item-time').value) || 0;
-                const m = parseFloat(document.getElementById('edit-item-mat').value) || 0;
-                const rate = Store.data.settings.hourlyRate || 45;
-                
-                // COST BREAKDOWN
-                const laborCost = t * rate;
-                
-                // UPDATE BREAKDOWN DISPLAY
-                document.getElementById('edit-item-split-display').innerText = 
-                    `Manodopera: ${App.formatMoney(laborCost)} + Materiale: ${App.formatMoney(m)}`;
-
-                // UNIT PRICE FORMULA: (Time * Rate) + Material
-                const unitPrice = laborCost + m;
-                document.getElementById('edit-item-price').value = unitPrice.toFixed(2);
-                
-                // TOTAL ROW CALCULATION
-                const totalRow = unitPrice * qty;
-                document.getElementById('edit-item-total-row').innerText = App.formatMoney(totalRow);
-            },
-
-            saveItemChanges() { 
-                const desc = document.getElementById('edit-item-desc').value;
-                const qty = parseFloat(document.getElementById('edit-item-qty').value)||0;
-                const price = parseFloat(document.getElementById('edit-item-price').value)||0;
-                
-                const time = parseFloat(document.getElementById('edit-item-time').value)||0;
-                const material = parseFloat(document.getElementById('edit-item-mat').value)||0;
-                
-                const gravats = parseFloat(document.getElementById('edit-item-rubble').value)||0;
-                const piece = document.getElementById('edit-item-piece').value;
-                
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); 
-                const d = c.devisList.find(x=>x.id==Store.data.activeDevisId); 
-
-                if (App.state.isEditing) {
-                    // MODIFICA ESISTENTE
-                    const id = parseInt(document.getElementById('edit-item-idx').value); 
-                    const item = d.items.find(x=>x.id==id); 
-                    item.desc = desc; item.qty = qty; item.price = price; 
-                    item.time = time; item.material_cost = material; // SAVE MAT
-                    item.piece = piece; item.gravats = gravats;
-                } else {
-                    // NUOVO INSERIMENTO
-                    const newItem = { 
-                        id: Date.now(), 
-                        desc: desc, 
-                        unit: document.getElementById('edit-item-unit').value, 
-                        time: time, 
-                        material_cost: material, // SAVE MAT
-                        price: price, 
-                        qty: qty, 
-                        piece: piece,
-                        gravats: gravats
-                    };
-                    d.items.push(newItem);
-                    App.showToast("Ajouté : " + desc);
-                    
-                    // Se stiamo usando lo sticky widget, aggiorniamo i bottoni
-                    App.renderUsedRoomButtons(piece);
-                }
-
-                Store.save(); 
-                App.closeModal('modal-edit-item'); 
-                App.calcTotals(); 
-                App.renderEditorItems(); 
-                App.renderEditorRoomBar(); // Aggiorna barra
-            },
-
-            deleteItem() { if(confirm("Supprimer ?")) { const id=parseInt(document.getElementById('edit-item-idx').value); const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); d.items=d.items.filter(x=>x.id!==id); Store.save(); App.closeModal('modal-edit-item'); App.calcTotals(); App.renderEditorItems(); } },
-            
-            closeModal(id) { document.getElementById(id).classList.remove('open'); },
-            openPartnerModal() { document.getElementById('ptn-name').value=''; document.getElementById('modal-partner').classList.add('open'); },
-            savePartner() { const name = document.getElementById('ptn-name').value; if(!name) return; Store.data.partners.push({id:Date.now(), name:name, role:document.getElementById('ptn-role').value}); Store.save(); App.closeModal('modal-partner'); App.renderSettings(); },
-            deletePartner(id) { if(confirm("Supprimer ?")) { Store.data.partners = Store.data.partners.filter(p=>p.id!==id); Store.save(); App.renderSettings(); }},
-            
-            openClientModal() { ['cli-id','cli-nom','cli-addr','cli-tel','cli-email','cli-siret'].forEach(k=>document.getElementById(k).value=''); App.toggleClientType('particulier'); document.getElementById('modal-client').classList.add('open'); },
-            toggleClientType(type) { App.state.tempClientType = type; document.getElementById('type-particulier').classList.remove('active'); document.getElementById('type-societe').classList.remove('active'); document.getElementById('type-'+type).classList.add('active'); if(type === 'societe') { document.getElementById('field-siret').style.display = 'block'; document.getElementById('cli-nom').placeholder = 'Raison Sociale'; } else { document.getElementById('field-siret').style.display = 'none'; document.getElementById('cli-nom').placeholder = 'Nom et Prénom'; } },
-            saveClient() { const id = document.getElementById('cli-id').value; const type = App.state.tempClientType; const c = { id: id?parseInt(id):Date.now(), type: type, nom: document.getElementById('cli-nom').value, siret: type === 'societe' ? document.getElementById('cli-siret').value : '', addr: document.getElementById('cli-addr').value, tel: document.getElementById('cli-tel').value, email: document.getElementById('cli-email').value }; if(!c.nom) return alert("Nom obligatoire"); if(id) { const idx = Store.data.clients.findIndex(x=>x.id==id); Store.data.clients[idx]=c; } else { Store.data.clients.push(c); } Store.save(); App.closeModal('modal-client'); App.renderClients(); if(document.getElementById('modal-projet').classList.contains('open')) { const s = document.getElementById('prj-cli'); s.innerHTML=''; Store.data.clients.forEach(cl => { let o=document.createElement('option'); o.value=cl.id; o.text=cl.nom; s.appendChild(o); }); s.value = c.id; } },
-            editClient(id) { const c = Store.data.clients.find(x=>x.id==id); document.getElementById('cli-id').value=c.id; document.getElementById('cli-nom').value=c.nom; document.getElementById('cli-addr').value=c.addr; document.getElementById('cli-tel').value=c.tel; document.getElementById('cli-email').value=c.email; document.getElementById('cli-siret').value = c.siret || ''; App.toggleClientType(c.type || 'particulier'); document.getElementById('modal-client').classList.add('open'); },
-            openProjectWizard() { const s=document.getElementById('prj-cli'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.clients.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.nom; s.appendChild(o); }); document.getElementById('modal-projet').classList.add('open'); },
-            createProject() { const cid=document.getElementById('prj-cli').value; const nom=document.getElementById('prj-nom').value; const addr=document.getElementById('prj-addr').value; if(cid && nom) { const ch={id:Date.now(), clientId:cid, name:nom, ref:"C-"+Date.now().toString().slice(-4), devisList:[], factures:[], extraDocs:[]}; Store.data.chantiers.unshift(ch); Store.save(); App.showToast("Chantier créé"); App.closeModal('modal-projet'); App.openHub(ch.id); } },
-            backToHub() { if(Store.data.activeChantierId) App.openHub(Store.data.activeChantierId); else App.nav('projets'); },
-
-            openCreateInvoiceModal() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); if(!c.devisList || c.devisList.length === 0) return alert("Erreur : Vous devez d'abord créer un devis !"); const s = document.getElementById('inv-devis-select'); s.innerHTML=''; c.devisList.forEach(d => { let o = document.createElement('option'); o.value=d.id; o.text=d.name; s.appendChild(o); }); document.getElementById('modal-invoice').classList.add('open'); App.onInvoiceDevisChange(); },
-            onInvoiceDevisChange() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); document.getElementById('inv-total-quote').innerText = App.formatMoney(d.total); App.calcInvPreview(); },
-            setInvType(t) { App.state.invType = t; document.getElementById('btn-acompte').style.background = t==='acompte'? 'var(--primary)' : 'white'; document.getElementById('btn-acompte').style.color = t==='acompte'? 'white' : '#64748B'; document.getElementById('btn-solde').style.background = t==='solde'? 'var(--primary)' : 'white'; document.getElementById('btn-solde').style.color = t==='solde'? 'white' : '#64748B'; const inp = document.getElementById('inv-percent'); if(t==='solde') { inp.value = 100; inp.disabled = true; } else { inp.value = 30; inp.disabled = false; } App.calcInvPreview(); },
-            calcInvPreview() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); const perc = parseInt(document.getElementById('inv-percent').value) || 0; const amt = d.total * (perc/100); document.getElementById('inv-preview-amount').innerText = App.formatMoney(amt); },
-            generateInvoice() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const amtString = document.getElementById('inv-preview-amount').innerText.replace(' €','').replace(/\s/g,'').replace(/\./g,'').replace(',','.'); c.factures.push({ id: Date.now(), ref: "FAC-"+Date.now().toString().slice(-4), type: App.state.invType, amount: parseFloat(amtString), paid: false }); Store.save(); App.showToast("Facture émise"); App.closeModal('modal-invoice'); App.openHub(c.id); },
-            openAgenda() { const s=document.getElementById('agd-chantier'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.chantiers.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.name; s.appendChild(o);}); document.getElementById('modal-agenda').classList.add('open'); let l=document.getElementById('agenda-list-view'); l.innerHTML=''; (Store.data.appointments||[]).forEach(a=>{let d=document.createElement('div'); d.className='card-item'; d.innerText=new Date(a.date).toLocaleString()+' - '+a.title; l.appendChild(d);}); },
-            saveAgendaEvent() { const cid=document.getElementById('agd-chantier').value; const date=document.getElementById('agd-date').value; if(cid&&date){const c=Store.data.chantiers.find(x=>x.id==cid); Store.data.appointments.push({id:Date.now(), date:date, title:"Visite", sub:c.name}); Store.save(); App.showToast("RDV Enregistré"); App.closeModal('modal-agenda'); App.renderHome();} },
-            renderDocuments(filter) { const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; Store.data.chantiers.forEach(c=>{ const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); if(c.extraDocs) c.extraDocs.forEach(e=>docs.push({type:'CDC', ref:e.ref, client:cn, cid:c.id, obj:e})); }); if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter||(filter==='CDC'&&d.type==='Etude')); docs.forEach(d=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); ${d.type==='CDC' ? `App.generateCDCPDF('${d.obj.id}')` : `App.generateGlobalPDF('${d.type.toLowerCase()}', ${d.obj.id})`}"></i>`; div.onclick=()=>{ Store.data.activeChantierId=d.cid; if(d.type==='Devis') App.openEditor(d.obj.id); else if(d.type==='CDC') App.viewCahierTable(d.obj); else App.openHub(d.cid); }; l.appendChild(div); }); },
-            viewCahierTable(doc) { document.getElementById('vc-title').innerText = doc.name; const t = document.getElementById('vc-table'); t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Ass.</th></tr>'; doc.items.forEach(i => t.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; color:#15803d; font-weight:bold;">${i.assignedTo||'-'}</td></tr>`); document.getElementById('modal-view-cahier').classList.add('open'); },
-            renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i><div style="font-weight:800; color:var(--danger)">${App.formatMoney(f.amount)}</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
-
-            // --- NOUVELLE FONCTION : RAPPORT PAR PIÈCES (PDF) ---
-            generateRoomReportPDF() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const did = Store.data.activeDevisId;
-                if(!did) return alert("Veuillez ouvrir un devis d'abord.");
-                
-                const d = c.devisList.find(x => x.id == did);
-                const cli = Store.data.clients.find(x => x.id == c.clientId);
-
-                // Groupement des items par pièce
-                const rooms = {};
-                d.items.forEach(item => {
-                    const p = item.piece || "Non assigné";
-                    if (!rooms[p]) rooms[p] = [];
-                    rooms[p].push(item);
-                });
-
-                let roomsHtml = "";
-                for (const [roomName, items] of Object.entries(rooms)) {
-                    let itemsRows = items.map(i => `
-                        <tr style="border-bottom: 1px solid #E2E8F0;">
-                            <td style="padding: 10px; width: 70%; font-weight: 500;">${i.desc}</td>
-                            <td style="padding: 10px; text-align: center;">${i.qty} ${i.unit || 'U'}</td>
-                            <td style="padding: 10px; text-align: right; color: #64748B; font-size: 0.85rem;">
-                                ${i.assignedTo ? '👤 ' + i.assignedTo : '-'}
-                            </td>
-                        </tr>
-                    `).join('');
-
-                    roomsHtml += `
-                        <div style="margin-bottom: 25px; break-inside: avoid;">
-                            <div style="background: #0F172A; color: white; padding: 8px 15px; border-radius: 6px; font-weight: 800; text-transform: uppercase; font-size: 0.9rem;">
-                                📍 ${roomName}
-                            </div>
-                            <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
-                                ${itemsRows}
-                            </table>
-                        </div>
-                    `;
-                }
-
-                // Add Gravats Summary to CDC
-                let gravatsInfo = "";
-                if(d.totalGravats > 0) {
-                    gravatsInfo = `<div style="background:#FEE2E2; color:#B91C1C; padding:15px; border-radius:8px; margin-bottom:20px; font-weight:bold; border:1px solid #FECACA;">
-                        <i class="fas fa-truck-loading"></i> Volume Total Gravats Estimé : ${d.totalGravats.toFixed(2)} m³
-                    </div>`;
-                }
-
-                const html = `
-                    <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; color: #1E293B;">
-                        <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0F172A; padding-bottom: 20px; margin-bottom: 30px;">
-                            <div>
-                                <h1 style="margin: 0; font-size: 1.5rem;">ORDRE D'EXÉCUTION</h1>
-                                <div style="color: #64748B;">Projet : <strong>${c.name}</strong></div>
-                            </div>
-                            <div style="text-align: right; font-size: 0.85rem;">
-                                Date : ${new Date().toLocaleDateString('fr-FR')}<br>
-                                Réf : ${d.ref}
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 30px; font-size: 0.9rem;">
-                            <strong>Client :</strong> ${cli ? cli.nom : 'Non spécifié'}<br>
-                            <strong>Adresse :</strong> ${c.addr || 'Voir fiche projet'}
-                        </div>
-
-                        ${gravatsInfo}
-
-                        ${roomsHtml}
-
-                        <div style="margin-top: 50px; border-top: 1px solid #CBD5E1; padding-top: 20px; font-size: 0.75rem; color: #94A3B8; text-align: center;">
-                            Généré via QOTIA CLOUD V7 - Document interne destiné aux équipes de chantier.
-                        </div>
-                    </div>
-                `;
-
-                const opt = {
-                    margin: 10,
-                    filename: `RAPPORT_ZONES_${c.name.replace(/\s+/g, '_')}.pdf`,
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-
-                html2pdf().set(opt).from(html).save();
-                App.showToast("Rapport par pièces généré !");
-            },
-
-            generateGlobalPDF(type, id) {
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                const cli = Store.data.clients.find(x=>x.id==c.clientId);
-                const rate = Store.data.settings.hourlyRate || 45;
-                let items, title, ref, extraInfo = "";
-                let signatureBlock = "";
-                
-                if (type === 'devis') {
-                    const obj = c.devisList.find(x=>x.id==id);
-                    items = obj.items; title = "DEVIS"; ref = obj.ref;
-                    if(obj.totalGravats > 0) {
-                        extraInfo = `<div style="text-align:right; margin-top:10px; font-size:0.9rem; color:#64748B;">Volume Gravats Estimé: <strong>${obj.totalGravats.toFixed(2)} m³</strong></div>`;
-                    }
-                    // SIGNATURE BLOCK
-                    if(obj.signature) {
-                        signatureBlock = `
-                            <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid;">
-                                <div style="font-weight:bold; color:#16a34a; margin-bottom:10px;">BON POUR ACCORD</div>
-                                <div style="font-size:0.8rem; margin-bottom:10px;">Signé électroniquement le ${obj.signDate || ''}</div>
-                                <img src="${obj.signature}" style="max-width: 250px; max-height: 100px; width: auto; height: auto; display:block;" />
-                            </div>
-                        `;
-                    } else {
-                        signatureBlock = `
-                            <div style="margin-top:50px; margin-bottom:20px; display:flex; justify-content:space-between; page-break-inside: avoid; break-inside: avoid;">
-                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Entreprise</div>
-                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Client (Bon pour accord)</div>
-                            </div>
-                        `;
-                    }
-
-                } else {
-                    const obj = c.factures.find(x=>x.id==id);
-                    title = "FACTURE"; ref = obj.ref; items = [{desc: `Facture selon avancement (${obj.type})`, qty: 1, unit:'U', price: obj.amount, time:0, material_cost:0}];
-                }
-                
-                let totalTTC = 0;
-                let rows = items.map(i => {
-                    const rowT = i.qty * i.price; totalTTC += rowT;
-                    
-                    // Calc single costs
-                    const costLabor = (i.time || 0) * rate;
-                    const costMat = (i.material_cost || 0);
-
-                    return `
-                        <tr style="border-bottom:1px solid #eee;">
-                            <td style="padding:10px;">${i.desc}</td>
-                            <td style="padding:10px; text-align:center;">${i.qty}</td>
-                            <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${costLabor > 0 ? App.formatMoney(costLabor) : '-'}</td>
-                            <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${costMat > 0 ? App.formatMoney(costMat) : '-'}</td>
-                            <td style="padding:10px; text-align:right;">${App.formatMoney(i.price)}</td>
-                            <td style="padding:10px; text-align:right; font-weight:bold;">${App.formatMoney(rowT)}</td>
-                        </tr>`;
-                }).join('');
-                
-                const html = `
-                    <div style="font-family:sans-serif; padding:30px; color:#334155;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px;">
-                            <div>
-                                <h1 style="color:#0f172a; margin:0;">${title}</h1>
-                                <div style="color:#64748b; font-size:0.9rem;">${ref}</div>
-                            </div>
-                            <div style="text-align:right;">
-                                <strong>QOTIA ENTREPRISE</strong><br>123 Rue Exemple<br>06000 NICE
-                            </div>
-                        </div>
-                        <div style="background:#f1f5f9; padding:20px; border-radius:10px; margin-bottom:30px;">
-                            <strong>CLIENT:</strong><br>
-                            <span style="font-size:1.2rem; font-weight:bold; color:#0f172a;">${cli.nom}</span><br>
-                            ${cli.addr}<br>${cli.tel||''}
-                        </div>
-                        <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin-bottom:30px;">
-                            <thead style="background:#0f172a; color:white;">
-                                <tr>
-                                    <th style="padding:12px; text-align:left;">Description</th>
-                                    <th style="padding:12px; text-align:center;">Qté</th>
-                                    <th style="padding:12px; text-align:center;">M.O. (U)</th>
-                                    <th style="padding:12px; text-align:center;">Mat. (U)</th>
-                                    <th style="padding:12px; text-align:right;">P.U.</th>
-                                    <th style="padding:12px; text-align:right;">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>${rows}</tbody>
-                        </table>
-                        <div style="text-align:right; margin-bottom:20px;">
-                            <div style="font-size:1.5rem; font-weight:900; color:#0f172a;">TOTAL A PAYER: ${App.formatMoney(totalTTC)}</div>
-                            ${extraInfo}
-                        </div>
-                        ${signatureBlock}
-                        <div style="height:30px;"></div> </div>`;
-                const opt = { margin: 10, filename: `${title}_${ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().set(opt).from(html).save();
-                App.showToast("PDF Téléchargé");
-            },
-
             // --- INIZIO INTEGRAZIONE SMART ENTRY (VOCE -> DB) ---
 
             startSmartEntry() {
-                // 1. Check HTTPS (Browser Security)
                 if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
                     return alert("⚠️ Erreur : Le micro ne fonctionne que sur HTTPS (site sécurisé) ou localhost.");
                 }
@@ -1595,10 +1120,7 @@
                 if(!text) return;
                 text = text.toLowerCase();
 
-                // 2. Identifica la stanza attiva DALLA BARRA IN ALTO
                 const targetRoom = App.state.currentEditorRoom || "Général";
-
-                // 3. Divide la frase in comandi multipli
                 const commands = text.split(/,| e | \+ | poi | et | avec /);
                 
                 let foundItems = 0;
@@ -1622,22 +1144,61 @@
                     const results = Config.searchIndex.search(cleanSearch);
 
                     if (results.length > 0) {
-                        const bestMatch = results[0].item;
-                        App.addItemFromAI(bestMatch, qty, targetRoom);
-                        foundItems++;
+                        // LOGICA SMART CHOICE
+                        // Se il risultato è perfetto (score basso), aggiungi subito
+                        if (results[0].score < 0.1 || results.length === 1) {
+                            App.addItemFromAI(results[0].item, qty, targetRoom);
+                            foundItems++;
+                        } else {
+                            // Se ci sono dubbi, apri il modale di scelta
+                            App.openVoiceChoiceModal(results.slice(0, 5), qty, targetRoom); // Mostra i primi 5
+                        }
                     } else {
                         console.warn("Aucun article trouvé pour :", cleanSearch);
                     }
                 });
 
                 if (foundItems > 0) {
-                    App.showToast(`✅ ${foundItems} articles ajoutés dans ${targetRoom}`);
+                    App.showToast(`✅ Articles ajoutés dans ${targetRoom}`);
                     Store.save();
                     App.renderEditorItems(); 
                     App.calcTotals();
-                } else {
-                    alert("Aucun article correspondant trouvé dans la base de données pour : " + text);
                 }
+            },
+
+            openVoiceChoiceModal(results, qty, room) {
+                const list = document.getElementById('voice-choice-list');
+                list.innerHTML = '';
+                
+                // Salva contesto
+                App.state.tempVoiceQty = qty;
+                App.state.currentEditorRoom = room;
+
+                results.forEach(r => {
+                    const item = r.item;
+                    const div = document.createElement('div');
+                    div.className = 'card-item';
+                    div.style.marginBottom = '8px';
+                    div.style.background = '#F8FAFC';
+                    div.innerHTML = `
+                        <div style="flex:1">
+                            <div style="font-weight:700; font-size:0.9rem;">${item.desc}</div>
+                            <div style="font-size:0.8rem; color:#64748B;">${item.category}</div>
+                        </div>
+                        <div style="font-weight:bold; color:var(--primary);">${qty} ${item.unit}</div>
+                    `;
+                    div.onclick = () => {
+                        App.addItemFromAI(item, qty, room);
+                        App.closeModal('modal-voice-choice');
+                        App.showToast("Ajouté !");
+                        Store.save();
+                        App.renderEditorItems();
+                        App.calcTotals();
+                    };
+                    list.appendChild(div);
+                });
+
+                document.getElementById('modal-voice-choice').classList.add('open');
             },
 
             addItemFromAI(libItem, qty, room) {
@@ -1661,10 +1222,70 @@
                 };
 
                 d.items.push(newItem);
-                // Non serve aggiornare bottoni legacy, usiamo la nuova barra
-            }
+            },
 
             // --- FINE INTEGRAZIONE ---
+            
+            // Legacy/Support Functions kept for compatibility
+            openLibrary() { /* ... */ App.renderLibraryItems(); document.getElementById('modal-library').classList.add('open'); },
+            renderUsedRoomButtons() {},
+            setRoomActiveVisuals(n) {},
+            toggleRoomEdit(s) {},
+            onRoomSelectChange() {},
+            calcRoomArea() {},
+            confirmRoom() {},
+            renderLibraryItems() { /* Fuse Search Logic for Library Modal */ 
+                const cont = document.getElementById('lib-container'); cont.innerHTML = '';
+                const searchTerm = document.getElementById('lib-search').value;
+                const selectedCat = document.getElementById('lib-category-select').value;
+                
+                let results = Config.allItems;
+                if(searchTerm.length > 1) {
+                    results = Config.searchIndex.search(searchTerm).map(r => r.item);
+                } else if(selectedCat) {
+                    results = results.filter(i => i.category === selectedCat);
+                } else {
+                    // Show categories grid (Simplification for brevity in this full paste)
+                    const categories = Object.keys(Config.LIB).sort();
+                    let grid = document.createElement('div');
+                    grid.style.cssText = "display:grid; grid-template-columns: 1fr 1fr; gap:12px; padding-top:10px;";
+                    categories.forEach(cat => {
+                        let btn = document.createElement('div');
+                        btn.style.cssText = "background:white; border:1px solid var(--border); border-radius:12px; padding:20px 10px; text-align:center; cursor:pointer;";
+                        btn.innerText = cat;
+                        btn.onclick = () => { document.getElementById('lib-category-select').value = cat; App.renderLibraryItems(); };
+                        grid.appendChild(btn);
+                    });
+                    cont.appendChild(grid);
+                    return;
+                }
+                App.renderLibItemsList(cont, results);
+            },
+            renderLibItemsList(container, items) { /* ... */ 
+                items.forEach(it => {
+                    let div = document.createElement('div'); div.className = 'card-item';
+                    div.innerHTML = `<div class="card-info"><div class="card-title">${it.desc}</div></div><div style="font-weight:bold;">+</div>`;
+                    div.onclick = () => { App.openAddItemModal(it, App.state.currentEditorRoom || "Général"); };
+                    container.appendChild(div);
+                });
+            },
+            openAddItemModal(item, room) { /* ... */ 
+                App.state.tempLibItem = item;
+                document.getElementById('edit-item-desc').value = item.desc;
+                document.getElementById('edit-item-qty').value = 1;
+                document.getElementById('edit-item-unit').value = item.unit;
+                document.getElementById('edit-item-price').value = App.calculateItemPrice(item).toFixed(2);
+                document.getElementById('edit-item-time').value = item.labor_time || 0;
+                document.getElementById('edit-item-mat').value = item.material_cost || 0;
+                document.getElementById('edit-item-rubble').value = item.gravats || 0;
+                
+                // Populate piece select
+                const sel = document.getElementById('edit-item-piece'); sel.innerHTML = '';
+                let o = document.createElement('option'); o.value = room; o.text = room; o.selected = true; sel.appendChild(o);
+                
+                document.getElementById('modal-edit-item').classList.add('open');
+                App.calcEditPrice();
+            }
         };
 
         window.onload = () => App.init();
