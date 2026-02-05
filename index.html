@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA CLOUD V7.23 - FULL INTEGRA</title>
+    <title>QOTIA CLOUD V7.24 - STABLE</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -597,7 +597,7 @@
 
                     const options = {
                         includeScore: true,
-                        threshold: 0.4, // Leggermente più tollerante per mostrare opzioni
+                        threshold: 0.4, 
                         keys: ['desc', 'category', 'sub_category'] 
                     };
                     Config.searchIndex = new Fuse(Config.allItems, options);
@@ -896,6 +896,11 @@
                     }
                 });
 
+                // Se non c'è stanza attiva, setta la prima come default
+                if(!App.state.currentEditorRoom || App.state.currentEditorRoom === "Général") {
+                    App.state.currentEditorRoom = d.rooms[0].name;
+                }
+
                 d.rooms.forEach(room => {
                     const pill = document.createElement('div');
                     pill.className = 'room-pill';
@@ -942,7 +947,7 @@
 
             openRoomEditModal(roomObj) {
                 document.getElementById('mod-room-name').value = roomObj.name;
-                // Qui dovremmo salvare l'oggetto corrente per aggiornarlo dopo
+                // Qui salviamo l'oggetto corrente per aggiornarlo dopo
                 App.state.tempRoomObj = roomObj;
                 
                 // Reset inputs
@@ -978,20 +983,35 @@
                 const r = App.state.tempRoomObj;
                 if(!r) return;
                 
+                const oldName = r.name; // Keep old name to find items
+                
                 // Update Name
                 const newName = document.getElementById('mod-room-name').value;
                 if(newName) r.name = newName;
 
-                // Update Measures (only if new calculation is done, otherwise keep old)
+                // Update Measures
                 const s = parseFloat(document.getElementById('mod-room-sol').innerText);
                 const m = parseFloat(document.getElementById('mod-room-murs').innerText);
                 
-                if(s > 0) r.area = s;
-                if(m > 0) r.wall = m;
+                if(!isNaN(s)) r.area = s;
+                if(!isNaN(m)) r.wall = m;
+
+                // FIX CRITICO: Aggiorna il nome della stanza anche negli articoli già creati
+                if(oldName !== newName) {
+                    const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                    const d = c.devisList.find(x => x.id == Store.data.activeDevisId);
+                    d.items.forEach(item => {
+                        if(item.piece === oldName) {
+                            item.piece = newName;
+                        }
+                    });
+                    if(App.state.currentEditorRoom === oldName) App.state.currentEditorRoom = newName;
+                }
 
                 Store.save();
                 App.closeModal('modal-room-edit');
                 App.renderEditorRoomBar();
+                App.renderEditorItems(); // Refresh list to show new room names
             },
 
             setEditorView(mode) {
@@ -1222,49 +1242,140 @@
             // --- FINE INTEGRAZIONE ---
             
             // Legacy/Support Functions kept for compatibility
-            openLibrary() { /* ... */ App.renderLibraryItems(); document.getElementById('modal-library').classList.add('open'); },
+            openLibrary() {
+                const categories = Object.keys(Config.LIB).sort();
+                if(categories.length === 0) return App.showToast("Chargement bibliothèque...");
+                document.getElementById('lib-search').value = '';
+                App.state.libCategory = null; 
+                App.state.libSubCategory = null;
+                document.getElementById('lib-breadcrumb').style.display = 'none';
+                const sel = document.getElementById('lib-category-select');
+                sel.innerHTML = '<option value="">-- Toutes Familles --</option>';
+                categories.forEach(cat => sel.innerHTML += `<option value="${cat}">${cat}</option>`);
+                sel.value = ""; 
+                App.renderLibraryItems();
+                document.getElementById('modal-library').classList.add('open'); 
+            },
+            
             renderUsedRoomButtons() {},
             setRoomActiveVisuals(n) {},
             toggleRoomEdit(s) {},
             onRoomSelectChange() {},
             calcRoomArea() {},
             confirmRoom() {},
-            renderLibraryItems() { /* Fuse Search Logic for Library Modal */ 
-                const cont = document.getElementById('lib-container'); cont.innerHTML = '';
+            
+            renderLibraryItems() {
+                const cont = document.getElementById('lib-container'); 
+                cont.innerHTML = '';
+                
                 const searchTerm = document.getElementById('lib-search').value;
                 const selectedCat = document.getElementById('lib-category-select').value;
+                const breadcrumb = document.getElementById('lib-breadcrumb');
                 
-                let results = Config.allItems;
-                if(searchTerm.length > 1) {
-                    results = Config.searchIndex.search(searchTerm).map(r => r.item);
-                } else if(selectedCat) {
-                    results = results.filter(i => i.category === selectedCat);
-                } else {
-                    // Show categories grid (Simplification for brevity in this full paste)
+                // 1. RICERCA ATTIVA
+                if (searchTerm.length > 1) {
+                    breadcrumb.style.display = 'none';
+                    const results = Config.searchIndex.search(searchTerm);
+                    if(results.length === 0) {
+                        cont.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8;">Aucun résultat pour "${searchTerm}"</div>`;
+                        return;
+                    }
+                    const finalResults = selectedCat ? results.filter(r => r.item.category === selectedCat) : results;
+                    App.renderLibItemsList(cont, finalResults.map(r => r.item));
+                    return;
+                }
+
+                // 2. LIVELLO RADICE (Famiglie)
+                if (App.state.libCategory === null && !selectedCat) {
+                    breadcrumb.style.display = 'none';
                     const categories = Object.keys(Config.LIB).sort();
                     let grid = document.createElement('div');
                     grid.style.cssText = "display:grid; grid-template-columns: 1fr 1fr; gap:12px; padding-top:10px;";
                     categories.forEach(cat => {
                         let btn = document.createElement('div');
-                        btn.style.cssText = "background:white; border:1px solid var(--border); border-radius:12px; padding:20px 10px; text-align:center; cursor:pointer;";
-                        btn.innerText = cat;
-                        btn.onclick = () => { document.getElementById('lib-category-select').value = cat; App.renderLibraryItems(); };
+                        btn.style.cssText = "background:white; border:1px solid var(--border); border-radius:12px; padding:20px 10px; text-align:center; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;";
+                        let icon = '<i class="fas fa-folder" style="font-size:1.5rem; color:#CBD5E1;"></i>';
+                        btn.innerHTML = `${icon}<div style="font-weight:700; color:var(--primary); font-size:0.9rem; word-break:break-word;">${cat}</div>`;
+                        btn.onclick = () => { App.state.libCategory = cat; document.getElementById('lib-category-select').value = cat; App.renderLibraryItems(); };
                         grid.appendChild(btn);
                     });
                     cont.appendChild(grid);
                     return;
                 }
-                App.renderLibItemsList(cont, results);
+
+                // 3. LIVELLO INTERMEDIO (Sotto-Famiglie)
+                const activeCat = selectedCat || App.state.libCategory;
+                if (activeCat && App.state.libSubCategory === null) {
+                    breadcrumb.style.display = 'block';
+                    document.getElementById('lib-bc-cat').innerText = activeCat;
+                    document.getElementById('lib-bc-sub').innerText = '';
+                    let backBtn = document.createElement('div');
+                    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Retour`;
+                    backBtn.style.cssText = "padding:10px; color:var(--primary); font-weight:700; cursor:pointer; margin-bottom:10px; display:inline-block;";
+                    backBtn.onclick = () => { App.state.libCategory = null; document.getElementById('lib-category-select').value = ""; App.renderLibraryItems(); };
+                    cont.appendChild(backBtn);
+                    const allItemsInCat = Config.LIB[activeCat];
+                    const subCats = [...new Set(allItemsInCat.map(i => i.sub_category))].sort();
+                    let grid = document.createElement('div');
+                    grid.style.cssText = "display:grid; grid-template-columns: 1fr 1fr; gap:12px;";
+                    subCats.forEach(sub => {
+                        let btn = document.createElement('div');
+                        btn.style.cssText = "background:#F8FAFC; border:1px solid var(--border); border-radius:12px; padding:15px 10px; text-align:center; cursor:pointer; font-weight:600; color:var(--text-main);";
+                        btn.innerText = sub;
+                        btn.onclick = () => { App.state.libSubCategory = sub; App.renderLibraryItems(); };
+                        grid.appendChild(btn);
+                    });
+                    cont.appendChild(grid);
+                    return;
+                }
+
+                // 4. LIVELLO FINALE (Articoli)
+                if (activeCat && App.state.libSubCategory) {
+                    breadcrumb.style.display = 'block';
+                    document.getElementById('lib-bc-cat').innerText = activeCat;
+                    document.getElementById('lib-bc-sub').innerText = App.state.libSubCategory;
+                    let backBtn = document.createElement('div');
+                    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Retour`;
+                    backBtn.style.cssText = "padding:10px; color:var(--primary); font-weight:700; cursor:pointer; margin-bottom:10px; display:inline-block;";
+                    backBtn.onclick = () => { App.state.libSubCategory = null; App.renderLibraryItems(); };
+                    cont.appendChild(backBtn);
+                    const finalItems = Config.LIB[activeCat].filter(i => i.sub_category === App.state.libSubCategory);
+                    App.renderLibItemsList(cont, finalItems);
+                }
             },
-            renderLibItemsList(container, items) { /* ... */ 
+            
+            renderLibItemsList(container, items) { 
                 items.forEach(it => {
-                    let div = document.createElement('div'); div.className = 'card-item';
-                    div.innerHTML = `<div class="card-info"><div class="card-title">${it.desc}</div></div><div style="font-weight:bold;">+</div>`;
-                    div.onclick = () => { App.openAddItemModal(it, App.state.currentEditorRoom || "Général"); };
-                    container.appendChild(div);
+                    const dynamicPrice = App.calculateItemPrice(it);
+                    let div = document.createElement('div'); div.className = 'card-item'; div.style.marginBottom = "8px"; 
+                    
+                    div.innerHTML = `
+                        <div class="card-info">
+                            <div class="card-title" style="font-size:0.95rem;">${it.desc}</div>
+                            <div class="card-sub" style="color:var(--primary); font-weight:700;">
+                                ${App.formatMoney(dynamicPrice)} / ${it.unit} 
+                                <span style="font-weight:400; color:#64748B; font-size:0.8em; margin-left:5px;">
+                                    (T: ${it.labor_time}h | M: ${it.material_cost}€)
+                                </span>
+                            </div>
+                        </div>
+                        <div style="background:var(--accent); color:white; width:35px; height:35px; border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer;">
+                            <i class="fas fa-plus" style="font-size:0.9rem;"></i>
+                        </div>
+                    `; 
+                    
+                    div.onclick = () => { 
+                        // Usa la stanza attiva nell'editor o quella del widget se attivo
+                        let target = App.state.currentEditorRoom || "Général";
+                        
+                        // APRE IL MODALE DI INSERIMENTO (Invece di salvare subito)
+                        App.openAddItemModal(it, target);
+                    }; 
+                    container.appendChild(div); 
                 });
             },
-            openAddItemModal(item, room) { /* ... */ 
+            
+            openAddItemModal(item, room) { 
                 App.state.tempLibItem = item;
                 document.getElementById('edit-item-desc').value = item.desc;
                 document.getElementById('edit-item-qty').value = 1;
