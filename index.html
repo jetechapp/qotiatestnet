@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA CLOUD V7.21 - AI CONSULTANT</title>
+    <title>QOTIA CLOUD V7.22 - AI INTELLIGENT CONTEXT</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -559,7 +559,7 @@
             <div id="ai-chat-container" class="ai-chat-area">
                 <div class="ai-msg-bubble left">
                     Bonjour ! Je suis connecté à votre bibliothèque de prix. <br><br>
-                    <b>Exemple :</b> "Ajoute 20m2 de carrelage 60x60 dans la cuisine"
+                    <b>Exemple :</b> "Ajoute 20m2 de carrelage 60x60"
                 </div>
                 <div style="padding:10px 20px;">
                     <span class="ai-suggestion" onclick="document.getElementById('ai-input').value=this.innerText; App.sendAIMessage()">Peinture blanche salon 30m2</span>
@@ -1507,356 +1507,7 @@
             viewCahierTable(doc) { document.getElementById('vc-title').innerText = doc.name; const t = document.getElementById('vc-table'); t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Ass.</th></tr>'; doc.items.forEach(i => t.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; color:#15803d; font-weight:bold;">${i.assignedTo||'-'}</td></tr>`); document.getElementById('modal-view-cahier').classList.add('open'); },
             renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i><div style="font-weight:800; color:var(--danger)">${App.formatMoney(f.amount)}</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
 
-            // --- NUOVA FONCTION : RAPPORT PAR PIÈCES (PDF) ---
-            generateRoomReportPDF() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const did = Store.data.activeDevisId;
-                if(!did) return alert("Veuillez ouvrir un devis d'abord.");
-                
-                const d = c.devisList.find(x => x.id == did);
-                const cli = Store.data.clients.find(x => x.id == c.clientId);
-
-                // Groupement des items par pièce
-                const rooms = {};
-                d.items.forEach(item => {
-                    const p = item.piece || "Non assigné";
-                    if (!rooms[p]) rooms[p] = [];
-                    rooms[p].push(item);
-                });
-
-                let roomsHtml = "";
-                for (const [roomName, items] of Object.entries(rooms)) {
-                    let itemsRows = items.map(i => `
-                        <tr style="border-bottom: 1px solid #E2E8F0;">
-                            <td style="padding: 10px; width: 70%; font-weight: 500;">${i.desc}</td>
-                            <td style="padding: 10px; text-align: center;">${i.qty} ${i.unit || 'U'}</td>
-                            <td style="padding: 10px; text-align: right; color: #64748B; font-size: 0.85rem;">
-                                ${i.assignedTo ? '👤 ' + i.assignedTo : '-'}
-                            </td>
-                        </tr>
-                    `).join('');
-
-                    roomsHtml += `
-                        <div style="margin-bottom: 25px; break-inside: avoid;">
-                            <div style="background: #0F172A; color: white; padding: 8px 15px; border-radius: 6px; font-weight: 800; text-transform: uppercase; font-size: 0.9rem;">
-                                📍 ${roomName}
-                            </div>
-                            <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
-                                ${itemsRows}
-                            </table>
-                        </div>
-                    `;
-                }
-
-                // Add Gravats Summary to CDC
-                let gravatsInfo = "";
-                if(d.totalGravats > 0) {
-                    gravatsInfo = `<div style="background:#FEE2E2; color:#B91C1C; padding:15px; border-radius:8px; margin-bottom:20px; font-weight:bold; border:1px solid #FECACA;">
-                        <i class="fas fa-truck-loading"></i> Volume Total Gravats Estimé : ${d.totalGravats.toFixed(2)} m³
-                    </div>`;
-                }
-
-                const html = `
-                    <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; color: #1E293B;">
-                        <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0F172A; padding-bottom: 20px; margin-bottom: 30px;">
-                            <div>
-                                <h1 style="margin: 0; font-size: 1.5rem;">ORDRE D'EXÉCUTION</h1>
-                                <div style="color: #64748B;">Projet : <strong>${c.name}</strong></div>
-                            </div>
-                            <div style="text-align: right; font-size: 0.85rem;">
-                                Date : ${new Date().toLocaleDateString('fr-FR')}<br>
-                                Réf : ${d.ref}
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 30px; font-size: 0.9rem;">
-                            <strong>Client :</strong> ${cli ? cli.nom : 'Non spécifié'}<br>
-                            <strong>Adresse :</strong> ${c.addr || 'Voir fiche projet'}
-                        </div>
-
-                        ${gravatsInfo}
-
-                        ${roomsHtml}
-
-                        <div style="margin-top: 50px; border-top: 1px solid #CBD5E1; padding-top: 20px; font-size: 0.75rem; color: #94A3B8; text-align: center;">
-                            Généré via QOTIA CLOUD V7 - Document interne destiné aux équipes de chantier.
-                        </div>
-                    </div>
-                `;
-
-                const opt = {
-                    margin: 10,
-                    filename: `RAPPORT_ZONES_${c.name.replace(/\s+/g, '_')}.pdf`,
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-
-                html2pdf().set(opt).from(html).save();
-                App.showToast("Rapport par pièces généré !");
-            },
-
-            generateGlobalPDF(type, id) {
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                const cli = Store.data.clients.find(x=>x.id==c.clientId);
-                const rate = Store.data.settings.hourlyRate || 45;
-                let items, title, ref, extraInfo = "";
-                let signatureBlock = "";
-                
-                if (type === 'devis') {
-                    const obj = c.devisList.find(x=>x.id==id);
-                    items = obj.items; title = "DEVIS"; ref = obj.ref;
-                    if(obj.totalGravats > 0) {
-                        extraInfo = `<div style="text-align:right; margin-top:10px; font-size:0.9rem; color:#64748B;">Volume Gravats Estimé: <strong>${obj.totalGravats.toFixed(2)} m³</strong></div>`;
-                    }
-                    // SIGNATURE BLOCK
-                    if(obj.signature) {
-                        signatureBlock = `
-                            <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid;">
-                                <div style="font-weight:bold; color:#16a34a; margin-bottom:10px;">BON POUR ACCORD</div>
-                                <div style="font-size:0.8rem; margin-bottom:10px;">Signé électroniquement le ${obj.signDate || ''}</div>
-                                <img src="${obj.signature}" style="max-width: 250px; max-height: 100px; width: auto; height: auto; display:block;" />
-                            </div>
-                        `;
-                    } else {
-                        signatureBlock = `
-                            <div style="margin-top:50px; margin-bottom:20px; display:flex; justify-content:space-between; page-break-inside: avoid; break-inside: avoid;">
-                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Entreprise</div>
-                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Client (Bon pour accord)</div>
-                            </div>
-                        `;
-                    }
-
-                } else {
-                    const obj = c.factures.find(x=>x.id==id);
-                    title = "FACTURE"; ref = obj.ref; items = [{desc: `Facture selon avancement (${obj.type})`, qty: 1, unit:'U', price: obj.amount, time:0, material_cost:0}];
-                }
-                
-                let totalTTC = 0;
-                let rows = items.map(i => {
-                    const rowT = i.qty * i.price; totalTTC += rowT;
-                    
-                    // Calc single costs
-                    const costLabor = (i.time || 0) * rate;
-                    const costMat = (i.material_cost || 0);
-
-                    return `
-                        <tr style="border-bottom:1px solid #eee;">
-                            <td style="padding:10px;">${i.desc}</td>
-                            <td style="padding:10px; text-align:center;">${i.qty}</td>
-                            <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${costLabor > 0 ? App.formatMoney(costLabor) : '-'}</td>
-                            <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${costMat > 0 ? App.formatMoney(costMat) : '-'}</td>
-                            <td style="padding:10px; text-align:right;">${App.formatMoney(i.price)}</td>
-                            <td style="padding:10px; text-align:right; font-weight:bold;">${App.formatMoney(rowT)}</td>
-                        </tr>`;
-                }).join('');
-                
-                const html = `
-                    <div style="font-family:sans-serif; padding:30px; color:#334155;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px;">
-                            <div>
-                                <h1 style="color:#0f172a; margin:0;">${title}</h1>
-                                <div style="color:#64748b; font-size:0.9rem;">${ref}</div>
-                            </div>
-                            <div style="text-align:right;">
-                                <strong>QOTIA ENTREPRISE</strong><br>123 Rue Exemple<br>06000 NICE
-                            </div>
-                        </div>
-                        <div style="background:#f1f5f9; padding:20px; border-radius:10px; margin-bottom:30px;">
-                            <strong>CLIENT:</strong><br>
-                            <span style="font-size:1.2rem; font-weight:bold; color:#0f172a;">${cli.nom}</span><br>
-                            ${cli.addr}<br>${cli.tel||''}
-                        </div>
-                        <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin-bottom:30px;">
-                            <thead style="background:#0f172a; color:white;">
-                                <tr>
-                                    <th style="padding:12px; text-align:left;">Description</th>
-                                    <th style="padding:12px; text-align:center;">Qté</th>
-                                    <th style="padding:12px; text-align:center;">M.O. (U)</th>
-                                    <th style="padding:12px; text-align:center;">Mat. (U)</th>
-                                    <th style="padding:12px; text-align:right;">P.U.</th>
-                                    <th style="padding:12px; text-align:right;">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>${rows}</tbody>
-                        </table>
-                        <div style="text-align:right; margin-bottom:20px;">
-                            <div style="font-size:1.5rem; font-weight:900; color:#0f172a;">TOTAL A PAYER: ${App.formatMoney(totalTTC)}</div>
-                            ${extraInfo}
-                        </div>
-                        ${signatureBlock}
-                        <div style="height:30px;"></div> </div>`;
-                const opt = { margin: 10, filename: `${title}_${ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().set(opt).from(html).save();
-                App.showToast("PDF Téléchargé");
-            },
-
-            generateCDCPDF(docId) {
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                const doc = c.extraDocs.find(x => x.id == docId);
-                if (!doc) return;
-
-                const items = doc.items;
-                
-                // Calculate Gravats for this specific CDC
-                let cdcGravats = 0;
-                let rows = items.map(i => {
-                    cdcGravats += i.qty * (i.gravats || 0);
-                    return `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; font-weight:bold;">${i.qty} ${i.unit}</td></tr>`;
-                }).join('');
-
-                let gravatsInfo = "";
-                if(cdcGravats > 0) {
-                    gravatsInfo = `<div style="margin-top:20px; padding:10px; background:#f1f5f9; border-radius:5px;"><strong>Volume Gravats pour ces travaux:</strong> ${cdcGravats.toFixed(2)} m³</div>`;
-                }
-
-                const html = `
-                    <div style="font-family:sans-serif; padding:30px;">
-                        <h1>${doc.name}</h1>
-                        <h3>Projet: ${c.name} - ${doc.ref}</h3>
-                        <table style="width:100%; border-collapse:collapse; margin-top:20px;">
-                            <thead style="background:#0f172a; color:white;"><tr><th style="padding:10px; text-align:left;">Tâche</th><th style="padding:10px; text-align:left;">Zone</th><th style="padding:10px; text-align:left;">Qté</th></tr></thead>
-                            <tbody>${rows}</tbody>
-                        </table>
-                        ${gravatsInfo}
-                    </div>
-                `;
-                const opt = { margin: 10, filename: `${doc.name}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().set(opt).from(html).save();
-            },
-
-            // --- FUNZIONI CAHIER DES CHARGES (CDC) ---
-            openSelectCDCModal() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                if (!c.devisList || c.devisList.length === 0) return alert("Crea prima un devis!");
-                
-                // Popola Devis
-                const s = document.getElementById('sel-source-devis');
-                s.innerHTML = '';
-                c.devisList.forEach(d => {
-                    let o = document.createElement('option');
-                    o.value = d.id; o.text = d.name;
-                    s.appendChild(o);
-                });
-
-                // Popola Partner
-                const pSel = document.getElementById('cdc-assignee');
-                pSel.innerHTML = '<option value="">-- Seleziona Partner --</option>';
-                (Store.data.partners || []).forEach(p => {
-                    let o = document.createElement('option');
-                    o.value = p.name; o.text = `${p.name} (${p.role})`;
-                    pSel.appendChild(o);
-                });
-
-                App.state.selectedItems = new Set();
-                App.renderSelectionList();
-                document.getElementById('modal-select-cdc').classList.add('open');
-            },
-
-            renderSelectionList() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const did = document.getElementById('sel-source-devis').value;
-                if (!did) return;
-                
-                const d = c.devisList.find(x => x.id == did);
-                const cont = document.getElementById('selection-list-container');
-                cont.innerHTML = '';
-
-                d.items.forEach(item => {
-                    const isChecked = App.state.selectedItems.has(item.id) ? 'checked' : '';
-                    const assignedInfo = item.assignedTo 
-                        ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${item.assignedTo}</span>` 
-                        : '';
-                    
-                    const el = document.createElement('div');
-                    el.className = 'check-container';
-                    el.onclick = (e) => App.toggleItemSelection(item.id, el);
-                    el.innerHTML = `
-                        <div class="custom-checkbox ${isChecked}"></div>
-                        <div style="flex:1">
-                            <div style="font-weight:700; font-size:0.9rem;">${item.desc}</div>
-                            <div style="font-size:0.8rem; color:var(--text-sub); display:flex; align-items:center;">
-                                ${item.piece || 'Général'} ${assignedInfo}
-                            </div>
-                        </div>
-                    `;
-                    cont.appendChild(el);
-                });
-            },
-
-            toggleItemSelection(id, el) {
-                if (App.state.selectedItems.has(id)) {
-                    App.state.selectedItems.delete(id);
-                    el.querySelector('.custom-checkbox').classList.remove('checked');
-                } else {
-                    App.state.selectedItems.add(id);
-                    el.querySelector('.custom-checkbox').classList.add('checked');
-                }
-            },
-
-            selectAllItems() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const did = document.getElementById('sel-source-devis').value;
-                const d = c.devisList.find(x => x.id == did);
-                
-                const allSelected = (App.state.selectedItems.size === d.items.length);
-                
-                if (allSelected) {
-                    App.state.selectedItems.clear();
-                } else {
-                    d.items.forEach(i => App.state.selectedItems.add(i.id));
-                }
-                App.renderSelectionList();
-            },
-
-            assignCollaborator() {
-                if(App.state.selectedItems.size === 0) return alert("Seleziona almeno un lavoro.");
-                const name = document.getElementById('cdc-assignee').value;
-                if(!name) return alert("Seleziona un partner dalla lista.");
-                
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                const d = c.devisList.find(x=>x.id==document.getElementById('sel-source-devis').value);
-                
-                let count = 0;
-                d.items.forEach(i => {
-                    if(App.state.selectedItems.has(i.id)) {
-                        i.assignedTo = name;
-                        count++;
-                    }
-                });
-                
-                Store.save();
-                App.showToast(`${count} lavori assegnati a ${name}`);
-                App.renderSelectionList(); // Ricarica la lista per vedere i badge
-            },
-
-            saveCDC() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const did = document.getElementById('sel-source-devis').value;
-                const d = c.devisList.find(x => x.id == did);
-                
-                if (App.state.selectedItems.size === 0) return alert("Seleziona gli elementi da includere nel CDC.");
-
-                const selectedItemsList = d.items.filter(i => App.state.selectedItems.has(i.id));
-                const assigneeName = document.getElementById('cdc-assignee').value || "Général";
-                
-                const newDoc = {
-                    id: Date.now(),
-                    name: `CDC - ${assigneeName}`,
-                    ref: `CDC-${Date.now().toString().slice(-4)}`,
-                    date: new Date().toISOString(),
-                    items: JSON.parse(JSON.stringify(selectedItemsList)) // Copia statica
-                };
-
-                if (!c.extraDocs) c.extraDocs = [];
-                c.extraDocs.push(newDoc);
-                Store.save();
-                
-                App.showToast("Documento CDC creato!");
-                App.closeModal('modal-select-cdc');
-                App.openHub(c.id);
-            },
-
-            // --- MODULE IA START (VOCE + RICERCA STRUTTURATA + SCELTE) ---
+            // --- MODULE IA START (VOCE + INTERPRETE + CONTESTO STANZA) ---
             
             // Variabile per il riconoscimento vocale
             recognition: null,
@@ -1865,7 +1516,7 @@
                 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                     this.recognition = new SpeechRecognition();
-                    this.recognition.lang = 'fr-FR'; // Imposta la lingua (fr-FR per database francese, o it-IT)
+                    this.recognition.lang = 'fr-FR'; // Lingua (fr-FR per database francese)
                     this.recognition.continuous = false;
                     this.recognition.interimResults = false;
 
@@ -1873,9 +1524,7 @@
                         const transcript = event.results[0][0].transcript;
                         document.getElementById('ai-input').value = transcript;
                         this.stopVoice();
-                        // Opzionale: Inviare subito dopo aver parlato? 
-                        // App.sendAIMessage(); 
-                        document.getElementById('ai-input').focus();
+                        App.sendAIMessage(); // Invia automaticamente dopo aver parlato
                     };
 
                     this.recognition.onerror = (event) => {
@@ -1933,61 +1582,74 @@
                 const txt = inp.value.trim();
                 if(!txt) return;
 
-                const API_KEY = "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";
+                const API_KEY = "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";
 
                 this.appendChatMessage(txt, 'right');
                 inp.value = '';
                 document.getElementById('ai-typing-indicator').style.display = 'block';
 
-                // 1. RAG: Recupera contesto dal DB (Aumentato a 15 per dare più scelta all'IA)
+                // 1. CONTESTO AUTOMATICO STANZA
+                // Recupera la stanza attualmente selezionata nel widget
+                let currentRoomContext = "Nessuna stanza selezionata";
+                const roomDisplay = document.getElementById('room-display-final');
+                if(roomDisplay && roomDisplay.innerText !== "Sélectionner..." && roomDisplay.innerText !== "Sélectionner une pièce") {
+                    currentRoomContext = roomDisplay.innerText;
+                }
+
+                // 2. RAG: Recupera contesto dal DB (Aumentato a 20 per dare più scelta all'IA)
                 const results = Config.searchIndex.search(txt);
-                const topMatches = results.slice(0, 15).map(r => r.item);
+                const topMatches = results.slice(0, 20).map(r => r.item);
                 
-                let dbContext = "Nessuna corrispondenza trovata.";
+                let dbContext = "Nessuna corrispondenza esatta trovata.";
                 if (topMatches.length > 0) {
                     dbContext = topMatches.map(item => {
-                        // Prezzo indicativo
                         const price = App.calculateItemPrice(item).toFixed(2);
-                        return `ID:${item.id} | Desc:"${item.desc}" | PrezzoCalc:${price}€ | Cat:${item.sub_category}`;
+                        return `ID:${item.id} | Desc:"${item.desc}" | Prezzo:${price}€`;
                     }).join('\n');
                 }
 
-                // 2. Prompt "Intelligente" con opzione Scelta Multipla
-                const systemPrompt = `Sei l'esperto QOTIA. L'utente descrive un lavoro. Tu devi trovare l'articolo giusto nel DB.
+                // 3. PROMPT "TRADUTTORE TECNICO"
+                const systemPrompt = `Sei un esperto METREUR (Computista Edile) per l'app Qotia.
                 
-                ARTICOLI TROVATI NEL DB (Candidati):
+                CONTESTO ATTUALE:
+                - Stanza selezionata dall'utente: "${currentRoomContext}"
+                - Richiesta utente: "${txt}"
+
+                IL TUO DATABASE ARTICOLI (Candidati trovati):
                 ----------------
                 ${dbContext}
                 ----------------
 
-                REGOLE DI COMPORTAMENTO:
-                1. Analizza la richiesta dell'utente (es: "pavimento bagno" può essere "Carrelage" o "Parquet").
-                2. Se c'è UN SOLO articolo perfetto -> Usa "add_item".
-                3. Se ci sono PIÙ ARTICOLI simili (es: diverse misure, diversi tipi) -> Usa "ask_choice" per far scegliere l'utente.
-                4. Se NON c'è nulla nel DB -> Usa "add_item" inventando i dati (stima esperta). In questo caso fornisci stime per est_time, est_mat, est_grav.
+                ISTRUZIONI:
+                1. INTERPRETA la richiesta dell'utente. Se dice "togli il pavimento", cerca "Dépose carrelage" o "Démolition sol".
+                2. SELEZIONA la stanza: Se l'utente non specifica la stanza, USA "${currentRoomContext}".
+                3. CERCA NEL DB:
+                   - Se trovi l'articolo perfetto -> Usa "add_item".
+                   - Se sei indeciso tra più opzioni (es: Pavimento legno vs Pavimento PVC) -> Usa "ask_choice".
+                   - Se NON ESISTE nel DB -> Usa "add_item" ma INVENTA i dati tecnici (stima da esperto).
 
-                FORMATI RISPOSTA JSON (Scegline UNO):
+                FORMATI RISPOSTA (JSON):
 
-                CASO A: Sei sicuro o devi inventare (Azione diretta)
+                CASO A: Aggiungi Articolo (Trovato o Inventato)
                 { 
                   "action": "add_item", 
                   "db_id": 123 (o null se inventato), 
-                  "desc": "Nome articolo", 
-                  "qty": 1, "unit": "U", "piece": "Stanza", 
-                  "est_time": 0, "est_mat": 0, "est_grav": 0 
+                  "desc": "Descrizione Tecnica", 
+                  "qty": 1, "unit": "U", "piece": "Nome Stanza", 
+                  "est_time": 0.5, "est_mat": 10.0, "est_grav": 0.0 
                 }
 
-                CASO B: Sei indeciso (Chiedi all'utente)
+                CASO B: Chiedi all'utente (Scelta Multipla)
                 {
                   "action": "ask_choice",
-                  "message": "Ho trovato diverse opzioni per la tua richiesta. Quale preferisci?",
+                  "message": "Ho trovato più opzioni. Quale intendevi?",
                   "options": [
-                    { "db_id": 101, "label": "Nome Breve Articolo 1 - 45€" },
-                    { "db_id": 102, "label": "Nome Breve Articolo 2 - 60€" }
+                    { "db_id": 101, "label": "Nome Articolo 1" },
+                    { "db_id": 102, "label": "Nome Articolo 2" }
                   ]
                 }
                 
-                Rispondi SOLO in JSON se devi agire. Se l'utente saluta, rispondi testo.`;
+                Rispondi SOLO JSON.`;
 
                 try {
                     const req = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -2011,13 +1673,11 @@
                             const jsonStr = aiText.substring(aiText.indexOf('{'), aiText.lastIndexOf('}')+1);
                             const actionData = JSON.parse(jsonStr);
                             
-                            // CASO 1: AGGIUNTA DIRETTA
                             if(actionData.action === 'add_item') {
                                 this.executeAIAction(actionData);
-                                const icon = actionData.db_id ? "✅ Trovato" : "✨ Creato";
-                                this.appendChatMessage(`${icon}<br>Aggiunto: <b>${actionData.desc}</b>`, 'left');
+                                const icon = actionData.db_id ? "✅ Trovato" : "✨ Stimato";
+                                this.appendChatMessage(`${icon}<br>Aggiunto: <b>${actionData.desc}</b><br><small>in ${actionData.piece}</small>`, 'left');
                             } 
-                            // CASO 2: SCELTA MULTIPLA (NUOVO!)
                             else if (actionData.action === 'ask_choice') {
                                 this.renderAIChoices(actionData.message, actionData.options);
                             }
@@ -2034,17 +1694,13 @@
                 }
             },
 
-            // --- NUOVA FUNZIONE PER MOSTRARE I PULSANTI ---
             renderAIChoices(msg, options) {
                 const c = document.getElementById('ai-chat-container');
-                
-                // Messaggio dell'IA
                 const msgDiv = document.createElement('div');
                 msgDiv.className = `ai-msg-bubble left`;
                 msgDiv.innerHTML = msg;
                 c.appendChild(msgDiv);
 
-                // Contenitore Pulsanti
                 const wrapper = document.createElement('div');
                 wrapper.className = 'ai-choices-wrapper left';
                 wrapper.style.maxWidth = "85%";
@@ -2055,22 +1711,22 @@
                     btn.className = 'ai-choice-btn';
                     btn.innerHTML = `<span>${opt.label}</span> <i class="fas fa-plus-circle"></i>`;
                     
-                    // Al click, simula l'aggiunta di quell'articolo specifico
                     btn.onclick = () => {
-                        // Trova l'articolo originale per avere i dati completi
                         const realItem = Config.allItems.find(i => i.id == opt.db_id);
                         if(realItem) {
-                            // Costruisce un oggetto azione "finto" come se arrivasse dall'IA
+                            const roomName = document.getElementById('room-display-final').innerText;
+                            const targetRoom = (roomName !== "Sélectionner..." && roomName !== "Sélectionner une pièce") ? roomName : "Général";
+                            
                             const payload = {
                                 db_id: realItem.id,
                                 desc: realItem.desc,
-                                qty: 1, // Default, l'utente potrà modificarlo
-                                piece: document.getElementById('room-display-final').innerText !== "Sélectionner une pièce" ? document.getElementById('room-display-final').innerText : "Général"
+                                qty: 1, 
+                                piece: targetRoom
                             };
                             App.executeAIAction(payload);
-                            App.appendChatMessage(`Hai selezionato: <b>${realItem.desc}</b>`, 'right');
-                            App.appendChatMessage(`✅ Ottimo, aggiunto al devis.`, 'left');
-                            wrapper.style.display = 'none'; // Nasconde i bottoni dopo il click
+                            App.appendChatMessage(`Hai scelto: <b>${realItem.desc}</b>`, 'right');
+                            App.appendChatMessage(`✅ Aggiunto a ${targetRoom}.`, 'left');
+                            wrapper.style.display = 'none'; 
                         }
                     };
                     wrapper.appendChild(btn);
@@ -2092,7 +1748,6 @@
                     qty: parseFloat(data.qty) || 1,
                     piece: data.piece || "Général",
                     unit: data.unit || 'U',
-                    // Valori di default che verranno sovrascritti
                     price: 0, time: 0, material_cost: 0, gravats: 0 
                 };
 
@@ -2100,7 +1755,6 @@
                 if(data.db_id && Config.allItems) {
                     const realItem = Config.allItems.find(i => i.id == data.db_id);
                     if(realItem) {
-                        // Copia fedele dal DB
                         newItem.desc = realItem.desc; 
                         newItem.unit = realItem.unit;
                         newItem.time = realItem.labor_time;
@@ -2109,13 +1763,11 @@
                         newItem.price = App.calculateItemPrice(realItem); 
                     }
                 } 
-                // CASO 2: GENERATO DALL'IA (Struttura ricostruita)
+                // CASO 2: GENERATO DALL'IA (STIMATO)
                 else {
                     newItem.time = parseFloat(data.est_time) || 0;
                     newItem.material_cost = parseFloat(data.est_mat) || 0;
                     newItem.gravats = parseFloat(data.est_grav) || 0;
-                    
-                    // Calcolo prezzo basato sulla tariffa oraria dell'utente
                     const laborCost = newItem.time * (Store.data.settings.hourlyRate || 45);
                     newItem.price = laborCost + newItem.material_cost;
                 }
@@ -2128,7 +1780,7 @@
                     App.renderEditorItems();
                     App.renderUsedRoomButtons(newItem.piece);
                 }
-            },
+            }
             // --- MODULE IA END ---
 
         };
