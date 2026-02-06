@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA CLOUD V7.19 - AI INTEGRATED</title>
+    <title>QOTIA CLOUD V7.20 - AI VOICE EXPERT</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -29,7 +29,7 @@
             --rubble: #78716c; 
             --material: #7c3aed; 
 
-            /* PALETTE COLORI AGGIORNATA */
+            /* PALETTE COLORI */
             --col-chantier: #F59E0B; 
             --bg-chantier: #FFFBEB;  
             --col-devis: #EA580C;    
@@ -72,7 +72,7 @@
 
         .scroll-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 120px; -webkit-overflow-scrolling: touch; }
 
-        /* EDITOR FIXED LAYOUT - HEADER STYLING OVERRIDE */
+        /* EDITOR FIXED LAYOUT */
         #view-editor { display: none; flex-direction: column; height: 100%; background: #F8FAFC; }
         #view-editor.active { display: flex; }
         .editor-header-musk { flex-shrink: 0; background: var(--col-devis); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; z-index: 30; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); color: white; }
@@ -181,7 +181,7 @@
         .toast { background: #1E293B; color: white; padding: 14px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; opacity: 0; transform: translateY(20px); transition: all 0.3s; margin-top: 10px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         .toast.show { opacity: 1; transform: translateY(0); }
 
-        /* --- STILI ASSISTANT IA --- */
+        /* --- STILI ASSISTANT IA & VOICE --- */
         #modal-ai { z-index: 9999 !important; background: #F1F5F9; }
         .ai-chat-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
         .ai-msg-bubble { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -190,6 +190,15 @@
         .ai-input-area { padding: 15px; background: white; border-top: 1px solid #E2E8F0; display: flex; gap: 10px; align-items: center; padding-bottom: max(15px, env(safe-area-inset-bottom)); }
         .ai-typing { font-style: italic; color: #94A3B8; font-size: 0.8rem; margin-left: 10px; display:none; }
         .ai-suggestion { background: #E0F2FE; color: #0284C7; padding: 8px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid #BAE6FD; display: inline-block; margin-right: 5px; margin-bottom: 5px; }
+        
+        /* MICROFONO */
+        .mic-btn { width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.3s; background: white; color: var(--text-sub); border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .mic-btn.recording { background: #EF4444; color: white; border-color: #EF4444; animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
 
     </style>
 </head>
@@ -548,8 +557,12 @@
                 </div>
             </div>
             <div id="ai-typing-indicator" class="ai-typing">L'IA réfléchit...</div>
+            
             <div class="ai-input-area">
-                <input type="text" id="ai-input" class="app-input" placeholder="Décrivez les travaux..." style="margin:0; border-radius:25px; padding-left:20px;">
+                <button id="btn-mic" class="mic-btn" onclick="App.toggleVoice()">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <input type="text" id="ai-input" class="app-input" placeholder="Parla o scrivi..." style="margin:0; border-radius:25px; padding-left:20px;">
                 <button onclick="App.sendAIMessage()" style="width:50px; height:50px; border-radius:50%; background:var(--primary); color:white; border:none; flex-shrink:0; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -1484,11 +1497,412 @@
             viewCahierTable(doc) { document.getElementById('vc-title').innerText = doc.name; const t = document.getElementById('vc-table'); t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Ass.</th></tr>'; doc.items.forEach(i => t.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; color:#15803d; font-weight:bold;">${i.assignedTo||'-'}</td></tr>`); document.getElementById('modal-view-cahier').classList.add('open'); },
             renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i><div style="font-weight:800; color:var(--danger)">${App.formatMoney(f.amount)}</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
 
-            // --- MODULE IA START ---
+            // --- NOUVELLE FONCTION : RAPPORT PAR PIÈCES (PDF) ---
+            generateRoomReportPDF() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const did = Store.data.activeDevisId;
+                if(!did) return alert("Veuillez ouvrir un devis d'abord.");
+                
+                const d = c.devisList.find(x => x.id == did);
+                const cli = Store.data.clients.find(x => x.id == c.clientId);
+
+                // Groupement des items par pièce
+                const rooms = {};
+                d.items.forEach(item => {
+                    const p = item.piece || "Non assigné";
+                    if (!rooms[p]) rooms[p] = [];
+                    rooms[p].push(item);
+                });
+
+                let roomsHtml = "";
+                for (const [roomName, items] of Object.entries(rooms)) {
+                    let itemsRows = items.map(i => `
+                        <tr style="border-bottom: 1px solid #E2E8F0;">
+                            <td style="padding: 10px; width: 70%; font-weight: 500;">${i.desc}</td>
+                            <td style="padding: 10px; text-align: center;">${i.qty} ${i.unit || 'U'}</td>
+                            <td style="padding: 10px; text-align: right; color: #64748B; font-size: 0.85rem;">
+                                ${i.assignedTo ? '👤 ' + i.assignedTo : '-'}
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    roomsHtml += `
+                        <div style="margin-bottom: 25px; break-inside: avoid;">
+                            <div style="background: #0F172A; color: white; padding: 8px 15px; border-radius: 6px; font-weight: 800; text-transform: uppercase; font-size: 0.9rem;">
+                                📍 ${roomName}
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+                                ${itemsRows}
+                            </table>
+                        </div>
+                    `;
+                }
+
+                // Add Gravats Summary to CDC
+                let gravatsInfo = "";
+                if(d.totalGravats > 0) {
+                    gravatsInfo = `<div style="background:#FEE2E2; color:#B91C1C; padding:15px; border-radius:8px; margin-bottom:20px; font-weight:bold; border:1px solid #FECACA;">
+                        <i class="fas fa-truck-loading"></i> Volume Total Gravats Estimé : ${d.totalGravats.toFixed(2)} m³
+                    </div>`;
+                }
+
+                const html = `
+                    <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; color: #1E293B;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0F172A; padding-bottom: 20px; margin-bottom: 30px;">
+                            <div>
+                                <h1 style="margin: 0; font-size: 1.5rem;">ORDRE D'EXÉCUTION</h1>
+                                <div style="color: #64748B;">Projet : <strong>${c.name}</strong></div>
+                            </div>
+                            <div style="text-align: right; font-size: 0.85rem;">
+                                Date : ${new Date().toLocaleDateString('fr-FR')}<br>
+                                Réf : ${d.ref}
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 30px; font-size: 0.9rem;">
+                            <strong>Client :</strong> ${cli ? cli.nom : 'Non spécifié'}<br>
+                            <strong>Adresse :</strong> ${c.addr || 'Voir fiche projet'}
+                        </div>
+
+                        ${gravatsInfo}
+
+                        ${roomsHtml}
+
+                        <div style="margin-top: 50px; border-top: 1px solid #CBD5E1; padding-top: 20px; font-size: 0.75rem; color: #94A3B8; text-align: center;">
+                            Généré via QOTIA CLOUD V7 - Document interne destiné aux équipes de chantier.
+                        </div>
+                    </div>
+                `;
+
+                const opt = {
+                    margin: 10,
+                    filename: `RAPPORT_ZONES_${c.name.replace(/\s+/g, '_')}.pdf`,
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(html).save();
+                App.showToast("Rapport par pièces généré !");
+            },
+
+            generateGlobalPDF(type, id) {
+                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
+                const cli = Store.data.clients.find(x=>x.id==c.clientId);
+                const rate = Store.data.settings.hourlyRate || 45;
+                let items, title, ref, extraInfo = "";
+                let signatureBlock = "";
+                
+                if (type === 'devis') {
+                    const obj = c.devisList.find(x=>x.id==id);
+                    items = obj.items; title = "DEVIS"; ref = obj.ref;
+                    if(obj.totalGravats > 0) {
+                        extraInfo = `<div style="text-align:right; margin-top:10px; font-size:0.9rem; color:#64748B;">Volume Gravats Estimé: <strong>${obj.totalGravats.toFixed(2)} m³</strong></div>`;
+                    }
+                    // SIGNATURE BLOCK
+                    if(obj.signature) {
+                        signatureBlock = `
+                            <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid;">
+                                <div style="font-weight:bold; color:#16a34a; margin-bottom:10px;">BON POUR ACCORD</div>
+                                <div style="font-size:0.8rem; margin-bottom:10px;">Signé électroniquement le ${obj.signDate || ''}</div>
+                                <img src="${obj.signature}" style="max-width: 250px; max-height: 100px; width: auto; height: auto; display:block;" />
+                            </div>
+                        `;
+                    } else {
+                        signatureBlock = `
+                            <div style="margin-top:50px; margin-bottom:20px; display:flex; justify-content:space-between; page-break-inside: avoid; break-inside: avoid;">
+                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Entreprise</div>
+                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Client (Bon pour accord)</div>
+                            </div>
+                        `;
+                    }
+
+                } else {
+                    const obj = c.factures.find(x=>x.id==id);
+                    title = "FACTURE"; ref = obj.ref; items = [{desc: `Facture selon avancement (${obj.type})`, qty: 1, unit:'U', price: obj.amount, time:0, material_cost:0}];
+                }
+                
+                let totalTTC = 0;
+                let rows = items.map(i => {
+                    const rowT = i.qty * i.price; totalTTC += rowT;
+                    
+                    // Calc single costs
+                    const costLabor = (i.time || 0) * rate;
+                    const costMat = (i.material_cost || 0);
+
+                    return `
+                        <tr style="border-bottom:1px solid #eee;">
+                            <td style="padding:10px;">${i.desc}</td>
+                            <td style="padding:10px; text-align:center;">${i.qty}</td>
+                            <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${costLabor > 0 ? App.formatMoney(costLabor) : '-'}</td>
+                            <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${costMat > 0 ? App.formatMoney(costMat) : '-'}</td>
+                            <td style="padding:10px; text-align:right;">${App.formatMoney(i.price)}</td>
+                            <td style="padding:10px; text-align:right; font-weight:bold;">${App.formatMoney(rowT)}</td>
+                        </tr>`;
+                }).join('');
+                
+                const html = `
+                    <div style="font-family:sans-serif; padding:30px; color:#334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px;">
+                            <div>
+                                <h1 style="color:#0f172a; margin:0;">${title}</h1>
+                                <div style="color:#64748b; font-size:0.9rem;">${ref}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <strong>QOTIA ENTREPRISE</strong><br>123 Rue Exemple<br>06000 NICE
+                            </div>
+                        </div>
+                        <div style="background:#f1f5f9; padding:20px; border-radius:10px; margin-bottom:30px;">
+                            <strong>CLIENT:</strong><br>
+                            <span style="font-size:1.2rem; font-weight:bold; color:#0f172a;">${cli.nom}</span><br>
+                            ${cli.addr}<br>${cli.tel||''}
+                        </div>
+                        <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin-bottom:30px;">
+                            <thead style="background:#0f172a; color:white;">
+                                <tr>
+                                    <th style="padding:12px; text-align:left;">Description</th>
+                                    <th style="padding:12px; text-align:center;">Qté</th>
+                                    <th style="padding:12px; text-align:center;">M.O. (U)</th>
+                                    <th style="padding:12px; text-align:center;">Mat. (U)</th>
+                                    <th style="padding:12px; text-align:right;">P.U.</th>
+                                    <th style="padding:12px; text-align:right;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                        <div style="text-align:right; margin-bottom:20px;">
+                            <div style="font-size:1.5rem; font-weight:900; color:#0f172a;">TOTAL A PAYER: ${App.formatMoney(totalTTC)}</div>
+                            ${extraInfo}
+                        </div>
+                        ${signatureBlock}
+                        <div style="height:30px;"></div> </div>`;
+                const opt = { margin: 10, filename: `${title}_${ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                html2pdf().set(opt).from(html).save();
+                App.showToast("PDF Téléchargé");
+            },
+
+            generateCDCPDF(docId) {
+                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
+                const doc = c.extraDocs.find(x => x.id == docId);
+                if (!doc) return;
+
+                const items = doc.items;
+                
+                // Calculate Gravats for this specific CDC
+                let cdcGravats = 0;
+                let rows = items.map(i => {
+                    cdcGravats += i.qty * (i.gravats || 0);
+                    return `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; font-weight:bold;">${i.qty} ${i.unit}</td></tr>`;
+                }).join('');
+
+                let gravatsInfo = "";
+                if(cdcGravats > 0) {
+                    gravatsInfo = `<div style="margin-top:20px; padding:10px; background:#f1f5f9; border-radius:5px;"><strong>Volume Gravats pour ces travaux:</strong> ${cdcGravats.toFixed(2)} m³</div>`;
+                }
+
+                const html = `
+                    <div style="font-family:sans-serif; padding:30px;">
+                        <h1>${doc.name}</h1>
+                        <h3>Projet: ${c.name} - ${doc.ref}</h3>
+                        <table style="width:100%; border-collapse:collapse; margin-top:20px;">
+                            <thead style="background:#0f172a; color:white;"><tr><th style="padding:10px; text-align:left;">Tâche</th><th style="padding:10px; text-align:left;">Zone</th><th style="padding:10px; text-align:left;">Qté</th></tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                        ${gravatsInfo}
+                    </div>
+                `;
+                const opt = { margin: 10, filename: `${doc.name}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                html2pdf().set(opt).from(html).save();
+            },
+
+            // --- FUNZIONI CAHIER DES CHARGES (CDC) ---
+            openSelectCDCModal() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                if (!c.devisList || c.devisList.length === 0) return alert("Crea prima un devis!");
+                
+                // Popola Devis
+                const s = document.getElementById('sel-source-devis');
+                s.innerHTML = '';
+                c.devisList.forEach(d => {
+                    let o = document.createElement('option');
+                    o.value = d.id; o.text = d.name;
+                    s.appendChild(o);
+                });
+
+                // Popola Partner
+                const pSel = document.getElementById('cdc-assignee');
+                pSel.innerHTML = '<option value="">-- Seleziona Partner --</option>';
+                (Store.data.partners || []).forEach(p => {
+                    let o = document.createElement('option');
+                    o.value = p.name; o.text = `${p.name} (${p.role})`;
+                    pSel.appendChild(o);
+                });
+
+                App.state.selectedItems = new Set();
+                App.renderSelectionList();
+                document.getElementById('modal-select-cdc').classList.add('open');
+            },
+
+            renderSelectionList() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const did = document.getElementById('sel-source-devis').value;
+                if (!did) return;
+                
+                const d = c.devisList.find(x => x.id == did);
+                const cont = document.getElementById('selection-list-container');
+                cont.innerHTML = '';
+
+                d.items.forEach(item => {
+                    const isChecked = App.state.selectedItems.has(item.id) ? 'checked' : '';
+                    const assignedInfo = item.assignedTo 
+                        ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${item.assignedTo}</span>` 
+                        : '';
+                    
+                    const el = document.createElement('div');
+                    el.className = 'check-container';
+                    el.onclick = (e) => App.toggleItemSelection(item.id, el);
+                    el.innerHTML = `
+                        <div class="custom-checkbox ${isChecked}"></div>
+                        <div style="flex:1">
+                            <div style="font-weight:700; font-size:0.9rem;">${item.desc}</div>
+                            <div style="font-size:0.8rem; color:var(--text-sub); display:flex; align-items:center;">
+                                ${item.piece || 'Général'} ${assignedInfo}
+                            </div>
+                        </div>
+                    `;
+                    cont.appendChild(el);
+                });
+            },
+
+            toggleItemSelection(id, el) {
+                if (App.state.selectedItems.has(id)) {
+                    App.state.selectedItems.delete(id);
+                    el.querySelector('.custom-checkbox').classList.remove('checked');
+                } else {
+                    App.state.selectedItems.add(id);
+                    el.querySelector('.custom-checkbox').classList.add('checked');
+                }
+            },
+
+            selectAllItems() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const did = document.getElementById('sel-source-devis').value;
+                const d = c.devisList.find(x => x.id == did);
+                
+                const allSelected = (App.state.selectedItems.size === d.items.length);
+                
+                if (allSelected) {
+                    App.state.selectedItems.clear();
+                } else {
+                    d.items.forEach(i => App.state.selectedItems.add(i.id));
+                }
+                App.renderSelectionList();
+            },
+
+            assignCollaborator() {
+                if(App.state.selectedItems.size === 0) return alert("Seleziona almeno un lavoro.");
+                const name = document.getElementById('cdc-assignee').value;
+                if(!name) return alert("Seleziona un partner dalla lista.");
+                
+                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
+                const d = c.devisList.find(x=>x.id==document.getElementById('sel-source-devis').value);
+                
+                let count = 0;
+                d.items.forEach(i => {
+                    if(App.state.selectedItems.has(i.id)) {
+                        i.assignedTo = name;
+                        count++;
+                    }
+                });
+                
+                Store.save();
+                App.showToast(`${count} lavori assegnati a ${name}`);
+                App.renderSelectionList(); // Ricarica la lista per vedere i badge
+            },
+
+            saveCDC() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const did = document.getElementById('sel-source-devis').value;
+                const d = c.devisList.find(x => x.id == did);
+                
+                if (App.state.selectedItems.size === 0) return alert("Seleziona gli elementi da includere nel CDC.");
+
+                const selectedItemsList = d.items.filter(i => App.state.selectedItems.has(i.id));
+                const assigneeName = document.getElementById('cdc-assignee').value || "Général";
+                
+                const newDoc = {
+                    id: Date.now(),
+                    name: `CDC - ${assigneeName}`,
+                    ref: `CDC-${Date.now().toString().slice(-4)}`,
+                    date: new Date().toISOString(),
+                    items: JSON.parse(JSON.stringify(selectedItemsList)) // Copia statica
+                };
+
+                if (!c.extraDocs) c.extraDocs = [];
+                c.extraDocs.push(newDoc);
+                Store.save();
+                
+                App.showToast("Documento CDC creato!");
+                App.closeModal('modal-select-cdc');
+                App.openHub(c.id);
+            },
+
+            // --- MODULE IA START (VOCE + RICERCA STRUTTURATA) ---
+            
+            // Variabile per il riconoscimento vocale
+            recognition: null,
+
+            initVoice() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    this.recognition.lang = 'fr-FR'; // Imposta la lingua (fr-FR per database francese, o it-IT)
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = false;
+
+                    this.recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        document.getElementById('ai-input').value = transcript;
+                        this.stopVoice();
+                        // Opzionale: Inviare subito dopo aver parlato? 
+                        // App.sendAIMessage(); 
+                        document.getElementById('ai-input').focus();
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        console.error("Errore vocale:", event.error);
+                        this.stopVoice();
+                        App.showToast("Errore microfono: " + event.error);
+                    };
+                    
+                    this.recognition.onend = () => {
+                        this.stopVoice();
+                    };
+                } else {
+                    alert("Il tuo browser non supporta i comandi vocali.");
+                }
+            },
+
+            toggleVoice() {
+                if (!this.recognition) this.initVoice();
+                
+                const btn = document.getElementById('btn-mic');
+                if (btn.classList.contains('recording')) {
+                    this.stopVoice();
+                } else {
+                    this.recognition.start();
+                    btn.classList.add('recording');
+                    App.showToast("Parla ora...");
+                }
+            },
+
+            stopVoice() {
+                if (this.recognition) this.recognition.stop();
+                document.getElementById('btn-mic').classList.remove('recording');
+            },
+
             openAIModal() {
                 document.getElementById('modal-ai').classList.add('open');
                 setTimeout(() => document.getElementById('ai-input').focus(), 300);
-                // Touche Entrée pour envoyer
                 document.getElementById('ai-input').onkeypress = function(e){
                     if (!e) e = window.event;
                     if ((e.code || e.key) === 'Enter'){ App.sendAIMessage(); }
@@ -1504,22 +1918,21 @@
                 c.scrollTop = c.scrollHeight;
             },
 
-            // Cherche dans Config.allItems (la base chargée au démarrage)
             getDatabaseContext(userText) {
                 if (!Config.searchIndex) return "Base vide.";
-                // Recherche floue
+                // Fuse.js cerca corrispondenze approssimative
                 const results = Config.searchIndex.search(userText);
-                // Top 5 résultats
-                const topMatches = results.slice(0, 5).map(r => r.item);
+                // Prendi i primi 8 risultati per dare più scelta all'IA
+                const topMatches = results.slice(0, 8).map(r => r.item);
                 
-                if (topMatches.length === 0) return "Aucun article correspondant trouvé en base.";
+                if (topMatches.length === 0) return "Nessuna corrispondenza esatta trovata nel DB locale.";
 
                 return topMatches.map(item => {
-                    // Calcul du prix estimé secondo il taux horaire actuel
+                    // Pre-calcola i costi per aiutare l'IA
                     const laborPrice = (item.labor_time || 0) * (Store.data.settings.hourlyRate || 45);
                     const matPrice = (item.material_cost || 0);
                     const totalEst = (laborPrice + matPrice).toFixed(2);
-                    return `[ID:${item.id}] "${item.desc}" (Mat: ${matPrice}€, Temps: ${item.labor_time}h, TotalEst: ${totalEst}€)`;
+                    return `ID:${item.id} | "${item.desc}" | Unit:${item.unit} | Mat:${item.material_cost}€ | Tempo:${item.labor_time}h | Gravats:${item.gravats}`;
                 }).join('\n');
             },
 
@@ -1528,39 +1941,54 @@
                 const txt = inp.value.trim();
                 if(!txt) return;
 
-                const API_KEY = "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";
+                // --- TUA CHIAVE API QUI ---
+                const API_KEY = "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";
 
                 this.appendChatMessage(txt, 'right');
                 inp.value = '';
                 document.getElementById('ai-typing-indicator').style.display = 'block';
 
-                // 1. Récupération du contexte RAG (Articles BDD)
+                // 1. Recupera contesto dal DB (RAG)
                 const dbContext = this.getDatabaseContext(txt);
 
-                // 2. Contexte Devis
-                let contextDevis = "Aucun devis ouvert.";
+                // 2. Contesto Devis
+                let contextDevis = "Nessun devis aperto.";
                 if(Store.data.activeDevisId) {
                     const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                     const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
-                    contextDevis = `Devis actif: ${d.name} (Total actuel: ${App.formatMoney(d.total)})`;
-                } else {
-                    contextDevis = "L'utilisateur est sur l'accueil, il doit ouvrir un devis pour ajouter des items.";
+                    contextDevis = `Devis attivo: ${d.name}.`;
                 }
 
-                const systemPrompt = `Tu es l'assistant QOTIA. 
-                CONTEXTE: ${contextDevis}
+                // 3. PROMPT AVANZATO PER STRUTTURA DATI
+                const systemPrompt = `Sei l'assistente QOTIA per l'edilizia.
                 
-                ARTICLES TROUVÉS DANS LA BDD QUI CORRESPONDENT À LA DEMANDE :
-                ----------------
+                OBIETTIVO: Interpretare la richiesta dell'utente e trovare l'articolo giusto nel database.
+                
+                ARTICOLI TROVATI NEL DB SIMILI ALLA RICHIESTA:
+                ---------------------------------------------------
                 ${dbContext}
-                ----------------
+                ---------------------------------------------------
 
-                SI L'UTILISATEUR VEUT AJOUTER UN ARTICLE :
-                1. Vérifie si un ID de la liste ci-dessus correspond.
-                2. Réponds UNIQUEMENT avec ce JSON :
-                { "action": "add_item", "db_id": 12345 (ou null si pas trouvé), "desc": "Texte", "qty": 1, "price": 0, "piece": "NomPièce" }
+                ISTRUZIONI RIGIDE:
+                1. Cerca di capire l'intento dell'utente (es: "piastrelle bagno" -> cerca qualcosa come "Carrelage" o "Faïence").
+                2. Se trovi un articolo nel DB che corrisponde bene, USA QUELLO (restituisci il suo db_id).
+                3. SE NON LO TROVI (Caso remoto): Devi CREARLO tu, ma devi stimare i dati tecnici come un esperto edile.
+                   - Devi stimare: Tempo manodopera (labor_time), Costo materiale (material_cost), e Gravats (dechet).
                 
-                SINON (Question générale) : Réponds en texte court.`;
+                FORMATO RISPOSTA (JSON UNICO):
+                { 
+                  "action": "add_item", 
+                  "db_id": 12345 (OPPURE null se inventato), 
+                  "desc": "Nome articolo preciso", 
+                  "qty": 1, 
+                  "unit": "m2" o "U",
+                  "piece": "Nome Stanza (es: Cucina)",
+                  "est_time": 0.0 (tua stima ore/unità se id è null),
+                  "est_mat": 0.0 (tua stima materiale €/unità se id è null),
+                  "est_grav": 0.0 (tua stima m3/unità se id è null)
+                }
+                
+                Se la richiesta è generica (es: "ciao"), rispondi solo testo.`;
 
                 try {
                     const req = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -1569,7 +1997,7 @@
                         body: JSON.stringify({
                             model: "gpt-3.5-turbo",
                             messages: [{role: "system", content: systemPrompt}, {role: "user", content: txt}],
-                            temperature: 0.4
+                            temperature: 0.3 // Bassa creatività per favorire la ricerca nel DB
                         })
                     });
                     const res = await req.json();
@@ -1579,14 +2007,15 @@
                     
                     const aiText = res.choices[0].message.content;
 
-                    // Détection JSON
                     if(aiText.includes('{') && aiText.includes('}')) {
                         try {
                             const jsonStr = aiText.substring(aiText.indexOf('{'), aiText.lastIndexOf('}')+1);
                             const actionData = JSON.parse(jsonStr);
                             if(actionData.action === 'add_item') {
                                 this.executeAIAction(actionData);
-                                this.appendChatMessage(`✅ Ajouté : <b>${actionData.desc}</b> (x${actionData.qty})`, 'left');
+                                
+                                const icon = actionData.db_id ? "✅ Dal Database" : "✨ Generato da IA";
+                                this.appendChatMessage(`${icon}<br>Aggiunto: <b>${actionData.desc}</b>`, 'left');
                                 return;
                             }
                         } catch(e) { console.error("JSON Parse Error", e); }
@@ -1596,12 +2025,12 @@
 
                 } catch (err) {
                     document.getElementById('ai-typing-indicator').style.display = 'none';
-                    this.appendChatMessage("Erreur : " + err.message, 'left');
+                    this.appendChatMessage("Errore: " + err.message, 'left');
                 }
             },
 
             executeAIAction(data) {
-                if(!Store.data.activeDevisId) return App.showToast("Erreur: Ouvrez un devis d'abord !");
+                if(!Store.data.activeDevisId) return App.showToast("Apri un preventivo prima!");
                 
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
@@ -1611,32 +2040,38 @@
                     desc: data.desc,
                     qty: parseFloat(data.qty) || 1,
                     piece: data.piece || "Général",
-                    unit: 'U', price: 0, time: 0, material_cost: 0, gravats: 0 // Valeurs par défaut
+                    unit: data.unit || 'U',
+                    // Valori di default che verranno sovrascritti
+                    price: 0, time: 0, material_cost: 0, gravats: 0 
                 };
 
-                // Si l'IA ha trovato l'ID in base, idratiamo con i dati veri
+                // CASO 1: TROVATO IN SUPABASE
                 if(data.db_id && Config.allItems) {
                     const realItem = Config.allItems.find(i => i.id == data.db_id);
                     if(realItem) {
-                        newItem.desc = realItem.desc; // On garde le nom officiel
+                        // Copia fedele dal DB
+                        newItem.desc = realItem.desc; 
                         newItem.unit = realItem.unit;
                         newItem.time = realItem.labor_time;
                         newItem.material_cost = realItem.material_cost;
                         newItem.gravats = realItem.gravats || 0;
-                        newItem.price = App.calculateItemPrice(realItem); // Recalcul prix live
-                    } else {
-                         // Fallback si ID introuvable
-                         newItem.price = parseFloat(data.price) || 0;
-                         newItem.material_cost = parseFloat(data.price) || 0;
+                        newItem.price = App.calculateItemPrice(realItem); 
                     }
-                } else {
-                    newItem.price = parseFloat(data.price) || 0;
+                } 
+                // CASO 2: GENERATO DALL'IA (Struttura ricostruita)
+                else {
+                    newItem.time = parseFloat(data.est_time) || 0;
+                    newItem.material_cost = parseFloat(data.est_mat) || 0;
+                    newItem.gravats = parseFloat(data.est_grav) || 0;
+                    
+                    // Calcolo prezzo basato sulla tariffa oraria dell'utente
+                    const laborCost = newItem.time * (Store.data.settings.hourlyRate || 45);
+                    newItem.price = laborCost + newItem.material_cost;
                 }
 
                 d.items.push(newItem);
                 Store.save();
                 
-                // Refresh UI si on est dans l'éditeur
                 if(document.getElementById('view-editor').classList.contains('active')) {
                     App.calcTotals();
                     App.renderEditorItems();
