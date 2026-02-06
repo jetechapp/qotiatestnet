@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA CLOUD V7.27 - STABLE CORE</title>
+    <title>QOTIA CLOUD V7.28 - LIBRARY ROOMS</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -79,11 +79,19 @@
         
         #editor-list-container { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 140px; }
 
-        /* BARRA STANZE ORIZZONTALE (V7.25 Feature) */
+        /* BARRA STANZE ORIZZONTALE (Condivisa Editor/Library) */
         .room-bar-container { display: flex; overflow-x: auto; gap: 8px; padding: 10px 20px; background: rgba(0,0,0,0.1); -webkit-overflow-scrolling: touch; scrollbar-width: none; align-items: center; }
         .room-bar-container::-webkit-scrollbar { display: none; }
         .room-bar-label { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-right: 5px; white-space: nowrap; }
         
+        /* Stile specifico per la barra nella libreria (sfondo chiaro) */
+        #lib-room-bar { background: transparent; padding: 5px 0; margin-bottom: 10px; border-bottom: 1px solid #E2E8F0; padding-bottom: 15px; }
+        #lib-room-bar .room-bar-label { color: var(--text-sub); }
+        #lib-room-bar .room-pill { background: #F1F5F9; color: var(--text-main); border: 1px solid var(--border); }
+        #lib-room-bar .room-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+        #lib-room-bar .room-pill-add { background: #E2E8F0; color: var(--text-sub); border: 1px dashed var(--border); }
+
+        /* Stile standard (Editor) */
         .room-pill { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.3); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 4px 6px 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
         .room-pill.active { background: white; color: var(--col-devis); font-weight: 800; border-color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transform: scale(1.02); }
         
@@ -432,14 +440,12 @@
         <div class="modal-body" style="padding-top: 0;">
             <div style="position:sticky; top:0; z-index:50; background:#F8FAFC; padding-top:20px; padding-bottom:10px; border-bottom:1px solid #E2E8F0; margin-bottom:15px;">
                 <input type="text" id="lib-search" class="app-input" placeholder="🔍 Rechercher..." onkeyup="App.renderLibraryItems()" style="box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 10px;">
-                <div id="room-selector-widget" style="background:#FFF; border:2px dashed var(--border); border-radius:12px; margin-bottom:10px; overflow:hidden; transition:all 0.3s; display:none;"></div>
+                <div class="room-bar-container" id="lib-room-bar" style="margin-bottom: 10px; border-bottom:1px solid #E2E8F0; padding-bottom:15px;">
+                     </div>
                 <div id="lib-breadcrumb" style="display:none; font-size:0.8rem; font-weight:700; color:var(--text-sub); margin-bottom:10px;">
                     <span id="lib-bc-cat"></span> <i class="fas fa-chevron-right" style="font-size:0.7em;"></i> <span id="lib-bc-sub" style="color:var(--primary);"></span>
                 </div>
-                <select id="lib-category-select" class="app-input" onchange="App.renderLibraryItems()" style="font-weight:700; color:var(--primary); height:40px; margin-bottom:0;">
-                    <option value="">-- Toutes Familles --</option>
-                </select>
-            </div>
+                </div>
             <div id="lib-container"></div>
         </div>
     </div>
@@ -641,8 +647,8 @@
             
             init() { Auth.init(); },
 
-            // --- FUNZIONI CORE V19 (CRUD CLIENTI / CHANTIER) - SPOSTATE IN CIMA PER SICUREZZA ---
-            
+            // --- CORE FUNCTIONALITY (RESTORED FROM V19) ---
+
             openSetupModal() {
                 const rate = prompt("Bienvenue ! Pour calculer les prix correctement, entrez votre taux horaire (€/h) :", Store.data.settings.hourlyRate);
                 if(rate) {
@@ -652,12 +658,12 @@
                 }
             },
 
+            // CLIENTS
             openClientModal() { 
                 ['cli-id','cli-nom','cli-addr','cli-tel','cli-email','cli-siret'].forEach(k=>document.getElementById(k).value=''); 
                 App.toggleClientType('particulier'); 
                 document.getElementById('modal-client').classList.add('open'); 
             },
-            
             toggleClientType(type) { 
                 App.state.tempClientType = type; 
                 document.getElementById('type-particulier').classList.remove('active'); 
@@ -671,7 +677,6 @@
                     document.getElementById('cli-nom').placeholder = 'Nom et Prénom'; 
                 } 
             },
-
             saveClient() { 
                 const id = document.getElementById('cli-id').value; 
                 const type = App.state.tempClientType; 
@@ -695,7 +700,6 @@
                 App.closeModal('modal-client'); 
                 App.renderClients(); 
                 
-                // Aggiorna lista se aperto modal progetto
                 if(document.getElementById('modal-projet').classList.contains('open')) { 
                     const s = document.getElementById('prj-cli'); 
                     s.innerHTML=''; 
@@ -705,7 +709,6 @@
                     s.value = c.id; 
                 } 
             },
-
             editClient(id) { 
                 const c = Store.data.clients.find(x=>x.id==id); 
                 document.getElementById('cli-id').value=c.id; 
@@ -718,6 +721,7 @@
                 document.getElementById('modal-client').classList.add('open'); 
             },
 
+            // PROJECTS
             openProjectWizard() { 
                 const s=document.getElementById('prj-cli'); 
                 s.innerHTML='<option value="">Sélectionner...</option>'; 
@@ -728,7 +732,6 @@
                 }); 
                 document.getElementById('modal-projet').classList.add('open'); 
             },
-
             createProject() { 
                 const cid=document.getElementById('prj-cli').value; 
                 const nom=document.getElementById('prj-nom').value; 
@@ -739,7 +742,8 @@
                         clientId:cid, 
                         name:nom, 
                         ref:"C-"+Date.now().toString().slice(-4), 
-                        devisList:[], factures:[], extraDocs:[]
+                        devisList:[], factures:[], extraDocs:[],
+                        rooms: [] // Init rooms for V7.25+ compatibility
                     }; 
                     Store.data.chantiers.unshift(ch); 
                     Store.save(); 
@@ -749,7 +753,7 @@
                 } 
             },
 
-            // --- FINE FUNZIONI CORE V19 ---
+            // --- END CORE RESTORE ---
 
             calculateItemPrice(item) {
                 const rate = Store.data.settings.hourlyRate || 45;
@@ -958,24 +962,6 @@
                 c.devisList.push({ id: id, ref: 'D-'+Math.floor(Math.random()*1000), name: name, status:'Brouillon', items: [], rooms: [], total: 0, totalTime: 0, totalGravats: 0 });
                 Store.save(); App.openEditor(id);
             },
-            
-            backToHub() { if(Store.data.activeChantierId) App.openHub(Store.data.activeChantierId); else App.nav('projets'); },
-
-            openCreateInvoiceModal() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); if(!c.devisList || c.devisList.length === 0) return alert("Erreur : Vous devez d'abord créer un devis !"); const s = document.getElementById('inv-devis-select'); s.innerHTML=''; c.devisList.forEach(d => { let o = document.createElement('option'); o.value=d.id; o.text=d.name; s.appendChild(o); }); document.getElementById('modal-invoice').classList.add('open'); App.onInvoiceDevisChange(); },
-            onInvoiceDevisChange() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); document.getElementById('inv-total-quote').innerText = App.formatMoney(d.total); App.calcInvPreview(); },
-            setInvType(t) { App.state.invType = t; document.getElementById('btn-acompte').style.background = t==='acompte'? 'var(--primary)' : 'white'; document.getElementById('btn-acompte').style.color = t==='acompte'? 'white' : '#64748B'; document.getElementById('btn-solde').style.background = t==='solde'? 'var(--primary)' : 'white'; document.getElementById('btn-solde').style.color = t==='solde'? 'white' : '#64748B'; const inp = document.getElementById('inv-percent'); if(t==='solde') { inp.value = 100; inp.disabled = true; } else { inp.value = 30; inp.disabled = false; } App.calcInvPreview(); },
-            calcInvPreview() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); const perc = parseInt(document.getElementById('inv-percent').value) || 0; const amt = d.total * (perc/100); document.getElementById('inv-preview-amount').innerText = App.formatMoney(amt); },
-            generateInvoice() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const amtString = document.getElementById('inv-preview-amount').innerText.replace(' €','').replace(/\s/g,'').replace(/\./g,'').replace(',','.'); c.factures.push({ id: Date.now(), ref: "FAC-"+Date.now().toString().slice(-4), type: App.state.invType, amount: parseFloat(amtString), paid: false }); Store.save(); App.showToast("Facture émise"); App.closeModal('modal-invoice'); App.openHub(c.id); },
-            
-            openAgenda() { const s=document.getElementById('agd-chantier'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.chantiers.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.name; s.appendChild(o);}); document.getElementById('modal-agenda').classList.add('open'); let l=document.getElementById('agenda-list-view'); l.innerHTML=''; (Store.data.appointments||[]).forEach(a=>{let d=document.createElement('div'); d.className='card-item'; d.innerText=new Date(a.date).toLocaleString()+' - '+a.title; l.appendChild(d);}); },
-            saveAgendaEvent() { const cid=document.getElementById('agd-chantier').value; const date=document.getElementById('agd-date').value; if(cid&&date){const c=Store.data.chantiers.find(x=>x.id==cid); Store.data.appointments.push({id:Date.now(), date:date, title:"Visite", sub:c.name}); Store.save(); App.showToast("RDV Enregistré"); App.closeModal('modal-agenda'); App.renderHome();} },
-            
-            renderDocuments(filter) { const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; Store.data.chantiers.forEach(c=>{ const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); if(c.extraDocs) c.extraDocs.forEach(e=>docs.push({type:'CDC', ref:e.ref, client:cn, cid:c.id, obj:e})); }); if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter||(filter==='CDC'&&d.type==='Etude')); docs.forEach(d=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); ${d.type==='CDC' ? `App.generateCDCPDF('${d.obj.id}')` : `App.generateGlobalPDF('${d.type.toLowerCase()}', ${d.obj.id})`}"></i>`; div.onclick=()=>{ Store.data.activeChantierId=d.cid; if(d.type==='Devis') App.openEditor(d.obj.id); else if(d.type==='CDC') App.viewCahierTable(d.obj); else App.openHub(d.cid); }; l.appendChild(div); }); },
-            viewCahierTable(doc) { document.getElementById('vc-title').innerText = doc.name; const t = document.getElementById('vc-table'); t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Ass.</th></tr>'; doc.items.forEach(i => t.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; color:#15803d; font-weight:bold;">${i.assignedTo||'-'}</td></tr>`); document.getElementById('modal-view-cahier').classList.add('open'); },
-            renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i><div style="font-weight:800; color:var(--danger)">${App.formatMoney(f.amount)}</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
-
-            // --- FUNZIONI EDITOR (EDITOR + ROOMS + VOICE) ---
-
             openEditor(did) { 
                 Store.data.activeDevisId = did; 
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
@@ -997,75 +983,94 @@
                 App.calcTotals();
             },
             
+            // --- GESTIONE STANZE AVANZATA (SYNC + EDIT) ---
             renderEditorRoomBar() {
                 const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
                 const d = c.devisList.find(x => x.id == Store.data.activeDevisId);
-                const container = document.getElementById('editor-room-bar');
-                container.innerHTML = '<div class="room-bar-label">PIÈCE ACTIVE:</div>';
+                
+                // POPULATE BOTH BARS (EDITOR & LIBRARY)
+                const containers = [document.getElementById('editor-room-bar'), document.getElementById('lib-room-bar')];
+                
+                containers.forEach(container => {
+                    if(!container) return;
+                    container.innerHTML = '<div class="room-bar-label">PIÈCE ACTIVE:</div>';
 
-                if(!d.rooms) d.rooms = [];
+                    // Inizializza array stanze se non esiste (compatibilità vecchi devis)
+                    if(!d.rooms) d.rooms = [];
 
-                const standard = ['Cuisine', 'Salon', 'SDB', 'Chambre'];
-                standard.forEach(stdName => {
-                    if(!d.rooms.some(r => r.name === stdName)) {
-                        d.rooms.push({name: stdName, area: 0, wall: 0});
+                    // Se non c'è stanza attiva, setta la prima come default
+                    if(!App.state.currentEditorRoom || App.state.currentEditorRoom === "Général") {
+                        if(d.rooms.length > 0) App.state.currentEditorRoom = d.rooms[0].name;
+                        else App.state.currentEditorRoom = "Général";
                     }
-                });
 
-                if(!App.state.currentEditorRoom || App.state.currentEditorRoom === "Général") {
-                    App.state.currentEditorRoom = d.rooms[0].name;
-                }
-
-                d.rooms.forEach(room => {
-                    const pill = document.createElement('div');
-                    pill.className = 'room-pill';
-                    if(room.name === App.state.currentEditorRoom) pill.classList.add('active');
-                    
-                    let label = room.name;
-                    if(room.area > 0) label += ` <small>(${room.area}m²)</small>`;
-
-                    pill.innerHTML = `<span>${label}</span>`;
-                    
-                    const editIcon = document.createElement('div');
-                    editIcon.className = 'room-edit-icon';
-                    editIcon.innerHTML = '<i class="fas fa-pencil-alt"></i>';
-                    editIcon.onclick = (e) => {
-                        e.stopPropagation();
-                        App.openRoomEditModal(room);
-                    };
-                    
-                    pill.appendChild(editIcon);
-
-                    pill.onclick = () => {
-                        App.state.currentEditorRoom = room.name;
-                        App.renderEditorRoomBar();
-                    };
-                    container.appendChild(pill);
-                });
-
-                const addBtn = document.createElement('div');
-                addBtn.className = 'room-pill-add';
-                addBtn.innerHTML = '+';
-                addBtn.onclick = () => {
-                    const newRoomName = prompt("Nom de la nouvelle pièce :");
-                    if(newRoomName) {
-                        d.rooms.push({name: newRoomName, area: 0, wall: 0});
-                        App.state.currentEditorRoom = newRoomName;
-                        Store.save();
-                        App.renderEditorRoomBar();
+                    // Se non ci sono stanze custom, mostra almeno "Général"
+                    if(d.rooms.length === 0) {
+                         const pill = document.createElement('div');
+                         pill.className = 'room-pill active';
+                         pill.innerText = 'Général';
+                         container.appendChild(pill);
                     }
-                };
-                container.appendChild(addBtn);
+
+                    d.rooms.forEach(room => {
+                        const pill = document.createElement('div');
+                        pill.className = 'room-pill';
+                        if(room.name === App.state.currentEditorRoom) pill.classList.add('active');
+                        
+                        let label = room.name;
+                        if(room.area > 0) label += ` <small>(${room.area}m²)</small>`;
+
+                        pill.innerHTML = `<span>${label}</span>`;
+                        
+                        // Icona Edit per aprire modale dimensioni
+                        const editIcon = document.createElement('div');
+                        editIcon.className = 'room-edit-icon';
+                        editIcon.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+                        editIcon.onclick = (e) => {
+                            e.stopPropagation();
+                            App.openRoomEditModal(room);
+                        };
+                        
+                        pill.appendChild(editIcon);
+
+                        pill.onclick = () => {
+                            App.state.currentEditorRoom = room.name;
+                            App.renderEditorRoomBar();
+                        };
+                        container.appendChild(pill);
+                    });
+
+                    // Tasto +
+                    const addBtn = document.createElement('div');
+                    addBtn.className = 'room-pill-add';
+                    addBtn.innerHTML = '+';
+                    addBtn.onclick = () => {
+                        const newRoomName = prompt("Nom de la nouvelle pièce :");
+                        if(newRoomName) {
+                            d.rooms.push({name: newRoomName, area: 0, wall: 0});
+                            App.state.currentEditorRoom = newRoomName;
+                            Store.save();
+                            App.renderEditorRoomBar();
+                        }
+                    };
+                    container.appendChild(addBtn);
+                });
             },
 
             openRoomEditModal(roomObj) {
                 document.getElementById('mod-room-name').value = roomObj.name;
+                // Qui salviamo l'oggetto corrente per aggiornarlo dopo
                 App.state.tempRoomObj = roomObj;
+                
+                // Reset inputs
                 document.getElementById('mod-room-l').value = '';
                 document.getElementById('mod-room-w').value = '';
                 document.getElementById('mod-room-h').value = '';
+                
+                // Show current values
                 document.getElementById('mod-room-sol').innerText = roomObj.area || 0;
                 document.getElementById('mod-room-murs').innerText = roomObj.wall || 0;
+                
                 document.getElementById('modal-room-edit').classList.add('open');
             },
 
@@ -1073,8 +1078,15 @@
                 const l = parseFloat(document.getElementById('mod-room-l').value) || 0;
                 const w = parseFloat(document.getElementById('mod-room-w').value) || 0;
                 const h = parseFloat(document.getElementById('mod-room-h').value) || 0;
-                let areaSol = 0; let areaMurs = 0;
-                if(l > 0 && w > 0) { areaSol = l * w; if(h > 0) areaMurs = (l + w) * 2 * h; }
+                
+                let areaSol = 0;
+                let areaMurs = 0;
+
+                if(l > 0 && w > 0) {
+                    areaSol = l * w;
+                    if(h > 0) areaMurs = (l + w) * 2 * h;
+                }
+                
                 document.getElementById('mod-room-sol').innerText = areaSol.toFixed(2);
                 document.getElementById('mod-room-murs').innerText = areaMurs.toFixed(2);
             },
@@ -1082,24 +1094,36 @@
             saveRoomChanges() {
                 const r = App.state.tempRoomObj;
                 if(!r) return;
-                const oldName = r.name; 
+                
+                const oldName = r.name; // Keep old name to find items
+                
+                // Update Name
                 const newName = document.getElementById('mod-room-name').value;
                 if(newName) r.name = newName;
+
+                // Update Measures
                 const s = parseFloat(document.getElementById('mod-room-sol').innerText);
                 const m = parseFloat(document.getElementById('mod-room-murs').innerText);
+                
                 if(!isNaN(s)) r.area = s;
                 if(!isNaN(m)) r.wall = m;
 
+                // FIX CRITICO: Aggiorna il nome della stanza anche negli articoli già creati
                 if(oldName !== newName) {
                     const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
                     const d = c.devisList.find(x => x.id == Store.data.activeDevisId);
-                    d.items.forEach(item => { if(item.piece === oldName) { item.piece = newName; } });
+                    d.items.forEach(item => {
+                        if(item.piece === oldName) {
+                            item.piece = newName;
+                        }
+                    });
                     if(App.state.currentEditorRoom === oldName) App.state.currentEditorRoom = newName;
                 }
+
                 Store.save();
                 App.closeModal('modal-room-edit');
                 App.renderEditorRoomBar();
-                App.renderEditorItems();
+                App.renderEditorItems(); // Refresh list to show new room names
             },
 
             setEditorView(mode) {
@@ -1112,7 +1136,11 @@
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
                 let totP = 0; let totT = 0; let totG = 0;
-                d.items.forEach(i => { totP += i.qty * i.price; totT += i.qty * (i.time || 0); totG += i.qty * (i.gravats || 0); });
+                d.items.forEach(i => { 
+                    totP += i.qty * i.price; 
+                    totT += i.qty * (i.time || 0); 
+                    totG += i.qty * (i.gravats || 0); // CALCOLO GRAVATS
+                });
                 d.total = totP; d.totalTime = totT; d.totalGravats = totG; Store.save();
                 document.getElementById('ed-total-price').innerText = App.formatMoney(totP);
                 document.getElementById('ed-total-time').innerText = totT.toFixed(1) + ' h';
@@ -1123,6 +1151,7 @@
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
                 const l = document.getElementById('editor-list-container'); l.innerHTML=''; 
                 if(d.items.length === 0) { l.innerHTML = '<div style="text-align:center; padding:40px; color:#94A3B8;">Vide</div>'; return; }
+
                 const rate = Store.data.settings.hourlyRate || 45;
 
                 if (App.state.viewMode === 'pieces') {
@@ -1134,7 +1163,14 @@
                             let rowP = i.qty * i.price;
                             let laborCostTotal = (i.time || 0) * rate * i.qty;
                             let matCostTotal = (i.material_cost || 0) * i.qty;
-                            html += `<div class="e-card" style="background:var(--bg-devis);" onclick="App.editDevisItem(${i.id})"><div class="e-card-row"><div class="e-desc">${i.desc}</div><div style="font-weight:800; color:var(--primary);">${App.formatMoney(rowP)}</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Qté</div><div class="stat-val">${i.qty}</div></div><div class="stat-box"><div class="stat-lbl">Prix U.</div><div class="stat-val">${App.formatMoney(i.price)}</div></div><div class="stat-box"><div class="stat-lbl">Temps</div><div class="stat-val time">${i.time||0}h</div></div></div><div class="e-stats" style="border-top:1px dashed #e2e8f0; margin-top:5px;"><div class="stat-box"><div class="stat-lbl" style="color:var(--time)">M.O. (€)</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(laborCostTotal)}</div></div><div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Mat. (€)</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(matCostTotal)}</div></div><div class="stat-box"><div class="stat-lbl" style="color:var(--rubble)">Gravats</div><div class="stat-val" style="color:var(--rubble); font-size:0.8rem;">${(i.gravats*i.qty).toFixed(2)}</div></div></div></div>`;
+                            
+                            html += `<div class="e-card" style="background:var(--bg-devis);" onclick="App.editDevisItem(${i.id})"><div class="e-card-row"><div class="e-desc">${i.desc}</div><div style="font-weight:800; color:var(--primary);">${App.formatMoney(rowP)}</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Qté</div><div class="stat-val">${i.qty}</div></div><div class="stat-box"><div class="stat-lbl">Prix U.</div><div class="stat-val">${App.formatMoney(i.price)}</div></div><div class="stat-box"><div class="stat-lbl">Temps</div><div class="stat-val time">${i.time||0}h</div></div></div>
+                            <div class="e-stats" style="border-top:1px dashed #e2e8f0; margin-top:5px;">
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--time)">M.O. (€)</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(laborCostTotal)}</div></div>
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Mat. (€)</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(matCostTotal)}</div></div>
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--rubble)">Gravats</div><div class="stat-val" style="color:var(--rubble); font-size:0.8rem;">${(i.gravats*i.qty).toFixed(2)}</div></div>
+                            </div>
+                            </div>`;
                         });
                         l.innerHTML += html + `</div>`;
                     }
@@ -1143,56 +1179,106 @@
                     d.items.forEach(i => {
                         const key = i.desc + "_" + i.price;
                         if (!aggregated[key]) aggregated[key] = { desc: i.desc, price: i.price, totalQty: 0, totalTime: 0, pieces: new Set(), totalLaborCost: 0, totalMatCost: 0 };
-                        aggregated[key].totalQty += i.qty; aggregated[key].totalTime += (i.qty * (i.time || 0)); aggregated[key].pieces.add(i.piece || "Général");
-                        aggregated[key].totalLaborCost += ((i.time || 0) * rate * i.qty); aggregated[key].totalMatCost += ((i.material_cost || 0) * i.qty);
+                        aggregated[key].totalQty += i.qty; 
+                        aggregated[key].totalTime += (i.qty * (i.time || 0)); 
+                        aggregated[key].pieces.add(i.piece || "Général");
+                        
+                        aggregated[key].totalLaborCost += ((i.time || 0) * rate * i.qty);
+                        aggregated[key].totalMatCost += ((i.material_cost || 0) * i.qty);
                     });
                     for (const key in aggregated) {
                         const agg = aggregated[key]; const totalP = agg.totalQty * agg.price; const locs = Array.from(agg.pieces).join(", ");
-                        l.innerHTML += `<div class="e-card" style="background:var(--bg-devis); border-left-color:var(--accent);"><div class="e-card-row"><div class="e-desc">${agg.desc}<br><span class="e-loc-tag">${locs}</span></div><div style="font-weight:800;">${App.formatMoney(totalP)}</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Tot Qté</div><div class="stat-val">${agg.totalQty}</div></div><div class="stat-box"><div class="stat-lbl">Tot Time</div><div class="stat-val time">${agg.totalTime.toFixed(1)}h</div></div></div><div class="e-stats" style="border-top:1px dashed #e2e8f0; margin-top:5px;"><div class="stat-box"><div class="stat-lbl" style="color:var(--time)">Tot M.O.</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(agg.totalLaborCost)}</div></div><div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Tot Mat.</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(agg.totalMatCost)}</div></div></div></div>`;
+                        l.innerHTML += `<div class="e-card" style="background:var(--bg-devis); border-left-color:var(--accent);"><div class="e-card-row"><div class="e-desc">${agg.desc}<br><span class="e-loc-tag">${locs}</span></div><div style="font-weight:800;">${App.formatMoney(totalP)}</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Tot Qté</div><div class="stat-val">${agg.totalQty}</div></div><div class="stat-box"><div class="stat-lbl">Tot Time</div><div class="stat-val time">${agg.totalTime.toFixed(1)}h</div></div></div>
+                        <div class="e-stats" style="border-top:1px dashed #e2e8f0; margin-top:5px;">
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--time)">Tot M.O.</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(agg.totalLaborCost)}</div></div>
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Tot Mat.</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(agg.totalMatCost)}</div></div>
+                        </div>
+                        </div>`;
                     }
                 }
             },
+
+            // --- INIZIO INTEGRAZIONE SMART ENTRY (VOCE -> DB) ---
 
             startSmartEntry() {
                 if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
                     return alert("⚠️ Erreur : Le micro ne fonctionne que sur HTTPS (site sécurisé) ou localhost.");
                 }
+
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 const btn = document.querySelector('button[onclick="App.startSmartEntry()"]');
+                
                 if (!SpeechRecognition) {
                     const text = prompt("Entrez une commande (ex: '5 prises et 20 m2 peinture')");
                     if(text) App.processNaturalLanguage(text);
                     return;
                 }
+
                 const recognition = new SpeechRecognition();
-                recognition.lang = 'fr-FR'; recognition.interimResults = false; recognition.maxAlternatives = 1;
+                recognition.lang = 'fr-FR'; 
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+
                 App.showToast("🎤 Parlez maintenant... (ex: 'Poser 4 portes')");
                 if(btn) btn.style.transform = "scale(1.2)"; 
+
                 recognition.start();
-                recognition.onresult = (event) => { const transcript = event.results[0][0].transcript; App.showToast("Analyse : " + transcript); App.processNaturalLanguage(transcript); if(btn) btn.style.transform = "scale(1)"; };
-                recognition.onerror = (e) => { console.error(e); if(btn) btn.style.transform = "scale(1)"; if (e.error === 'not-allowed') { alert("Accès au micro refusé. Vérifiez les paramètres de votre navigateur."); } else { const text = prompt("Microphone indisponible. Écrivez ici :"); if(text) App.processNaturalLanguage(text); } };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    App.showToast("Analyse : " + transcript);
+                    App.processNaturalLanguage(transcript);
+                    if(btn) btn.style.transform = "scale(1)";
+                };
+
+                recognition.onerror = (e) => {
+                    console.error(e);
+                    if(btn) btn.style.transform = "scale(1)";
+                    if (e.error === 'not-allowed') {
+                        alert("Accès au micro refusé. Vérifiez les paramètres de votre navigateur.");
+                    } else {
+                        const text = prompt("Microphone indisponible. Écrivez ici :");
+                        if(text) App.processNaturalLanguage(text);
+                    }
+                };
             },
 
             processNaturalLanguage(text) {
                 if(!text) return;
                 text = text.toLowerCase();
+
                 const targetRoom = App.state.currentEditorRoom || "Général";
                 const commands = text.split(/,| e | \+ | poi | et | avec /);
+                
                 let foundItems = 0;
 
                 commands.forEach(cmd => {
-                    cmd = cmd.trim(); if(!cmd) return;
-                    let qty = 1; const numberMatch = cmd.match(/^(\d+)([.,]\d+)?/); 
-                    if (numberMatch) { qty = parseFloat(numberMatch[0].replace(',', '.')); cmd = cmd.replace(numberMatch[0], '').trim(); }
+                    cmd = cmd.trim();
+                    if(!cmd) return;
+
+                    let qty = 1; 
+                    const numberMatch = cmd.match(/^(\d+)([.,]\d+)?/); 
+                    
+                    if (numberMatch) {
+                        qty = parseFloat(numberMatch[0].replace(',', '.'));
+                        cmd = cmd.replace(numberMatch[0], '').trim(); 
+                    }
+
                     const cleanSearch = cmd.replace(/\b(m2|mètres|metres|ml|pièces|pieces|pz|nombre|de|du|dans|et|pour|le|la|les|un|une)\b/g, '').trim();
+
                     if(cleanSearch.length < 2) return; 
+
                     const results = Config.searchIndex.search(cleanSearch);
+
                     if (results.length > 0) {
+                        // LOGICA SMART CHOICE
+                        // Se il risultato è perfetto (score basso), aggiungi subito
                         if (results[0].score < 0.1 || results.length === 1) {
                             App.addItemFromAI(results[0].item, qty, targetRoom);
                             foundItems++;
                         } else {
-                            App.openVoiceChoiceModal(results.slice(0, 5), qty, targetRoom); 
+                            // Se ci sono dubbi, apri il modale di scelta
+                            App.openVoiceChoiceModal(results.slice(0, 5), qty, targetRoom); // Mostra i primi 5
                         }
                     } else {
                         console.warn("Aucun article trouvé pour :", cleanSearch);
@@ -1210,6 +1296,8 @@
             openVoiceChoiceModal(results, qty, room) {
                 const list = document.getElementById('voice-choice-list');
                 list.innerHTML = '';
+                
+                // Salva contesto
                 App.state.tempVoiceQty = qty;
                 App.state.currentEditorRoom = room;
 
@@ -1219,10 +1307,17 @@
                     div.className = 'card-item';
                     div.style.marginBottom = '8px';
                     div.style.background = '#F8FAFC';
+                    // Fix click feedback
                     div.style.cursor = 'pointer';
-                    div.innerHTML = `<div style="flex:1"><div style="font-weight:700; font-size:0.9rem;">${item.desc}</div><div style="font-size:0.8rem; color:#64748B;">${item.category}</div></div><div style="font-weight:bold; color:var(--primary);">${qty} ${item.unit}</div>`;
+                    div.innerHTML = `
+                        <div style="flex:1">
+                            <div style="font-weight:700; font-size:0.9rem;">${item.desc}</div>
+                            <div style="font-size:0.8rem; color:#64748B;">${item.category}</div>
+                        </div>
+                        <div style="font-weight:bold; color:var(--primary);">${qty} ${item.unit}</div>
+                    `;
                     div.onclick = (e) => {
-                        e.stopPropagation();
+                        e.stopPropagation(); // Prevenire bubbling
                         App.addItemFromAI(item, qty, room);
                         App.closeModal('modal-voice-choice');
                         App.showToast("Ajouté !");
@@ -1232,15 +1327,18 @@
                     };
                     list.appendChild(div);
                 });
+
                 document.getElementById('modal-voice-choice').classList.add('open');
             },
 
             addItemFromAI(libItem, qty, room) {
                 const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
                 const d = c.devisList.find(x => x.id == Store.data.activeDevisId);
+
                 const rate = Store.data.settings.hourlyRate || 45;
                 const laborCost = (libItem.labor_time || 0) * rate;
                 const materialCost = (libItem.material_cost || 0);
+                
                 const newItem = {
                     id: Date.now() + Math.floor(Math.random() * 10000),
                     desc: libItem.desc,            
@@ -1252,9 +1350,13 @@
                     qty: qty,                      
                     piece: room                    
                 };
+
                 d.items.push(newItem);
             },
+
+            // --- FINE INTEGRAZIONE ---
             
+            // Legacy/Support Functions kept for compatibility
             openLibrary() {
                 const categories = Object.keys(Config.LIB).sort();
                 if(categories.length === 0) return App.showToast("Chargement bibliothèque...");
@@ -1262,15 +1364,17 @@
                 App.state.libCategory = null; 
                 App.state.libSubCategory = null;
                 document.getElementById('lib-breadcrumb').style.display = 'none';
-                const sel = document.getElementById('lib-category-select');
-                sel.innerHTML = '<option value="">-- Toutes Familles --</option>';
-                categories.forEach(cat => sel.innerHTML += `<option value="${cat}">${cat}</option>`);
-                sel.value = ""; 
+                
+                // Rimuoviamo la gestione del select per usare solo la barra stanze
+                // const sel = document.getElementById('lib-category-select');
+                
+                // Update Library Room Bar
+                App.renderEditorRoomBar(); 
+                
                 App.renderLibraryItems();
                 document.getElementById('modal-library').classList.add('open'); 
             },
             
-            // Legacy/Support Functions
             renderUsedRoomButtons() {},
             setRoomActiveVisuals(n) {},
             toggleRoomEdit(s) {},
@@ -1279,18 +1383,27 @@
             confirmRoom() {},
             
             renderLibraryItems() {
-                const cont = document.getElementById('lib-container'); cont.innerHTML = '';
+                const cont = document.getElementById('lib-container'); 
+                cont.innerHTML = '';
+                
                 const searchTerm = document.getElementById('lib-search').value;
                 const selectedCat = document.getElementById('lib-category-select').value;
                 const breadcrumb = document.getElementById('lib-breadcrumb');
+                
+                // 1. RICERCA ATTIVA
                 if (searchTerm.length > 1) {
                     breadcrumb.style.display = 'none';
                     const results = Config.searchIndex.search(searchTerm);
-                    if(results.length === 0) { cont.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8;">Aucun résultat pour "${searchTerm}"</div>`; return; }
+                    if(results.length === 0) {
+                        cont.innerHTML = `<div style="text-align:center; padding:30px; color:#94A3B8;">Aucun résultat pour "${searchTerm}"</div>`;
+                        return;
+                    }
                     const finalResults = selectedCat ? results.filter(r => r.item.category === selectedCat) : results;
                     App.renderLibItemsList(cont, finalResults.map(r => r.item));
                     return;
                 }
+
+                // 2. LIVELLO RADICE (Famiglie)
                 if (App.state.libCategory === null && !selectedCat) {
                     breadcrumb.style.display = 'none';
                     const categories = Object.keys(Config.LIB).sort();
@@ -1307,6 +1420,8 @@
                     cont.appendChild(grid);
                     return;
                 }
+
+                // 3. LIVELLO INTERMEDIO (Sotto-Famiglie)
                 const activeCat = selectedCat || App.state.libCategory;
                 if (activeCat && App.state.libSubCategory === null) {
                     breadcrumb.style.display = 'block';
@@ -1331,6 +1446,8 @@
                     cont.appendChild(grid);
                     return;
                 }
+
+                // 4. LIVELLO FINALE (Articoli)
                 if (activeCat && App.state.libSubCategory) {
                     breadcrumb.style.display = 'block';
                     document.getElementById('lib-bc-cat').innerText = activeCat;
@@ -1349,8 +1466,29 @@
                 items.forEach(it => {
                     const dynamicPrice = App.calculateItemPrice(it);
                     let div = document.createElement('div'); div.className = 'card-item'; div.style.marginBottom = "8px"; 
-                    div.innerHTML = `<div class="card-info"><div class="card-title" style="font-size:0.95rem;">${it.desc}</div><div class="card-sub" style="color:var(--primary); font-weight:700;">${App.formatMoney(dynamicPrice)} / ${it.unit} <span style="font-weight:400; color:#64748B; font-size:0.8em; margin-left:5px;">(T: ${it.labor_time}h | M: ${it.material_cost}€)</span></div></div><div style="background:var(--accent); color:white; width:35px; height:35px; border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer;"><i class="fas fa-plus" style="font-size:0.9rem;"></i></div>`; 
-                    div.onclick = () => { let target = App.state.currentEditorRoom || "Général"; App.openAddItemModal(it, target); }; 
+                    
+                    div.innerHTML = `
+                        <div class="card-info">
+                            <div class="card-title" style="font-size:0.95rem;">${it.desc}</div>
+                            <div class="card-sub" style="color:var(--primary); font-weight:700;">
+                                ${App.formatMoney(dynamicPrice)} / ${it.unit} 
+                                <span style="font-weight:400; color:#64748B; font-size:0.8em; margin-left:5px;">
+                                    (T: ${it.labor_time}h | M: ${it.material_cost}€)
+                                </span>
+                            </div>
+                        </div>
+                        <div style="background:var(--accent); color:white; width:35px; height:35px; border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer;">
+                            <i class="fas fa-plus" style="font-size:0.9rem;"></i>
+                        </div>
+                    `; 
+                    
+                    div.onclick = () => { 
+                        // Usa la stanza attiva nell'editor o quella del widget se attivo
+                        let target = App.state.currentEditorRoom || "Général";
+                        
+                        // APRE IL MODALE DI INSERIMENTO (Invece di salvare subito)
+                        App.openAddItemModal(it, target);
+                    }; 
                     container.appendChild(div); 
                 });
             },
@@ -1364,80 +1502,117 @@
                 document.getElementById('edit-item-time').value = item.labor_time || 0;
                 document.getElementById('edit-item-mat').value = item.material_cost || 0;
                 document.getElementById('edit-item-rubble').value = item.gravats || 0;
+                
+                // Populate piece select
                 const sel = document.getElementById('edit-item-piece'); sel.innerHTML = '';
                 let o = document.createElement('option'); o.value = room; o.text = room; o.selected = true; sel.appendChild(o);
+                
                 document.getElementById('modal-edit-item').classList.add('open');
                 App.calcEditPrice();
             },
+            
+            backToHub() { if(Store.data.activeChantierId) App.openHub(Store.data.activeChantierId); else App.nav('projets'); },
 
-            editDevisItem(id) {
-                App.state.isEditing = true;
-                document.getElementById('edit-item-title').innerText = "Modifier Article";
-                document.getElementById('btn-delete-item').style.display = 'block';
-                const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); const item=d.items.find(x=>x.id==id);
-                document.getElementById('edit-item-idx').value = id; document.getElementById('edit-item-desc').value = item.desc; document.getElementById('edit-item-qty').value = item.qty; 
-                document.getElementById('edit-item-price').value = item.price.toFixed(2); document.getElementById('edit-item-unit').value = item.unit || 'U'; 
-                document.getElementById('edit-item-time').value = item.time || 0; document.getElementById('edit-item-mat').value = item.material_cost || 0; 
-                document.getElementById('edit-item-rubble').value = item.gravats || 0;
-                const rooms = new Set(d.items.map(i => i.piece).filter(Boolean)); 
-                if(App.state.currentEditorRoom) rooms.add(App.state.currentEditorRoom);
-                const sel = document.getElementById('edit-item-piece'); sel.innerHTML = ''; 
-                rooms.forEach(r => { const isSel = r === item.piece ? 'selected' : ''; sel.innerHTML += `<option value="${r}" ${isSel}>${r}</option>`; });
-                document.getElementById('modal-edit-item').classList.add('open');
-                App.calcEditPrice();
-            },
+            openCreateInvoiceModal() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); if(!c.devisList || c.devisList.length === 0) return alert("Erreur : Vous devez d'abord créer un devis !"); const s = document.getElementById('inv-devis-select'); s.innerHTML=''; c.devisList.forEach(d => { let o = document.createElement('option'); o.value=d.id; o.text=d.name; s.appendChild(o); }); document.getElementById('modal-invoice').classList.add('open'); App.onInvoiceDevisChange(); },
+            onInvoiceDevisChange() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); document.getElementById('inv-total-quote').innerText = App.formatMoney(d.total); App.calcInvPreview(); },
+            setInvType(t) { App.state.invType = t; document.getElementById('btn-acompte').style.background = t==='acompte'? 'var(--primary)' : 'white'; document.getElementById('btn-acompte').style.color = t==='acompte'? 'white' : '#64748B'; document.getElementById('btn-solde').style.background = t==='solde'? 'var(--primary)' : 'white'; document.getElementById('btn-solde').style.color = t==='solde'? 'white' : '#64748B'; const inp = document.getElementById('inv-percent'); if(t==='solde') { inp.value = 100; inp.disabled = true; } else { inp.value = 30; inp.disabled = false; } App.calcInvPreview(); },
+            calcInvPreview() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); const perc = parseInt(document.getElementById('inv-percent').value) || 0; const amt = d.total * (perc/100); document.getElementById('inv-preview-amount').innerText = App.formatMoney(amt); },
+            generateInvoice() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const amtString = document.getElementById('inv-preview-amount').innerText.replace(' €','').replace(/\s/g,'').replace(/\./g,'').replace(',','.'); c.factures.push({ id: Date.now(), ref: "FAC-"+Date.now().toString().slice(-4), type: App.state.invType, amount: parseFloat(amtString), paid: false }); Store.save(); App.showToast("Facture émise"); App.closeModal('modal-invoice'); App.openHub(c.id); },
+            
+            openAgenda() { const s=document.getElementById('agd-chantier'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.chantiers.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.name; s.appendChild(o);}); document.getElementById('modal-agenda').classList.add('open'); let l=document.getElementById('agenda-list-view'); l.innerHTML=''; (Store.data.appointments||[]).forEach(a=>{let d=document.createElement('div'); d.className='card-item'; d.innerText=new Date(a.date).toLocaleString()+' - '+a.title; l.appendChild(d);}); },
+            saveAgendaEvent() { const cid=document.getElementById('agd-chantier').value; const date=document.getElementById('agd-date').value; if(cid&&date){const c=Store.data.chantiers.find(x=>x.id==cid); Store.data.appointments.push({id:Date.now(), date:date, title:"Visite", sub:c.name}); Store.save(); App.showToast("RDV Enregistré"); App.closeModal('modal-agenda'); App.renderHome();} },
+            
+            renderDocuments(filter) { const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; Store.data.chantiers.forEach(c=>{ const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); if(c.extraDocs) c.extraDocs.forEach(e=>docs.push({type:'CDC', ref:e.ref, client:cn, cid:c.id, obj:e})); }); if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter||(filter==='CDC'&&d.type==='Etude')); docs.forEach(d=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); ${d.type==='CDC' ? `App.generateCDCPDF('${d.obj.id}')` : `App.generateGlobalPDF('${d.type.toLowerCase()}', ${d.obj.id})`}"></i>`; div.onclick=()=>{ Store.data.activeChantierId=d.cid; if(d.type==='Devis') App.openEditor(d.obj.id); else if(d.type==='CDC') App.viewCahierTable(d.obj); else App.openHub(d.cid); }; l.appendChild(div); }); },
+            viewCahierTable(doc) { document.getElementById('vc-title').innerText = doc.name; const t = document.getElementById('vc-table'); t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Ass.</th></tr>'; doc.items.forEach(i => t.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; color:#15803d; font-weight:bold;">${i.assignedTo||'-'}</td></tr>`); document.getElementById('modal-view-cahier').classList.add('open'); },
+            renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i><div style="font-weight:800; color:var(--danger)">${App.formatMoney(f.amount)}</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
+            
+            generateRoomReportPDF() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const did = Store.data.activeDevisId;
+                if(!did) return alert("Veuillez ouvrir un devis d'abord.");
+                
+                const d = c.devisList.find(x => x.id == did);
+                const cli = Store.data.clients.find(x => x.id == c.clientId);
 
-            calcEditPrice() {
-                const qty = parseFloat(document.getElementById('edit-item-qty').value) || 0;
-                const t = parseFloat(document.getElementById('edit-item-time').value) || 0;
-                const m = parseFloat(document.getElementById('edit-item-mat').value) || 0;
-                const rate = Store.data.settings.hourlyRate || 45;
-                const laborCost = t * rate;
-                document.getElementById('edit-item-split-display').innerText = `Manodopera: ${App.formatMoney(laborCost)} + Materiale: ${App.formatMoney(m)}`;
-                const unitPrice = laborCost + m;
-                document.getElementById('edit-item-price').value = unitPrice.toFixed(2);
-                const totalRow = unitPrice * qty;
-                document.getElementById('edit-item-total-row').innerText = App.formatMoney(totalRow);
-            },
+                const rooms = {};
+                d.items.forEach(item => {
+                    const p = item.piece || "Non assigné";
+                    if (!rooms[p]) rooms[p] = [];
+                    rooms[p].push(item);
+                });
 
-            saveItemChanges() { 
-                const desc = document.getElementById('edit-item-desc').value;
-                const qty = parseFloat(document.getElementById('edit-item-qty').value)||0;
-                const price = parseFloat(document.getElementById('edit-item-price').value)||0;
-                const time = parseFloat(document.getElementById('edit-item-time').value)||0;
-                const material = parseFloat(document.getElementById('edit-item-mat').value)||0;
-                const gravats = parseFloat(document.getElementById('edit-item-rubble').value)||0;
-                const piece = document.getElementById('edit-item-piece').value;
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); 
-                const d = c.devisList.find(x=>x.id==Store.data.activeDevisId); 
-                if (App.state.isEditing) {
-                    const id = parseInt(document.getElementById('edit-item-idx').value); 
-                    const item = d.items.find(x=>x.id==id); 
-                    item.desc = desc; item.qty = qty; item.price = price; 
-                    item.time = time; item.material_cost = material; item.piece = piece; item.gravats = gravats;
-                } else {
-                    const newItem = { id: Date.now(), desc: desc, unit: document.getElementById('edit-item-unit').value, time: time, material_cost: material, price: price, qty: qty, piece: piece, gravats: gravats };
-                    d.items.push(newItem);
-                    App.showToast("Ajouté : " + desc);
-                    App.renderUsedRoomButtons(piece);
+                let roomsHtml = "";
+                for (const [roomName, items] of Object.entries(rooms)) {
+                    let itemsRows = items.map(i => `
+                        <tr style="border-bottom: 1px solid #E2E8F0;">
+                            <td style="padding: 10px; width: 70%; font-weight: 500;">${i.desc}</td>
+                            <td style="padding: 10px; text-align: center;">${i.qty} ${i.unit || 'U'}</td>
+                            <td style="padding: 10px; text-align: right; color: #64748B; font-size: 0.85rem;">
+                                ${i.assignedTo ? '👤 ' + i.assignedTo : '-'}
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    roomsHtml += `
+                        <div style="margin-bottom: 25px; break-inside: avoid;">
+                            <div style="background: #0F172A; color: white; padding: 8px 15px; border-radius: 6px; font-weight: 800; text-transform: uppercase; font-size: 0.9rem;">
+                                📍 ${roomName}
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 5px;">
+                                ${itemsRows}
+                            </table>
+                        </div>
+                    `;
                 }
-                Store.save(); App.closeModal('modal-edit-item'); App.calcTotals(); App.renderEditorItems(); App.renderEditorRoomBar(); 
+
+                let gravatsInfo = "";
+                if(d.totalGravats > 0) {
+                    gravatsInfo = `<div style="background:#FEE2E2; color:#B91C1C; padding:15px; border-radius:8px; margin-bottom:20px; font-weight:bold; border:1px solid #FECACA;">
+                        <i class="fas fa-truck-loading"></i> Volume Total Gravats Estimé : ${d.totalGravats.toFixed(2)} m³
+                    </div>`;
+                }
+
+                const html = `
+                    <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; color: #1E293B;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0F172A; padding-bottom: 20px; margin-bottom: 30px;">
+                            <div>
+                                <h1 style="margin: 0; font-size: 1.5rem;">ORDRE D'EXÉCUTION</h1>
+                                <div style="color: #64748B;">Projet : <strong>${c.name}</strong></div>
+                            </div>
+                            <div style="text-align: right; font-size: 0.85rem;">
+                                Date : ${new Date().toLocaleDateString('fr-FR')}<br>
+                                Réf : ${d.ref}
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 30px; font-size: 0.9rem;">
+                            <strong>Client :</strong> ${cli ? cli.nom : 'Non spécifié'}<br>
+                            <strong>Adresse :</strong> ${c.addr || 'Voir fiche projet'}
+                        </div>
+
+                        ${gravatsInfo}
+
+                        ${roomsHtml}
+
+                        <div style="margin-top: 50px; border-top: 1px solid #CBD5E1; padding-top: 20px; font-size: 0.75rem; color: #94A3B8; text-align: center;">
+                            Généré via QOTIA CLOUD V7 - Document interne destiné aux équipes de chantier.
+                        </div>
+                    </div>
+                `;
+
+                const opt = {
+                    margin: 10,
+                    filename: `RAPPORT_ZONES_${c.name.replace(/\s+/g, '_')}.pdf`,
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(html).save();
+                App.showToast("Rapport par pièces généré !");
             },
 
-            deleteItem() { if(confirm("Supprimer ?")) { const id=parseInt(document.getElementById('edit-item-idx').value); const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); d.items=d.items.filter(x=>x.id!==id); Store.save(); App.closeModal('modal-edit-item'); App.calcTotals(); App.renderEditorItems(); } },
-            closeModal(id) { document.getElementById(id).classList.remove('open'); },
-            openPartnerModal() { document.getElementById('ptn-name').value=''; document.getElementById('modal-partner').classList.add('open'); },
-            savePartner() { const name = document.getElementById('ptn-name').value; if(!name) return; Store.data.partners.push({id:Date.now(), name:name, role:document.getElementById('ptn-role').value}); Store.save(); App.closeModal('modal-partner'); App.renderSettings(); },
-            deletePartner(id) { if(confirm("Supprimer ?")) { Store.data.partners = Store.data.partners.filter(p=>p.id!==id); Store.save(); App.renderSettings(); }},
-            generateRoomReportPDF() { const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId); const did = Store.data.activeDevisId; if(!did) return alert("Veuillez ouvrir un devis d'abord."); const d = c.devisList.find(x => x.id == did); const cli = Store.data.clients.find(x => x.id == c.clientId); const rooms = {}; d.items.forEach(item => { const p = item.piece || "Non assigné"; if (!rooms[p]) rooms[p] = []; rooms[p].push(item); }); let roomsHtml = ""; for (const [roomName, items] of Object.entries(rooms)) { let itemsRows = items.map(i => ` <tr style="border-bottom: 1px solid #E2E8F0;"> <td style="padding: 10px; width: 70%; font-weight: 500;">${i.desc}</td> <td style="padding: 10px; text-align: center;">${i.qty} ${i.unit || 'U'}</td> <td style="padding: 10px; text-align: right; color: #64748B; font-size: 0.85rem;"> ${i.assignedTo ? '👤 ' + i.assignedTo : '-'} </td> </tr> `).join(''); roomsHtml += ` <div style="margin-bottom: 25px; break-inside: avoid;"> <div style="background: #0F172A; color: white; padding: 8px 15px; border-radius: 6px; font-weight: 800; text-transform: uppercase; font-size: 0.9rem;"> 📍 ${roomName} </div> <table style="width: 100%; border-collapse: collapse; margin-top: 5px;"> ${itemsRows} </table> </div> `; } let gravatsInfo = ""; if(d.totalGravats > 0) { gravatsInfo = `<div style="background:#FEE2E2; color:#B91C1C; padding:15px; border-radius:8px; margin-bottom:20px; font-weight:bold; border:1px solid #FECACA;"> <i class="fas fa-truck-loading"></i> Volume Total Gravats Estimé : ${d.totalGravats.toFixed(2)} m³ </div>`; } const html = ` <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; color: #1E293B;"> <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0F172A; padding-bottom: 20px; margin-bottom: 30px;"> <div> <h1 style="margin: 0; font-size: 1.5rem;">ORDRE D'EXÉCUTION</h1> <div style="color: #64748B;">Projet : <strong>${c.name}</strong></div> </div> <div style="text-align: right; font-size: 0.85rem;"> Date : ${new Date().toLocaleDateString('fr-FR')}<br> Réf : ${d.ref} </div> </div> <div style="margin-bottom: 30px; font-size: 0.9rem;"> <strong>Client :</strong> ${cli ? cli.nom : 'Non spécifié'}<br> <strong>Adresse :</strong> ${c.addr || 'Voir fiche projet'} </div> ${gravatsInfo} ${roomsHtml} <div style="margin-top: 50px; border-top: 1px solid #CBD5E1; padding-top: 20px; font-size: 0.75rem; color: #94A3B8; text-align: center;"> Généré via QOTIA CLOUD V7 - Document interne destiné aux équipes de chantier. </div> </div> `; const opt = { margin: 10, filename: `RAPPORT_ZONES_${c.name.replace(/\s+/g, '_')}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(html).save(); App.showToast("Rapport par pièces généré !"); },
             generateGlobalPDF(type, id) { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const cli = Store.data.clients.find(x=>x.id==c.clientId); const rate = Store.data.settings.hourlyRate || 45; let items, title, ref, extraInfo = ""; let signatureBlock = ""; if (type === 'devis') { const obj = c.devisList.find(x=>x.id==id); items = obj.items; title = "DEVIS"; ref = obj.ref; if(obj.totalGravats > 0) { extraInfo = `<div style="text-align:right; margin-top:10px; font-size:0.9rem; color:#64748B;">Volume Gravats Estimé: <strong>${obj.totalGravats.toFixed(2)} m³</strong></div>`; } if(obj.signature) { signatureBlock = ` <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid;"> <div style="font-weight:bold; color:#16a34a; margin-bottom:10px;">BON POUR ACCORD</div> <div style="font-size:0.8rem; margin-bottom:10px;">Signé électroniquement le ${obj.signDate || ''}</div> <img src="${obj.signature}" style="max-width: 250px; max-height: 100px; width: auto; height: auto; display:block;" /> </div> `; } else { signatureBlock = ` <div style="margin-top:50px; margin-bottom:20px; display:flex; justify-content:space-between; page-break-inside: avoid; break-inside: avoid;"> <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Entreprise</div> <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Client (Bon pour accord)</div> </div> `; } } else { const obj = c.factures.find(x=>x.id==id); title = "FACTURE"; ref = obj.ref; items = [{desc: `Facture selon avancement (${obj.type})`, qty: 1, unit:'U', price: obj.amount, time:0, material_cost:0}]; } let totalTTC = 0; let rows = items.map(i => { const rowT = i.qty * i.price; totalTTC += rowT; const costLabor = (i.time || 0) * rate; const costMat = (i.material_cost || 0); return ` <tr style="border-bottom:1px solid #eee;"> <td style="padding:10px;">${i.desc}</td> <td style="padding:10px; text-align:center;">${i.qty}</td> <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${costLabor > 0 ? App.formatMoney(costLabor) : '-'}</td> <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${costMat > 0 ? App.formatMoney(costMat) : '-'}</td> <td style="padding:10px; text-align:right;">${App.formatMoney(i.price)}</td> <td style="padding:10px; text-align:right; font-weight:bold;">${App.formatMoney(rowT)}</td> </tr>`; }).join(''); const html = ` <div style="font-family:sans-serif; padding:30px; color:#334155;"> <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px;"> <div> <h1 style="color:#0f172a; margin:0;">${title}</h1> <div style="color:#64748b; font-size:0.9rem;">${ref}</div> </div> <div style="text-align:right;"> <strong>QOTIA ENTREPRISE</strong><br>123 Rue Exemple<br>06000 NICE </div> </div> <div style="background:#f1f5f9; padding:20px; border-radius:10px; margin-bottom:30px;"> <strong>CLIENT:</strong><br> <span style="font-size:1.2rem; font-weight:bold; color:#0f172a;">${cli.nom}</span><br> ${cli.addr}<br>${cli.tel||''} </div> <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin-bottom:30px;"> <thead style="background:#0f172a; color:white;"> <tr> <th style="padding:12px; text-align:left;">Description</th> <th style="padding:12px; text-align:center;">Qté</th> <th style="padding:12px; text-align:center;">M.O. (U)</th> <th style="padding:12px; text-align:center;">Mat. (U)</th> <th style="padding:12px; text-align:right;">P.U.</th> <th style="padding:12px; text-align:right;">Total</th> </tr> </thead> <tbody>${rows}</tbody> </table> <div style="text-align:right; margin-bottom:20px;"> <div style="font-size:1.5rem; font-weight:900; color:#0f172a;">TOTAL A PAYER: ${App.formatMoney(totalTTC)}</div> ${extraInfo} </div> ${signatureBlock} <div style="height:30px;"></div> </div>`; const opt = { margin: 10, filename: `${title}_${ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(html).save(); App.showToast("PDF Téléchargé"); },
-            generateCDCPDF(docId) { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const doc = c.extraDocs.find(x => x.id == docId); if (!doc) return; const items = doc.items; let cdcGravats = 0; let rows = items.map(i => { cdcGravats += i.qty * (i.gravats || 0); return `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; font-weight:bold;">${i.qty} ${i.unit}</td></tr>`; }).join(''); let gravatsInfo = ""; if(cdcGravats > 0) { gravatsInfo = `<div style="margin-top:20px; padding:10px; background:#f1f5f9; border-radius:5px;"><strong>Volume Gravats pour ces travaux:</strong> ${cdcGravats.toFixed(2)} m³</div>`; } const html = ` <div style="font-family:sans-serif; padding:30px;"> <h1>${doc.name}</h1> <h3>Projet: ${c.name} - ${doc.ref}</h3> <table style="width:100%; border-collapse:collapse; margin-top:20px;"> <thead style="background:#0f172a; color:white;"><tr><th style="padding:10px; text-align:left;">Tâche</th><th style="padding:10px; text-align:left;">Zone</th><th style="padding:10px; text-align:left;">Qté</th></tr></thead> <tbody>${rows}</tbody> </table> ${gravatsInfo} </div> `; const opt = { margin: 10, filename: `${doc.name}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(html).save(); },
-            openSelectCDCModal() { const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId); if (!c.devisList || c.devisList.length === 0) return alert("Crea prima un devis!"); const s = document.getElementById('sel-source-devis'); s.innerHTML = ''; c.devisList.forEach(d => { let o = document.createElement('option'); o.value = d.id; o.text = d.name; s.appendChild(o); }); const pSel = document.getElementById('cdc-assignee'); pSel.innerHTML = '<option value="">-- Seleziona Partner --</option>'; (Store.data.partners || []).forEach(p => { let o = document.createElement('option'); o.value = p.name; o.text = `${p.name} (${p.role})`; pSel.appendChild(o); }); App.state.selectedItems = new Set(); App.renderSelectionList(); document.getElementById('modal-select-cdc').classList.add('open'); },
-            renderSelectionList() { const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId); const did = document.getElementById('sel-source-devis').value; if (!did) return; const d = c.devisList.find(x => x.id == did); const cont = document.getElementById('selection-list-container'); cont.innerHTML = ''; d.items.forEach(item => { const isChecked = App.state.selectedItems.has(item.id) ? 'checked' : ''; const assignedInfo = item.assignedTo ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${item.assignedTo}</span>` : ''; const el = document.createElement('div'); el.className = 'check-container'; el.onclick = (e) => App.toggleItemSelection(item.id, el); el.innerHTML = ` <div class="custom-checkbox ${isChecked}"></div> <div style="flex:1"> <div style="font-weight:700; font-size:0.9rem;">${item.desc}</div> <div style="font-size:0.8rem; color:var(--text-sub); display:flex; align-items:center;"> ${item.piece || 'Général'} ${assignedInfo} </div> </div> `; cont.appendChild(el); }); },
-            toggleItemSelection(id, el) { if (App.state.selectedItems.has(id)) { App.state.selectedItems.delete(id); el.querySelector('.custom-checkbox').classList.remove('checked'); } else { App.state.selectedItems.add(id); el.querySelector('.custom-checkbox').classList.add('checked'); } },
-            selectAllItems() { const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId); const did = document.getElementById('sel-source-devis').value; const d = c.devisList.find(x => x.id == did); const allSelected = (App.state.selectedItems.size === d.items.length); if (allSelected) { App.state.selectedItems.clear(); } else { d.items.forEach(i => App.state.selectedItems.add(i.id)); } App.renderSelectionList(); },
-            assignCollaborator() { if(App.state.selectedItems.size === 0) return alert("Seleziona almeno un lavoro."); const name = document.getElementById('cdc-assignee').value; if(!name) return alert("Seleziona un partner dalla lista."); const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d = c.devisList.find(x=>x.id==document.getElementById('sel-source-devis').value); let count = 0; d.items.forEach(i => { if(App.state.selectedItems.has(i.id)) { i.assignedTo = name; count++; } }); Store.save(); App.showToast(`${count} lavori assegnati a ${name}`); App.renderSelectionList(); },
-            saveCDC() { const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId); const did = document.getElementById('sel-source-devis').value; const d = c.devisList.find(x => x.id == did); if (App.state.selectedItems.size === 0) return alert("Seleziona gli elementi da includere nel CDC."); const selectedItemsList = d.items.filter(i => App.state.selectedItems.has(i.id)); const assigneeName = document.getElementById('cdc-assignee').value || "Général"; const newDoc = { id: Date.now(), name: `CDC - ${assigneeName}`, ref: `CDC-${Date.now().toString().slice(-4)}`, date: new Date().toISOString(), items: JSON.parse(JSON.stringify(selectedItemsList)) }; if (!c.extraDocs) c.extraDocs = []; c.extraDocs.push(newDoc); Store.save(); App.showToast("Documento CDC creato!"); App.closeModal('modal-select-cdc'); App.openHub(c.id); }
+            generateCDCPDF(docId) { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const doc = c.extraDocs.find(x => x.id == docId); if (!doc) return; const items = doc.items; let cdcGravats = 0; let rows = items.map(i => { cdcGravats += i.qty * (i.gravats || 0); return `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; font-weight:bold;">${i.qty} ${i.unit}</td></tr>`; }).join(''); let gravatsInfo = ""; if(cdcGravats > 0) { gravatsInfo = `<div style="margin-top:20px; padding:10px; background:#f1f5f9; border-radius:5px;"><strong>Volume Gravats pour ces travaux:</strong> ${cdcGravats.toFixed(2)} m³</div>`; } const html = ` <div style="font-family:sans-serif; padding:30px;"> <h1>${doc.name}</h1> <h3>Projet: ${c.name} - ${doc.ref}</h3> <table style="width:100%; border-collapse:collapse; margin-top:20px;"> <thead style="background:#0f172a; color:white;"><tr><th style="padding:10px; text-align:left;">Tâche</th><th style="padding:10px; text-align:left;">Zone</th><th style="padding:10px; text-align:left;">Qté</th></tr></thead> <tbody>${rows}</tbody> </table> ${gravatsInfo} </div> `; const opt = { margin: 10, filename: `${doc.name}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(html).save(); }
 
         };
 
