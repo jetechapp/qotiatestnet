@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
-    <title>QOTIA CLOUD V7.20 - AI VOICE EXPERT</title>
+    <title>QOTIA CLOUD V7.21 - AI CONSULTANT</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -199,6 +199,16 @@
             70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
+
+        /* PULSANTI SCELTA IA */
+        .ai-choices-wrapper { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .ai-choice-btn { 
+            background: white; border: 1px solid var(--primary); color: var(--primary); 
+            padding: 10px 15px; border-radius: 12px; text-align: left; cursor: pointer; 
+            font-size: 0.9rem; font-weight: 600; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center;
+        }
+        .ai-choice-btn:hover { background: #F1F5F9; transform: translateX(3px); }
+        .ai-choice-btn i { color: var(--accent); }
 
     </style>
 </head>
@@ -1497,7 +1507,7 @@
             viewCahierTable(doc) { document.getElementById('vc-title').innerText = doc.name; const t = document.getElementById('vc-table'); t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Ass.</th></tr>'; doc.items.forEach(i => t.innerHTML += `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.piece||'-'}</td><td style="padding:10px; border-bottom:1px solid #eee; color:#15803d; font-weight:bold;">${i.assignedTo||'-'}</td></tr>`); document.getElementById('modal-view-cahier').classList.add('open'); },
             renderGlobalInvoices() { const l = document.getElementById('global-invoice-list'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { if(c.factures) c.factures.forEach(f => { if(!f.paid) { const cli = Store.data.clients.find(x=>x.id==c.clientId); let div = document.createElement('div'); div.className = 'card-item'; div.innerHTML = `<div class="card-info"><div class="card-title">${cli?cli.nom:'?'}</div><div class="card-sub">Ref: ${f.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i><div style="font-weight:800; color:var(--danger)">${App.formatMoney(f.amount)}</div>`; div.onclick = () => App.openHub(c.id); l.appendChild(div); } }); }); },
 
-            // --- NOUVELLE FONCTION : RAPPORT PAR PIÈCES (PDF) ---
+            // --- NUOVA FONCTION : RAPPORT PAR PIÈCES (PDF) ---
             generateRoomReportPDF() {
                 const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
                 const did = Store.data.activeDevisId;
@@ -1846,7 +1856,7 @@
                 App.openHub(c.id);
             },
 
-            // --- MODULE IA START (VOCE + RICERCA STRUTTURATA) ---
+            // --- MODULE IA START (VOCE + RICERCA STRUTTURATA + SCELTE) ---
             
             // Variabile per il riconoscimento vocale
             recognition: null,
@@ -1918,77 +1928,66 @@
                 c.scrollTop = c.scrollHeight;
             },
 
-            getDatabaseContext(userText) {
-                if (!Config.searchIndex) return "Base vide.";
-                // Fuse.js cerca corrispondenze approssimative
-                const results = Config.searchIndex.search(userText);
-                // Prendi i primi 8 risultati per dare più scelta all'IA
-                const topMatches = results.slice(0, 8).map(r => r.item);
-                
-                if (topMatches.length === 0) return "Nessuna corrispondenza esatta trovata nel DB locale.";
-
-                return topMatches.map(item => {
-                    // Pre-calcola i costi per aiutare l'IA
-                    const laborPrice = (item.labor_time || 0) * (Store.data.settings.hourlyRate || 45);
-                    const matPrice = (item.material_cost || 0);
-                    const totalEst = (laborPrice + matPrice).toFixed(2);
-                    return `ID:${item.id} | "${item.desc}" | Unit:${item.unit} | Mat:${item.material_cost}€ | Tempo:${item.labor_time}h | Gravats:${item.gravats}`;
-                }).join('\n');
-            },
-
             async sendAIMessage() {
                 const inp = document.getElementById('ai-input');
                 const txt = inp.value.trim();
                 if(!txt) return;
 
-                // --- TUA CHIAVE API QUI ---
-                const API_KEY = "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";
+                const API_KEY = "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";
 
                 this.appendChatMessage(txt, 'right');
                 inp.value = '';
                 document.getElementById('ai-typing-indicator').style.display = 'block';
 
-                // 1. Recupera contesto dal DB (RAG)
-                const dbContext = this.getDatabaseContext(txt);
-
-                // 2. Contesto Devis
-                let contextDevis = "Nessun devis aperto.";
-                if(Store.data.activeDevisId) {
-                    const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                    const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
-                    contextDevis = `Devis attivo: ${d.name}.`;
+                // 1. RAG: Recupera contesto dal DB (Aumentato a 15 per dare più scelta all'IA)
+                const results = Config.searchIndex.search(txt);
+                const topMatches = results.slice(0, 15).map(r => r.item);
+                
+                let dbContext = "Nessuna corrispondenza trovata.";
+                if (topMatches.length > 0) {
+                    dbContext = topMatches.map(item => {
+                        // Prezzo indicativo
+                        const price = App.calculateItemPrice(item).toFixed(2);
+                        return `ID:${item.id} | Desc:"${item.desc}" | PrezzoCalc:${price}€ | Cat:${item.sub_category}`;
+                    }).join('\n');
                 }
 
-                // 3. PROMPT AVANZATO PER STRUTTURA DATI
-                const systemPrompt = `Sei l'assistente QOTIA per l'edilizia.
+                // 2. Prompt "Intelligente" con opzione Scelta Multipla
+                const systemPrompt = `Sei l'esperto QOTIA. L'utente descrive un lavoro. Tu devi trovare l'articolo giusto nel DB.
                 
-                OBIETTIVO: Interpretare la richiesta dell'utente e trovare l'articolo giusto nel database.
-                
-                ARTICOLI TROVATI NEL DB SIMILI ALLA RICHIESTA:
-                ---------------------------------------------------
+                ARTICOLI TROVATI NEL DB (Candidati):
+                ----------------
                 ${dbContext}
-                ---------------------------------------------------
+                ----------------
 
-                ISTRUZIONI RIGIDE:
-                1. Cerca di capire l'intento dell'utente (es: "piastrelle bagno" -> cerca qualcosa come "Carrelage" o "Faïence").
-                2. Se trovi un articolo nel DB che corrisponde bene, USA QUELLO (restituisci il suo db_id).
-                3. SE NON LO TROVI (Caso remoto): Devi CREARLO tu, ma devi stimare i dati tecnici come un esperto edile.
-                   - Devi stimare: Tempo manodopera (labor_time), Costo materiale (material_cost), e Gravats (dechet).
-                
-                FORMATO RISPOSTA (JSON UNICO):
+                REGOLE DI COMPORTAMENTO:
+                1. Analizza la richiesta dell'utente (es: "pavimento bagno" può essere "Carrelage" o "Parquet").
+                2. Se c'è UN SOLO articolo perfetto -> Usa "add_item".
+                3. Se ci sono PIÙ ARTICOLI simili (es: diverse misure, diversi tipi) -> Usa "ask_choice" per far scegliere l'utente.
+                4. Se NON c'è nulla nel DB -> Usa "add_item" inventando i dati (stima esperta). In questo caso fornisci stime per est_time, est_mat, est_grav.
+
+                FORMATI RISPOSTA JSON (Scegline UNO):
+
+                CASO A: Sei sicuro o devi inventare (Azione diretta)
                 { 
                   "action": "add_item", 
-                  "db_id": 12345 (OPPURE null se inventato), 
-                  "desc": "Nome articolo preciso", 
-                  "qty": 1, 
-                  "unit": "m2" o "U",
-                  "piece": "Nome Stanza (es: Cucina)",
-                  "est_time": 0.0 (tua stima ore/unità se id è null),
-                  "est_mat": 0.0 (tua stima materiale €/unità se id è null),
-                  "est_grav": 0.0 (tua stima m3/unità se id è null)
+                  "db_id": 123 (o null se inventato), 
+                  "desc": "Nome articolo", 
+                  "qty": 1, "unit": "U", "piece": "Stanza", 
+                  "est_time": 0, "est_mat": 0, "est_grav": 0 
+                }
+
+                CASO B: Sei indeciso (Chiedi all'utente)
+                {
+                  "action": "ask_choice",
+                  "message": "Ho trovato diverse opzioni per la tua richiesta. Quale preferisci?",
+                  "options": [
+                    { "db_id": 101, "label": "Nome Breve Articolo 1 - 45€" },
+                    { "db_id": 102, "label": "Nome Breve Articolo 2 - 60€" }
+                  ]
                 }
                 
-                Se la richiesta è generica (es: "ciao"), rispondi solo testo.`;
+                Rispondi SOLO in JSON se devi agire. Se l'utente saluta, rispondi testo.`;
 
                 try {
                     const req = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -1997,7 +1996,7 @@
                         body: JSON.stringify({
                             model: "gpt-3.5-turbo",
                             messages: [{role: "system", content: systemPrompt}, {role: "user", content: txt}],
-                            temperature: 0.3 // Bassa creatività per favorire la ricerca nel DB
+                            temperature: 0.3
                         })
                     });
                     const res = await req.json();
@@ -2011,14 +2010,20 @@
                         try {
                             const jsonStr = aiText.substring(aiText.indexOf('{'), aiText.lastIndexOf('}')+1);
                             const actionData = JSON.parse(jsonStr);
+                            
+                            // CASO 1: AGGIUNTA DIRETTA
                             if(actionData.action === 'add_item') {
                                 this.executeAIAction(actionData);
-                                
-                                const icon = actionData.db_id ? "✅ Dal Database" : "✨ Generato da IA";
+                                const icon = actionData.db_id ? "✅ Trovato" : "✨ Creato";
                                 this.appendChatMessage(`${icon}<br>Aggiunto: <b>${actionData.desc}</b>`, 'left');
-                                return;
+                            } 
+                            // CASO 2: SCELTA MULTIPLA (NUOVO!)
+                            else if (actionData.action === 'ask_choice') {
+                                this.renderAIChoices(actionData.message, actionData.options);
                             }
-                        } catch(e) { console.error("JSON Parse Error", e); }
+                            return;
+
+                        } catch(e) { console.error("JSON Error", e); }
                     }
                     
                     this.appendChatMessage(aiText, 'left');
@@ -2027,6 +2032,52 @@
                     document.getElementById('ai-typing-indicator').style.display = 'none';
                     this.appendChatMessage("Errore: " + err.message, 'left');
                 }
+            },
+
+            // --- NUOVA FUNZIONE PER MOSTRARE I PULSANTI ---
+            renderAIChoices(msg, options) {
+                const c = document.getElementById('ai-chat-container');
+                
+                // Messaggio dell'IA
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `ai-msg-bubble left`;
+                msgDiv.innerHTML = msg;
+                c.appendChild(msgDiv);
+
+                // Contenitore Pulsanti
+                const wrapper = document.createElement('div');
+                wrapper.className = 'ai-choices-wrapper left';
+                wrapper.style.maxWidth = "85%";
+                wrapper.style.alignSelf = "flex-start";
+
+                options.forEach(opt => {
+                    const btn = document.createElement('div');
+                    btn.className = 'ai-choice-btn';
+                    btn.innerHTML = `<span>${opt.label}</span> <i class="fas fa-plus-circle"></i>`;
+                    
+                    // Al click, simula l'aggiunta di quell'articolo specifico
+                    btn.onclick = () => {
+                        // Trova l'articolo originale per avere i dati completi
+                        const realItem = Config.allItems.find(i => i.id == opt.db_id);
+                        if(realItem) {
+                            // Costruisce un oggetto azione "finto" come se arrivasse dall'IA
+                            const payload = {
+                                db_id: realItem.id,
+                                desc: realItem.desc,
+                                qty: 1, // Default, l'utente potrà modificarlo
+                                piece: document.getElementById('room-display-final').innerText !== "Sélectionner une pièce" ? document.getElementById('room-display-final').innerText : "Général"
+                            };
+                            App.executeAIAction(payload);
+                            App.appendChatMessage(`Hai selezionato: <b>${realItem.desc}</b>`, 'right');
+                            App.appendChatMessage(`✅ Ottimo, aggiunto al devis.`, 'left');
+                            wrapper.style.display = 'none'; // Nasconde i bottoni dopo il click
+                        }
+                    };
+                    wrapper.appendChild(btn);
+                });
+
+                c.appendChild(wrapper);
+                c.scrollTop = c.scrollHeight;
             },
 
             executeAIAction(data) {
@@ -2077,7 +2128,7 @@
                     App.renderEditorItems();
                     App.renderUsedRoomButtons(newItem.piece);
                 }
-            }
+            },
             // --- MODULE IA END ---
 
         };
