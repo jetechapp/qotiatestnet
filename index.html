@@ -189,10 +189,6 @@
         #modal-edit-item { z-index: 7000 !important; }
         #modal-signature { z-index: 8000 !important; }
 
-        /* CANVAS SIGNATURE */
-        .sig-container { position: relative; width: 100%; height: 300px; border: 2px dashed #CBD5E1; border-radius: 12px; background: #fff; touch-action: none; overflow: hidden; margin-bottom: 15px; }
-        canvas { width: 100%; height: 100%; display: block; }
-
         #toast-container { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); z-index: 9000; pointer-events: none; width: 85%; }
         .toast { background: #1E293B; color: white; padding: 14px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; opacity: 0; transform: translateY(20px); transition: all 0.3s; margin-top: 10px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -254,7 +250,8 @@
         <div class="home-fixed-area">
             <div class="welcome-block"><div class="welcome-name">Bonjour, <span id="home-username">Jean</span></div><div class="welcome-date" id="home-date-display">...</div></div>
             <div class="action-grid" id="home-action-grid">
-                </div>
+                <!-- Les boutons seront affichés conditionnellement selon le rôle -->
+            </div>
         </div>
         <div class="scroll-content">
             <div class="section-separator" style="border:none; margin-top:0;"><div class="section-title">Aujourd'hui</div><button class="action-create-btn" onclick="App.openAgenda()">+ RDV</button></div>
@@ -279,6 +276,7 @@
                 <div style="background:rgba(255,255,255,0.2); padding:6px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; color:white; display:inline-block; margin-top:10px;" id="hub-ref">REF</div>
             </div>
             <div style="padding: 0 20px 120px 20px;">
+                <!-- Les sections Devis et Factures sont masquées si collaborateur -->
                 <div id="hub-devis-section" style="display: none;">
                     <div class="section-separator"><span class="section-title" style="color:var(--col-devis)">Devis</span><button class="action-create-btn" style="background:var(--col-devis); color:white; border:none;" onclick="App.createNewDevis()"><i class="fas fa-plus"></i> Créer</button></div>
                     <div id="hub-devis-list"></div>
@@ -287,7 +285,8 @@
                 <div class="section-separator">
                     <span class="section-title" style="color:var(--col-cdc)">Cahier des Charges</span>
                     <div style="display:flex; gap:5px;" id="hub-cdc-buttons">
-                        </div>
+                        <!-- Les boutons de gestion CDC peuvent être masqués pour collaborateur -->
+                    </div>
                 </div>
                 <div id="hub-docs-list"></div>
                 
@@ -392,6 +391,7 @@
         </div>
     </div>
     
+    <!-- AJOUT CDC PHOTOS : Modal pour afficher et ajouter des photos à un CDC -->
     <div id="modal-view-cahier" class="full-modal">
         <div class="modal-header">
             <h3 id="vc-title">...</h3>
@@ -402,6 +402,7 @@
         </div>
     </div>
     
+    <!-- AJOUT CDC PHOTOS : Modal pour ajouter une photo à un item -->
     <div id="modal-add-photo" class="full-modal">
         <div class="modal-header">
             <h3>Ajouter une photo</h3>
@@ -425,6 +426,7 @@
         </div>
     </div>
 
+    <!-- MODALE FIRMA AGGIORNATO (3 BOTTONI + OTP) -->
     <div id="modal-signature" class="full-modal">
         <div class="modal-header">
             <h3 id="sig-modal-title">Action Devis</h3>
@@ -432,24 +434,26 @@
         </div>
         <div class="modal-body" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
             
+            <!-- STEP 1: I 3 Bottoni -->
             <div id="sig-step-1" style="width: 100%; display:flex; flex-direction:column; gap: 15px;">
                 <button class="btn-primary" style="background:#0F172A;" onclick="App.generateGlobalPDF('devis', Store.data.activeDevisId)"><i class="fas fa-download"></i> TÉLÉCHARGER LE DEVIS</button>
                 <button class="btn-primary" style="background:#EF4444;" onclick="App.rejectDevis()"><i class="fas fa-times"></i> REFUSER LE DEVIS</button>
-                <button class="btn-primary" style="background:#15803d;" onclick="App.showSignaturePad()"><i class="fas fa-pen"></i> ACCEPTER ET SIGNER</button>
+                <button class="btn-primary" style="background:#15803d;" onclick="App.requestEmailSignature()"><i class="fas fa-envelope"></i> ACCEPTER ET SIGNER</button>
             </div>
 
+            <!-- STEP 2: Input OTP -->
             <div id="sig-step-2" style="width: 100%; display:none; flex-direction:column; align-items:center;">
-                <p style="text-align:center; color:#64748B; font-size:0.9rem; margin-bottom:10px;">Signez dans la case ci-dessous :</p>
-                <div class="sig-container" style="width:100%; height:300px;">
-                    <canvas id="sig-canvas"></canvas>
+                <div style="background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:15px; border-radius:10px; margin-bottom:20px; text-align:center; font-size:0.9rem;">
+                    <i class="fas fa-check-circle"></i> Un code à 4 chiffres a été envoyé par e-mail.
                 </div>
-                <button onclick="App.clearSignature()" style="background:#F1F5F9; border:none; padding:10px 20px; border-radius:20px; font-weight:700; color:var(--text-sub); margin-top:15px;">Effacer</button>
+                <label style="font-weight:700; color:var(--text-sub); margin-bottom:10px;">Code de Confirmation :</label>
+                <input type="text" id="sig-otp-input" class="app-input" placeholder="0 0 0 0" style="text-align:center; font-size:2rem; letter-spacing:15px; font-weight:900;" maxlength="4">
             </div>
             
         </div>
         <div class="modal-footer" id="sig-footer" style="display:none;">
             <button class="btn-primary" style="background:#64748B; flex:1;" onclick="App.hideSignaturePad()">RETOUR</button>
-            <button class="btn-primary" style="background:#15803d; flex:2;" onclick="App.saveSignature()">VALIDER LA SIGNATURE</button>
+            <button class="btn-primary" style="background:#15803d; flex:2;" onclick="App.validateOTP()">VALIDER</button>
         </div>
     </div>
 
@@ -764,7 +768,7 @@
         };
 
         const App = {
-            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces', selectedItems: new Set(), lastPiece: 'Général', libCategory: null, libSubCategory: null, isEditing: false, tempLibItem: null, sigPad: null, currentCDCItemForPhoto: null, currentCDCDocForPhoto: null },
+            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces', selectedItems: new Set(), lastPiece: 'Général', libCategory: null, libSubCategory: null, isEditing: false, tempLibItem: null, currentCDCItemForPhoto: null, currentCDCDocForPhoto: null, currentOTP: null },
             
             init() { Auth.init(); },
 
@@ -913,12 +917,17 @@
                 const ld = document.getElementById('hub-devis-list'); ld.innerHTML=''; 
                 if (Auth.role === 'admin') {
                     c.devisList.forEach(d => { 
-                        const isSigned = d.signature ? true : false;
+                        const isSigned = d.status === "Accepté";
+                        
                         const signIcon = isSigned 
-                            ? `<i class="fas fa-pen-nib" style="color:#16a34a; font-size:1.2rem; padding:10px;"></i>` 
+                            ? `<i class="fas fa-check-circle" style="color:#16a34a; font-size:1.2rem; padding:10px;"></i>` 
                             : `<i class="fas fa-pen-nib" style="color:#CBD5E1; font-size:1.2rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.promptSignature(${d.id})"></i>`;
 
-                        ld.innerHTML+=`<div class="card-item" style="border-left:4px solid var(--col-devis); background:var(--bg-devis);"><div class="card-info" onclick="App.openEditor(${d.id})"><div class="card-title">${d.name}</div><div class="card-sub">${App.formatMoney(d.total)}</div></div>${signIcon}<i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('devis', ${d.id})"></i><i class="fas fa-trash" style="color:#CBD5E1; font-size:1.2rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.deleteDevis(${d.id})"></i><i class="fas fa-pen" style="color:#CBD5E1; margin-left:10px;" onclick="App.openEditor(${d.id})"></i></div>`; 
+                        const actionIcons = isSigned
+                            ? `<i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('devis', ${d.id})"></i>`
+                            : `<i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('devis', ${d.id})"></i><i class="fas fa-trash" style="color:#CBD5E1; font-size:1.2rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.deleteDevis(${d.id})"></i><i class="fas fa-pen" style="color:#CBD5E1; margin-left:10px;" onclick="App.openEditor(${d.id})"></i>`;
+
+                        ld.innerHTML+=`<div class="card-item" style="border-left:4px solid var(--col-devis); background:var(--bg-devis);"><div class="card-info" onclick="${isSigned ? '' : `App.openEditor(${d.id})`}"><div class="card-title">${d.name}</div><div class="card-sub">${App.formatMoney(d.total)}</div></div>${signIcon}${actionIcons}</div>`; 
                     });
                 }
 
@@ -941,11 +950,10 @@
                 this.nav('hub');
             },
             
-            // --- SIGNATURE MODULE AGGIORNATO (3 BOTTONI) ---
+            // --- SIGNATURE MODULE AGGIORNATO (OTP VIA EMAIL) ---
             promptSignature(devisId) {
                 Store.data.activeDevisId = devisId;
                 
-                // Mostra Step 1 (Bottoni) e nascondi Step 2 (Canvas)
                 document.getElementById('sig-step-1').style.display = 'flex';
                 document.getElementById('sig-step-2').style.display = 'none';
                 document.getElementById('sig-footer').style.display = 'none';
@@ -954,18 +962,21 @@
                 document.getElementById('modal-signature').classList.add('open');
             },
 
-            showSignaturePad() {
-                // Passa allo Step 2
+            requestEmailSignature() {
+                // Genera codice a 4 cifre
+                App.state.currentOTP = Math.floor(1000 + Math.random() * 9000).toString();
+                
+                // SIMULAZIONE INVIO EMAIL (Alert visibile per testare)
+                alert("SIMULATION D'ENVOI EMAIL\n\nÀ: Client\nObjet: Code de confirmation de devis\n\nVotre code est : " + App.state.currentOTP);
+                
                 document.getElementById('sig-step-1').style.display = 'none';
                 document.getElementById('sig-step-2').style.display = 'flex';
                 document.getElementById('sig-footer').style.display = 'flex';
-                document.getElementById('sig-modal-title').innerText = "Signature";
-                
-                setTimeout(() => App.initCanvas(), 300);
+                document.getElementById('sig-modal-title').innerText = "Validation par Email";
+                document.getElementById('sig-otp-input').value = '';
             },
 
             hideSignaturePad() {
-                // Torna allo Step 1
                 document.getElementById('sig-step-1').style.display = 'flex';
                 document.getElementById('sig-step-2').style.display = 'none';
                 document.getElementById('sig-footer').style.display = 'none';
@@ -985,80 +996,24 @@
                 App.openHub(c.id);
             },
 
-            initCanvas() {
-                const canvas = document.getElementById('sig-canvas');
-                const ctx = canvas.getContext('2d');
-                // Resize canvas to fit container
-                const rect = canvas.parentElement.getBoundingClientRect();
-                canvas.width = rect.width;
-                canvas.height = rect.height;
-                
-                ctx.lineWidth = 3;
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = '#000';
-
-                let painting = false;
-
-                function start(e) {
-                    painting = true;
-                    draw(e);
-                }
-
-                function end() {
-                    painting = false;
-                    ctx.beginPath();
-                }
-
-                function draw(e) {
-                    if (!painting) return;
-                    e.preventDefault();
-                    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-                    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            validateOTP() {
+                const input = document.getElementById('sig-otp-input').value;
+                if (input === App.state.currentOTP) {
+                    const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                    const d = c.devisList.find(x => x.id == Store.data.activeDevisId);
                     
-                    const rect = canvas.getBoundingClientRect();
-                    const x = clientX - rect.left;
-                    const y = clientY - rect.top;
-
-                    ctx.lineTo(x, y);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(x, y);
+                    d.status = "Accepté";
+                    d.signDate = new Date().toLocaleDateString('fr-FR');
+                    d.signedByEmail = true; // Nuovo flag
+                    
+                    Store.save();
+                    App.showToast("Devis signé et accepté !");
+                    App.closeModal('modal-signature');
+                    App.openHub(c.id);
+                } else {
+                    alert("Code incorrect, veuillez réessayer.");
                 }
-
-                canvas.onmousedown = start;
-                canvas.onmouseup = end;
-                canvas.onmousemove = draw;
-
-                canvas.ontouchstart = start;
-                canvas.ontouchend = end;
-                canvas.ontouchmove = draw;
-                
-                App.state.sigPad = { canvas, ctx };
             },
-
-            clearSignature() {
-                const { canvas, ctx } = App.state.sigPad;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            },
-
-            saveSignature() {
-                const { canvas } = App.state.sigPad;
-                // Check if empty (optional, skip for simplicity)
-                const dataUrl = canvas.toDataURL("image/png");
-                
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const d = c.devisList.find(x => x.id == Store.data.activeDevisId);
-                
-                d.signature = dataUrl;
-                d.status = "Accepté";
-                d.signDate = new Date().toLocaleDateString('fr-FR');
-                
-                Store.save();
-                App.showToast("Devis signé et accepté !");
-                App.closeModal('modal-signature');
-                App.openHub(c.id);
-            },
-
             // --- END SIGNATURE ---
 
             deleteDevis(did) {
@@ -1126,7 +1081,12 @@
                     if(found) { Store.data.activeChantierId = found.id; return App.openEditor(did); }
                     return App.nav('projets'); 
                 }
-                const cli = Store.data.clients.find(x=>x.id==c.clientId); const d = c.devisList.find(x=>x.id==did);
+                const d = c.devisList.find(x=>x.id==did);
+                if(d.status === "Accepté") {
+                    App.showToast("Ce devis est verrouillé car il a été accepté.");
+                    return;
+                }
+                const cli = Store.data.clients.find(x=>x.id==c.clientId);
                 document.getElementById('ed-client-name').innerText = cli ? cli.nom : 'Inconnu';
                 document.getElementById('ed-quote-name').innerText = c.name + " - " + d.name;
                 this.nav('editor'); App.setEditorView('pieces'); App.calcTotals();
@@ -1933,12 +1893,21 @@
                     if(obj.totalGravats > 0) {
                         extraInfo = `<div style="text-align:right; margin-top:10px; font-size:0.9rem; color:#64748B;">Volume Gravats Estimé: <strong>${obj.totalGravats.toFixed(2)} m³</strong></div>`;
                     }
-                    if(obj.signature) {
+                    
+                    if(obj.signedByEmail) {
                         signatureBlock = `
-                            <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid;">
+                            <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid; text-align:center;">
+                                <div style="font-weight:bold; color:#16a34a; font-size:1.2rem; margin-bottom:10px;">BON POUR ACCORD</div>
+                                <div style="font-size:1.1rem; font-weight:bold; margin-bottom:5px;">SIGNÉ PAR MAIL</div>
+                                <div style="font-size:0.9rem;">le ${obj.signDate}</div>
+                            </div>
+                        `;
+                    } else if(obj.signature) {
+                        signatureBlock = `
+                            <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid; text-align:center;">
                                 <div style="font-weight:bold; color:#16a34a; margin-bottom:10px;">BON POUR ACCORD</div>
                                 <div style="font-size:0.8rem; margin-bottom:10px;">Signé électroniquement le ${obj.signDate || ''}</div>
-                                <img src="${obj.signature}" style="max-width: 250px; max-height: 100px; width: auto; height: auto; display:block;" />
+                                <img src="${obj.signature}" style="max-width: 250px; max-height: 100px; width: auto; height: auto; display:block; margin:0 auto;" />
                             </div>
                         `;
                     } else {
