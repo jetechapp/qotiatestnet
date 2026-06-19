@@ -250,8 +250,7 @@
         <div class="home-fixed-area">
             <div class="welcome-block"><div class="welcome-name">Bonjour, <span id="home-username">Jean</span></div><div class="welcome-date" id="home-date-display">...</div></div>
             <div class="action-grid" id="home-action-grid">
-                <!-- Les boutons seront affichés conditionnellement selon le rôle -->
-            </div>
+                </div>
         </div>
         <div class="scroll-content">
             <div class="section-separator" style="border:none; margin-top:0;"><div class="section-title">Aujourd'hui</div><button class="action-create-btn" onclick="App.openAgenda()">+ RDV</button></div>
@@ -276,7 +275,6 @@
                 <div style="background:rgba(255,255,255,0.2); padding:6px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; color:white; display:inline-block; margin-top:10px;" id="hub-ref">REF</div>
             </div>
             <div style="padding: 0 20px 120px 20px;">
-                <!-- Les sections Devis et Factures sont masquées si collaborateur -->
                 <div id="hub-devis-section" style="display: none;">
                     <div class="section-separator"><span class="section-title" style="color:var(--col-devis)">Devis</span><button class="action-create-btn" style="background:var(--col-devis); color:white; border:none;" onclick="App.createNewDevis()"><i class="fas fa-plus"></i> Créer</button></div>
                     <div id="hub-devis-list"></div>
@@ -285,8 +283,7 @@
                 <div class="section-separator">
                     <span class="section-title" style="color:var(--col-cdc)">Cahier des Charges</span>
                     <div style="display:flex; gap:5px;" id="hub-cdc-buttons">
-                        <!-- Les boutons de gestion CDC peuvent être masqués pour collaborateur -->
-                    </div>
+                        </div>
                 </div>
                 <div id="hub-docs-list"></div>
                 
@@ -391,7 +388,6 @@
         </div>
     </div>
     
-    <!-- AJOUT CDC PHOTOS : Modal pour afficher et ajouter des photos à un CDC -->
     <div id="modal-view-cahier" class="full-modal">
         <div class="modal-header">
             <h3 id="vc-title">...</h3>
@@ -402,7 +398,6 @@
         </div>
     </div>
     
-    <!-- AJOUT CDC PHOTOS : Modal pour ajouter une photo à un item -->
     <div id="modal-add-photo" class="full-modal">
         <div class="modal-header">
             <h3>Ajouter une photo</h3>
@@ -426,7 +421,6 @@
         </div>
     </div>
 
-    <!-- MODALE FIRMA AGGIORNATO (3 BOTTONI + OTP) -->
     <div id="modal-signature" class="full-modal">
         <div class="modal-header">
             <h3 id="sig-modal-title">Action Devis</h3>
@@ -434,14 +428,12 @@
         </div>
         <div class="modal-body" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
             
-            <!-- STEP 1: I 3 Bottoni -->
             <div id="sig-step-1" style="width: 100%; display:flex; flex-direction:column; gap: 15px;">
                 <button class="btn-primary" style="background:#0F172A;" onclick="App.generateGlobalPDF('devis', Store.data.activeDevisId)"><i class="fas fa-download"></i> TÉLÉCHARGER LE DEVIS</button>
                 <button class="btn-primary" style="background:#EF4444;" onclick="App.rejectDevis()"><i class="fas fa-times"></i> REFUSER LE DEVIS</button>
                 <button class="btn-primary" style="background:#15803d;" onclick="App.requestEmailSignature()"><i class="fas fa-envelope"></i> ACCEPTER ET SIGNER</button>
             </div>
 
-            <!-- STEP 2: Input OTP -->
             <div id="sig-step-2" style="width: 100%; display:none; flex-direction:column; align-items:center;">
                 <div style="background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:15px; border-radius:10px; margin-bottom:20px; text-align:center; font-size:0.9rem;">
                     <i class="fas fa-check-circle"></i> Un code à 4 chiffres a été envoyé par e-mail.
@@ -583,6 +575,11 @@
                     </div>
                  </div>
                  
+                 <label style="display:flex; align-items:center; gap:8px; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:10px; cursor:pointer; justify-content:center;">
+                    <input type="checkbox" id="edit-item-exclude-mat" onchange="App.toggleExcludeMat()" style="width:16px; height:16px; accent-color:var(--primary);">
+                    Exclure fournitures (M.O. uniquement)
+                 </label>
+
                  <div style="text-align:center; font-size:0.85rem; color:#475569; font-weight:600;" id="edit-item-split-display">
                      Manodopera: 0,00€ + Materiale: 0,00€
                  </div>
@@ -768,7 +765,7 @@
         };
 
         const App = {
-            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces', selectedItems: new Set(), lastPiece: 'Général', libCategory: null, libSubCategory: null, isEditing: false, tempLibItem: null, currentCDCItemForPhoto: null, currentCDCDocForPhoto: null, currentOTP: null },
+            state: { invType:'acompte', tempClientType: 'particulier', viewMode: 'pieces', selectedItems: new Set(), lastPiece: 'Général', libCategory: null, libSubCategory: null, isEditing: false, tempLibItem: null, currentCDCItemForPhoto: null, currentCDCDocForPhoto: null, currentOTP: null, tempMatCost: 0 },
             
             init() { Auth.init(); },
 
@@ -1517,6 +1514,24 @@
                 });
             },
 
+            toggleExcludeMat() {
+                const cb = document.getElementById('edit-item-exclude-mat');
+                const matInput = document.getElementById('edit-item-mat');
+                
+                if (cb.checked) {
+                    App.state.tempMatCost = matInput.value;
+                    matInput.value = 0;
+                    matInput.disabled = true;
+                    matInput.style.opacity = '0.5';
+                } else {
+                    matInput.value = App.state.tempMatCost || 0;
+                    matInput.disabled = false;
+                    matInput.style.opacity = '1';
+                }
+                
+                App.calcEditPrice();
+            },
+
             openAddItemModal(item, room) {
                 App.state.isEditing = false;
                 App.state.tempLibItem = item;
@@ -1529,7 +1544,14 @@
                 
                 // SET FIELDS FOR CALCULATION
                 document.getElementById('edit-item-time').value = item.labor_time || 0;
-                document.getElementById('edit-item-mat').value = item.material_cost || 0;
+                
+                const matInput = document.getElementById('edit-item-mat');
+                matInput.value = item.material_cost || 0;
+                matInput.disabled = false;
+                matInput.style.opacity = '1';
+                
+                const cb = document.getElementById('edit-item-exclude-mat');
+                cb.checked = false;
                 
                 document.getElementById('edit-item-rubble').value = item.gravats || 0; 
                 document.getElementById('btn-delete-item').style.display = 'none'; 
@@ -1559,7 +1581,14 @@
                 document.getElementById('edit-item-unit').value = item.unit || 'U'; 
                 
                 document.getElementById('edit-item-time').value = item.time || 0;
-                document.getElementById('edit-item-mat').value = item.material_cost || 0; // LOAD MAT COST
+                
+                const matInput = document.getElementById('edit-item-mat');
+                matInput.value = item.material_cost || 0; 
+                matInput.disabled = false;
+                matInput.style.opacity = '1';
+                
+                const cb = document.getElementById('edit-item-exclude-mat');
+                cb.checked = false;
                 
                 document.getElementById('edit-item-rubble').value = item.gravats || 0;
                 
