@@ -250,7 +250,8 @@
         <div class="home-fixed-area">
             <div class="welcome-block"><div class="welcome-name">Bonjour, <span id="home-username">Jean</span></div><div class="welcome-date" id="home-date-display">...</div></div>
             <div class="action-grid" id="home-action-grid">
-                </div>
+                <!-- Les boutons seront affichés conditionnellement selon le rôle -->
+            </div>
         </div>
         <div class="scroll-content">
             <div class="section-separator" style="border:none; margin-top:0;"><div class="section-title">Aujourd'hui</div><button class="action-create-btn" onclick="App.openAgenda()">+ RDV</button></div>
@@ -275,6 +276,7 @@
                 <div style="background:rgba(255,255,255,0.2); padding:6px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; color:white; display:inline-block; margin-top:10px;" id="hub-ref">REF</div>
             </div>
             <div style="padding: 0 20px 120px 20px;">
+                <!-- SECTION MARGE CHANTIER (Visibile solo agli admin) -->
                 <div id="hub-margin-section" style="display: none; background: #F0FDF4; border: 1px solid #BBF7D0; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
@@ -285,6 +287,7 @@
                     </div>
                 </div>
 
+                <!-- Les sections Devis et Factures sont masquées si collaborateur -->
                 <div id="hub-devis-section" style="display: none;">
                     <div class="section-separator"><span class="section-title" style="color:var(--col-devis)">Devis</span><button class="action-create-btn" style="background:var(--col-devis); color:white; border:none;" onclick="App.createNewDevis()"><i class="fas fa-plus"></i> Créer</button></div>
                     <div id="hub-devis-list"></div>
@@ -293,7 +296,8 @@
                 <div class="section-separator">
                     <span class="section-title" style="color:var(--col-cdc)">Cahier des Charges</span>
                     <div style="display:flex; gap:5px;" id="hub-cdc-buttons">
-                        </div>
+                        <!-- Les boutons de gestion CDC peuvent être masqués pour collaborateur -->
+                    </div>
                 </div>
                 <div id="hub-docs-list"></div>
                 
@@ -349,7 +353,13 @@
     </main>
 
     <main id="view-projets" class="view-section">
-        <header class="mobile-header"><div class="logo-text">LISTE CHANTIERS</div><button class="header-action-btn" onclick="App.openProjectWizard()">+</button></header>
+        <header class="mobile-header">
+            <div class="logo-text">LISTE CHANTIERS</div>
+            <div style="display:flex; gap:10px;">
+                <button class="header-action-btn" id="btn-global-margin" style="background:#15803d; display:none;" onclick="App.generateAllChantiersMarginPDF()"><i class="fas fa-chart-line"></i></button>
+                <button class="header-action-btn" onclick="App.openProjectWizard()">+</button>
+            </div>
+        </header>
         <div class="scroll-content" id="projects-list-full"></div>
     </main>
 
@@ -398,6 +408,7 @@
         </div>
     </div>
     
+    <!-- AJOUT CDC PHOTOS : Modal pour afficher et ajouter des photos à un CDC -->
     <div id="modal-view-cahier" class="full-modal">
         <div class="modal-header">
             <h3 id="vc-title">...</h3>
@@ -408,6 +419,7 @@
         </div>
     </div>
     
+    <!-- AJOUT CDC PHOTOS : Modal pour ajouter une photo à un item -->
     <div id="modal-add-photo" class="full-modal">
         <div class="modal-header">
             <h3>Ajouter une photo</h3>
@@ -431,6 +443,7 @@
         </div>
     </div>
 
+    <!-- MODALE FIRMA AGGIORNATO (3 BOTTONI + OTP) -->
     <div id="modal-signature" class="full-modal">
         <div class="modal-header">
             <h3 id="sig-modal-title">Action Devis</h3>
@@ -438,12 +451,14 @@
         </div>
         <div class="modal-body" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
             
+            <!-- STEP 1: I 3 Bottoni -->
             <div id="sig-step-1" style="width: 100%; display:flex; flex-direction:column; gap: 15px;">
                 <button class="btn-primary" style="background:#0F172A;" onclick="App.generateGlobalPDF('devis', Store.data.activeDevisId)"><i class="fas fa-download"></i> TÉLÉCHARGER LE DEVIS</button>
                 <button class="btn-primary" style="background:#EF4444;" onclick="App.rejectDevis()"><i class="fas fa-times"></i> REFUSER LE DEVIS</button>
                 <button class="btn-primary" style="background:#15803d;" onclick="App.requestEmailSignature()"><i class="fas fa-envelope"></i> ACCEPTER ET SIGNER</button>
             </div>
 
+            <!-- STEP 2: Input OTP -->
             <div id="sig-step-2" style="width: 100%; display:none; flex-direction:column; align-items:center;">
                 <div style="background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:15px; border-radius:10px; margin-bottom:20px; text-align:center; font-size:0.9rem;">
                     <i class="fas fa-check-circle"></i> Un code à 4 chiffres a été envoyé par e-mail.
@@ -781,11 +796,13 @@
                 const navDocs = document.getElementById('nav-documents');
                 const navClients = document.getElementById('nav-clients');
                 const navSettings = document.getElementById('nav-settings');
+                const btnGlobalM = document.getElementById('btn-global-margin');
                 
                 if (!isAdmin) {
                     if (navDocs) navDocs.style.display = 'none';
                     if (navClients) navClients.style.display = 'none';
                     if (navSettings) navSettings.style.display = 'none';
+                    if (btnGlobalM) btnGlobalM.style.display = 'none';
                     
                     document.getElementById('home-action-grid').innerHTML = `
                         <button class="big-btn btn-chantier" onclick="App.nav('projets')"><i class="fas fa-hard-hat"></i><span>CHANTIERS</span></button>
@@ -803,6 +820,8 @@
                         <button class="action-create-btn" onclick="App.generateRoomReportPDF()" style="border-color: #3B82F6; color: #3B82F6;"><i class="fas fa-map-marked-alt"></i> Zones PDF</button>
                     `;
                 } else {
+                    if (btnGlobalM) btnGlobalM.style.display = 'flex';
+
                     document.getElementById('home-action-grid').innerHTML = `
                         <button class="big-btn btn-chantier" onclick="App.nav('projets')"><i class="fas fa-hard-hat"></i><span>CHANTIERS</span></button>
                         <button class="big-btn btn-client" onclick="App.nav('clients')"><i class="fas fa-users"></i><span>CLIENTS</span></button>
@@ -895,7 +914,34 @@
                     }
                 });
             },
-            renderProjets() { const l = document.getElementById('projects-list-full'); l.innerHTML = ''; Store.data.chantiers.forEach(c => { const cli = Store.data.clients.find(x=>x.id==c.clientId); l.innerHTML += `<div class="card-item" style="border-left:4px solid var(--col-chantier); background:var(--bg-chantier);" onclick="App.openHub(${c.id})"><div class="card-info"><span class="card-tag">${c.ref}</span><div class="card-title">${c.name}</div><div class="card-sub"><i class="fas fa-user"></i> ${cli?cli.nom:'?'}</div></div></div>`; }); },
+
+            renderProjets() { 
+                const l = document.getElementById('projects-list-full'); 
+                l.innerHTML = ''; 
+                Store.data.chantiers.forEach(c => { 
+                    const cli = Store.data.clients.find(x=>x.id==c.clientId); 
+                    
+                    let cMargin = 0;
+                    let cRevenue = 0;
+                    if (Auth.role === 'admin' && c.devisList) {
+                        c.devisList.forEach(d => {
+                            if(d.status === 'Accepté') {
+                                d.items.forEach(i => {
+                                    const mCost = (i.material_cost || 0) * i.qty;
+                                    const lCost = (i.time || 0) * (Store.data.settings.laborCost || 25) * i.qty;
+                                    const sell = i.price * i.qty;
+                                    cRevenue += sell;
+                                    cMargin += (sell - mCost - lCost);
+                                });
+                            }
+                        });
+                    }
+                    let cPerc = cRevenue > 0 ? ((cMargin / cRevenue) * 100).toFixed(1) : 0;
+                    let marginBadge = Auth.role === 'admin' ? `<div style="margin-top:8px; font-size:0.8rem; color:var(--success); font-weight:700;"><i class="fas fa-chart-line"></i> Marge: ${App.formatMoney(cMargin)} (${cPerc}%)</div>` : '';
+
+                    l.innerHTML += `<div class="card-item" style="border-left:4px solid var(--col-chantier); background:var(--bg-chantier);" onclick="App.openHub(${c.id})"><div class="card-info"><span class="card-tag">${c.ref}</span><div class="card-title">${c.name}</div><div class="card-sub"><i class="fas fa-user"></i> ${cli?cli.nom:'?'}</div>${marginBadge}</div></div>`; 
+                }); 
+            },
             
             renderSettings() {
                 const l = document.getElementById('settings-partners-list'); l.innerHTML = '';
@@ -935,8 +981,8 @@
                 document.getElementById('hub-name').innerText = c.name; document.getElementById('hub-client').innerText = cli ? cli.nom : '?'; document.getElementById('hub-ref').innerText = c.ref;
                 
                 if (Auth.role === 'admin') {
-                    // Calcolo Margine Cantiere
                     let totalChantierMargin = 0;
+                    let totalChantierRevenue = 0;
                     if(c.devisList) {
                         c.devisList.forEach(d => {
                             if(d.status === 'Accepté') {
@@ -944,12 +990,14 @@
                                     const mCost = (i.material_cost || 0) * i.qty;
                                     const lCost = (i.time || 0) * (Store.data.settings.laborCost || 25) * i.qty;
                                     const sell = i.price * i.qty;
+                                    totalChantierRevenue += sell;
                                     totalChantierMargin += (sell - mCost - lCost);
                                 });
                             }
                         });
                     }
-                    document.getElementById('hub-total-margin').innerText = App.formatMoney(totalChantierMargin);
+                    let perc = totalChantierRevenue > 0 ? ((totalChantierMargin / totalChantierRevenue) * 100).toFixed(1) : 0;
+                    document.getElementById('hub-total-margin').innerHTML = `${App.formatMoney(totalChantierMargin)} <span style="font-size:0.9rem; color:#64748B;">(${perc}%)</span>`;
                     document.getElementById('hub-margin-section').style.display = 'block';
                 }
 
@@ -970,10 +1018,8 @@
                     });
                 }
 
-                // Affichage CDC avec tri par date décroissante
                 const lcdc = document.getElementById('hub-docs-list'); lcdc.innerHTML = '';
                 if(c.extraDocs) {
-                    // Tri par date décroissante
                     const sortedDocs = [...c.extraDocs].sort((a, b) => new Date(b.date) - new Date(a.date));
                     sortedDocs.forEach(doc => {
                         lcdc.innerHTML += `<div class="card-item" style="border-left:4px solid var(--col-cdc); background:var(--bg-cdc);"><div class="card-info"><div class="card-title">${doc.name}</div><div class="card-sub">${doc.ref}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateCDCPDF('${doc.id}')"></i><i class="fas fa-trash" style="color:#CBD5E1; font-size:1.2rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.deleteCDC('${doc.id}')"></i></div>`;
@@ -1001,6 +1047,7 @@
                 let grandTotalMarge = 0;
                 let grandTotalCostMO = 0;
                 let grandTotalCostMat = 0;
+                let grandTotalRevenue = 0;
 
                 acceptedDevis.forEach(d => {
                     d.items.forEach(i => {
@@ -1010,8 +1057,7 @@
                         const cMO = (i.time || 0) * rateCost * i.qty;
                         const cMat = (i.material_cost || 0) * i.qty;
                         const sMO = (i.time || 0) * rateSell * i.qty;
-                        
-                        const sMat = (i.price * i.qty) - sMO; // Derived from total price for legacy compatibility
+                        const sMat = (i.price * i.qty) - sMO; 
 
                         families[cat].costMO += cMO;
                         families[cat].costMat += cMat;
@@ -1021,6 +1067,7 @@
 
                         grandTotalCostMO += cMO;
                         grandTotalCostMat += cMat;
+                        grandTotalRevenue += (i.price * i.qty);
                         grandTotalMarge += (i.price * i.qty) - cMO - cMat;
                     });
                 });
@@ -1040,6 +1087,8 @@
                         </tr>
                     `;
                 }
+
+                let perc = grandTotalRevenue > 0 ? ((grandTotalMarge / grandTotalRevenue) * 100).toFixed(1) : 0;
 
                 const html = `
                     <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px;">
@@ -1063,7 +1112,7 @@
                         <div style="display:flex; justify-content:flex-end;">
                             <div style="background:#F0FDF4; border:2px solid #BBF7D0; padding:15px; border-radius:10px; text-align:right; width:300px;">
                                 <div style="font-size:0.85rem; color:#166534; font-weight:700;">MARGE TOTALE CHANTIER</div>
-                                <div style="font-size:1.8rem; font-weight:900; color:#15803d;">${App.formatMoney(grandTotalMarge)}</div>
+                                <div style="font-size:1.8rem; font-weight:900; color:#15803d;">${App.formatMoney(grandTotalMarge)} <span style="font-size:1rem;">(${perc}%)</span></div>
                             </div>
                         </div>
                     </div>
@@ -1072,6 +1121,88 @@
                 const opt = { margin: 10, filename: `MARGE_${c.name}.pdf`, jsPDF: { orientation: 'landscape', format: 'a4' } };
                 html2pdf().set(opt).from(html).save();
                 App.showToast("PDF Marge téléchargé !");
+            },
+
+            generateAllChantiersMarginPDF() {
+                const rateCost = Store.data.settings.laborCost || 25;
+                let rows = "";
+                let grandTotalMarge = 0;
+                let grandTotalRevenue = 0;
+
+                Store.data.chantiers.forEach(c => {
+                    let cRevenue = 0;
+                    let cMargin = 0;
+                    let cCostMO = 0;
+                    let cCostMat = 0;
+                    
+                    if(c.devisList) {
+                        c.devisList.forEach(d => {
+                            if(d.status === 'Accepté') {
+                                d.items.forEach(i => {
+                                    const cMO = (i.time || 0) * rateCost * i.qty;
+                                    const cMat = (i.material_cost || 0) * i.qty;
+                                    const sell = i.price * i.qty;
+                                    cCostMO += cMO;
+                                    cCostMat += cMat;
+                                    cRevenue += sell;
+                                    cMargin += (sell - cMO - cMat);
+                                });
+                            }
+                        });
+                    }
+
+                    if(cRevenue > 0) {
+                        grandTotalMarge += cMargin;
+                        grandTotalRevenue += cRevenue;
+                        const perc = ((cMargin / cRevenue) * 100).toFixed(1);
+                        
+                        rows += `
+                            <tr style="border-bottom: 1px solid #E2E8F0;">
+                                <td style="padding:10px; font-weight:700;">${c.name}</td>
+                                <td style="padding:10px; text-align:right;">${App.formatMoney(cRevenue)}</td>
+                                <td style="padding:10px; text-align:right;">${App.formatMoney(cCostMO)}</td>
+                                <td style="padding:10px; text-align:right;">${App.formatMoney(cCostMat)}</td>
+                                <td style="padding:10px; text-align:right; font-weight:900; color:#15803d;">${App.formatMoney(cMargin)}</td>
+                                <td style="padding:10px; text-align:right; font-weight:900; color:#0F172A;">${perc}%</td>
+                            </tr>
+                        `;
+                    }
+                });
+
+                if(!rows) return alert("Aucun chantier avec devis accepté.");
+
+                const grandPerc = grandTotalRevenue > 0 ? ((grandTotalMarge / grandTotalRevenue) * 100).toFixed(1) : 0;
+
+                const html = `
+                    <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px;">
+                        <h2 style="color:#0F172A; margin-bottom:5px;">ANALYSE GLOBALE DES MARGES</h2>
+                        <div style="margin-bottom: 20px; color: #64748B;">Généré le: ${new Date().toLocaleDateString()}</div>
+                        
+                        <table style="width:100%; border-collapse:collapse; font-size:0.85rem; margin-bottom:30px;">
+                            <thead style="background:#0F172A; color:white;">
+                                <tr>
+                                    <th style="padding:10px; text-align:left;">Chantier</th>
+                                    <th style="padding:10px; text-align:right;">Chiffre d'Affaires</th>
+                                    <th style="padding:10px; text-align:right;">Coût M.O.</th>
+                                    <th style="padding:10px; text-align:right;">Coût Mat.</th>
+                                    <th style="padding:10px; text-align:right;">Marge Nette</th>
+                                    <th style="padding:10px; text-align:right;">Rentabilité</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+
+                        <div style="display:flex; justify-content:flex-end;">
+                            <div style="background:#F0FDF4; border:2px solid #BBF7D0; padding:15px; border-radius:10px; text-align:right; width:350px;">
+                                <div style="font-size:0.85rem; color:#166534; font-weight:700;">MARGE GLOBALE (TOUS CHANTIERS)</div>
+                                <div style="font-size:1.8rem; font-weight:900; color:#15803d;">${App.formatMoney(grandTotalMarge)} <span style="font-size:1.2rem;">(${grandPerc}%)</span></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const opt = { margin: 10, filename: `MARGES_GLOBALE.pdf`, jsPDF: { orientation: 'landscape', format: 'a4' } };
+                html2pdf().set(opt).from(html).save();
             },
 
             // --- SIGNATURE MODULE AGGIORNATO (OTP VIA EMAIL) ---
@@ -1087,10 +1218,8 @@
             },
 
             requestEmailSignature() {
-                // Genera codice a 4 cifre
                 App.state.currentOTP = Math.floor(1000 + Math.random() * 9000).toString();
                 
-                // SIMULAZIONE INVIO EMAIL (Alert visibile per testare)
                 alert("SIMULATION D'ENVOI EMAIL\n\nÀ: Client\nObjet: Code de confirmation de devis\n\nVotre code est : " + App.state.currentOTP);
                 
                 document.getElementById('sig-step-1').style.display = 'none';
@@ -1128,7 +1257,7 @@
                     
                     d.status = "Accepté";
                     d.signDate = new Date().toLocaleDateString('fr-FR');
-                    d.signedByEmail = true; // Nuovo flag
+                    d.signedByEmail = true; 
                     
                     Store.save();
                     App.showToast("Devis signé et accepté !");
@@ -1241,7 +1370,8 @@
                 const l = document.getElementById('editor-list-container'); l.innerHTML=''; 
                 if(d.items.length === 0) { l.innerHTML = '<div style="text-align:center; padding:40px; color:#94A3B8;">Vide</div>'; return; }
 
-                const rate = Store.data.settings.hourlyRate || 45;
+                const rateSell = Store.data.settings.hourlyRate || 45;
+                const rateCost = Store.data.settings.laborCost || 25;
 
                 if (App.state.viewMode === 'pieces') {
                     const grouped = {};
@@ -1250,7 +1380,7 @@
                         let html = `<div class="piece-section"><div class="piece-header"><div class="piece-title"><i class="fas fa-door-open"></i> ${piece}</div><span style="font-size:0.8rem; font-weight:700;">${items.length}</span></div>`;
                         items.forEach(i => {
                             let rowP = i.qty * i.price;
-                            let laborCostTotal = (i.time || 0) * rate * i.qty;
+                            let laborCostTotal = (i.time || 0) * rateSell * i.qty;
                             let matCostTotal = (i.material_cost || 0) * i.qty * (1 + (Store.data.settings.materialMarkup || 0)/100);
                             
                             html += `<div class="e-card" style="background:var(--bg-devis);" onclick="App.editDevisItem(${i.id})"><div class="e-card-row"><div class="e-desc">${i.desc}</div><div style="font-weight:800; color:var(--primary);">${App.formatMoney(rowP)}</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Qté</div><div class="stat-val">${i.qty}</div></div><div class="stat-box"><div class="stat-lbl">Prix U.</div><div class="stat-val">${App.formatMoney(i.price)}</div></div><div class="stat-box"><div class="stat-lbl">Temps</div><div class="stat-val time">${i.time||0}h</div></div></div>
@@ -1288,12 +1418,11 @@
                         agg.totalTime += (i.qty * (i.time || 0)); 
                         agg.pieces.add(i.piece || "Général");
                         
-                        // Costs for margin calculation
-                        const cMO = (i.time || 0) * (Store.data.settings.laborCost || 25) * i.qty;
+                        const cMO = (i.time || 0) * rateCost * i.qty;
                         const cMat = (i.material_cost || 0) * i.qty;
                         const sell = i.price * i.qty;
 
-                        agg.totalLaborCost += ((i.time || 0) * rate * i.qty);
+                        agg.totalLaborCost += ((i.time || 0) * rateSell * i.qty);
                         agg.totalMatCost += ((i.material_cost || 0) * i.qty * (1 + (Store.data.settings.materialMarkup || 0)/100));
 
                         groupedByFamily[cat].total += sell;
@@ -1311,6 +1440,7 @@
 
                     currentCats.forEach(cat => {
                         const familyData = groupedByFamily[cat];
+                        const perc = familyData.total > 0 ? ((familyData.totalMargin / familyData.total) * 100).toFixed(1) : 0;
                         
                         l.innerHTML += `
                         <div class="piece-section">
@@ -1318,7 +1448,7 @@
                                 <div class="piece-title"><i class="fas fa-layer-group"></i> ${cat}</div>
                                 <span style="text-align:right;">
                                     <div style="font-weight:900; color:var(--primary);">${App.formatMoney(familyData.total)}</div>
-                                    <div style="font-size:0.75rem; color:var(--success); font-weight:700;">Marge: ${App.formatMoney(familyData.totalMargin)}</div>
+                                    <div style="font-size:0.75rem; color:var(--success); font-weight:700;">Marge: ${App.formatMoney(familyData.totalMargin)} (${perc}%)</div>
                                 </span>
                             </div>
                         `;
