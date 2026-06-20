@@ -14,7 +14,6 @@
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
     <style>
-        /* --- STILI CORE --- (inchangé, gardé pour concision) */
         :root {
             --primary: #0F172A;        
             --bg-body: #F8FAFC;        
@@ -29,23 +28,16 @@
             --rubble: #78716c; 
             --material: #7c3aed; 
 
-            /* PALETTE COLORI AGGIORNATA */
-            
-            /* CHANTIER: GIALLO */
             --col-chantier: #F59E0B; 
             --bg-chantier: #FFFBEB;  
             
-            /* DEVIS: ARANCIONE */
             --col-devis: #EA580C;    
             --bg-devis: #FFF7ED;     
             
-            /* CLIENT: BLU */
             --col-client: #2563EB;   
             
-            /* NAVIGATION */
             --col-nav-active: #172554; 
             
-            /* ALTRI DOCUMENTI */
             --col-cdc: #0891B2;      
             --bg-cdc: #ECFEFF;       
             
@@ -70,11 +62,9 @@
             padding-top: env(safe-area-inset-top);
         }
 
-        /* LAYOUT */
         .view-section { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background: var(--bg-body); z-index: 10; }
         .view-section.active { display: flex; z-index: 20; }
         
-        /* HEADER */
         .mobile-header { flex-shrink: 0; height: var(--h-header); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: sticky; top: 0; z-index: 50; transition: background 0.3s; }
         .logo-text { font-weight: 800; font-size: 1.3rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         .header-action-btn { background: var(--primary); color: white; border: none; border-radius: 30px; padding: 8px 18px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); }
@@ -83,11 +73,9 @@
 
         .scroll-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 120px; -webkit-overflow-scrolling: touch; }
 
-        /* EDITOR FIXED LAYOUT - HEADER STYLING OVERRIDE */
         #view-editor { display: none; flex-direction: column; height: 100%; background: #F8FAFC; }
         #view-editor.active { display: flex; }
         .editor-header-musk { flex-shrink: 0; background: var(--col-devis); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; z-index: 30; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); color: white; }
-        /* Fix text colors inside editor header since background is now colored */
         #view-editor .header-back-container { color: white; opacity: 0.9; }
         #view-editor .logo-text { color: white; } 
         #view-editor .client-badge { color: rgba(255,255,255,0.8); }
@@ -95,7 +83,6 @@
         
         #editor-list-container { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 140px; }
 
-        /* COMPONENTS */
         .client-badge { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
         .project-title { font-size: 1.2rem; font-weight: 900; color: var(--primary); margin-top: 2px; }
         
@@ -136,7 +123,6 @@
         .welcome-date { font-size: 0.9rem; font-weight: 600; color: var(--accent); text-transform: capitalize; }
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         
-        /* CUSTOM HOME BUTTONS */
         .big-btn { height: 95px; border-radius: 18px; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.08); color: white; }
         .big-btn span { font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 5px; }
         .btn-chantier { background: var(--col-chantier); }
@@ -156,7 +142,6 @@
         .custom-checkbox.checked::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: white; font-size: 0.8rem; }
         .assigned-badge { background: #DCFCE7; color: #166534; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 5px; display: inline-flex; align-items: center; gap: 4px; }
 
-        /* ROOM QUICK BUTTONS */
         .room-tag-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 15px 0; -webkit-overflow-scrolling: touch; }
         .room-tag-btn { background: #F1F5F9; color: var(--primary); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
         .room-tag-btn:active, .room-tag-btn.active { background: var(--success); color: white; border-color: var(--success); box-shadow: 0 4px 10px rgba(21, 128, 61, 0.3); }
@@ -179,7 +164,6 @@
         .type-option { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95rem; color: #64748B; border-radius: 10px; cursor: pointer; }
         .type-option.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        /* LIST CHANTIERS HEADER STYLE */
         #view-projets .mobile-header { background: var(--col-chantier); }
         #view-projets .logo-text, #view-projets .header-action-btn { color: white; }
         #view-projets .header-action-btn { background: rgba(255,255,255,0.2); }
@@ -189,11 +173,13 @@
         #modal-edit-item { z-index: 7000 !important; }
         #modal-signature { z-index: 8000 !important; }
 
+        .sig-container { position: relative; width: 100%; height: 300px; border: 2px dashed #CBD5E1; border-radius: 12px; background: #fff; touch-action: none; overflow: hidden; margin-bottom: 15px; }
+        canvas { width: 100%; height: 100%; display: block; }
+
         #toast-container { position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); z-index: 9000; pointer-events: none; width: 85%; }
         .toast { background: #1E293B; color: white; padding: 14px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; opacity: 0; transform: translateY(20px); transition: all 0.3s; margin-top: 10px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         .toast.show { opacity: 1; transform: translateY(0); }
 
-        /* AJOUT CDC PHOTOS : Style pour les miniatures */
         .photo-thumb {
             width: 60px;
             height: 60px;
@@ -250,7 +236,6 @@
         <div class="home-fixed-area">
             <div class="welcome-block"><div class="welcome-name">Bonjour, <span id="home-username">Jean</span></div><div class="welcome-date" id="home-date-display">...</div></div>
             <div class="action-grid" id="home-action-grid">
-                <!-- Les boutons seront affichés conditionnellement selon le rôle -->
             </div>
         </div>
         <div class="scroll-content">
@@ -276,7 +261,6 @@
                 <div style="background:rgba(255,255,255,0.2); padding:6px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; color:white; display:inline-block; margin-top:10px;" id="hub-ref">REF</div>
             </div>
             <div style="padding: 0 20px 120px 20px;">
-                <!-- SECTION MARGE CHANTIER (Visibile solo agli admin) -->
                 <div id="hub-margin-section" style="display: none; background: #F0FDF4; border: 1px solid #BBF7D0; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
@@ -287,7 +271,6 @@
                     </div>
                 </div>
 
-                <!-- Les sections Devis et Factures sont masquées si collaborateur -->
                 <div id="hub-devis-section" style="display: none;">
                     <div class="section-separator"><span class="section-title" style="color:var(--col-devis)">Devis</span><button class="action-create-btn" style="background:var(--col-devis); color:white; border:none;" onclick="App.createNewDevis()"><i class="fas fa-plus"></i> Créer</button></div>
                     <div id="hub-devis-list"></div>
@@ -296,7 +279,6 @@
                 <div class="section-separator">
                     <span class="section-title" style="color:var(--col-cdc)">Cahier des Charges</span>
                     <div style="display:flex; gap:5px;" id="hub-cdc-buttons">
-                        <!-- Les boutons de gestion CDC peuvent être masqués pour collaborateur -->
                     </div>
                 </div>
                 <div id="hub-docs-list"></div>
@@ -408,7 +390,6 @@
         </div>
     </div>
     
-    <!-- AJOUT CDC PHOTOS : Modal pour afficher et ajouter des photos à un CDC -->
     <div id="modal-view-cahier" class="full-modal">
         <div class="modal-header">
             <h3 id="vc-title">...</h3>
@@ -419,7 +400,6 @@
         </div>
     </div>
     
-    <!-- AJOUT CDC PHOTOS : Modal pour ajouter une photo à un item -->
     <div id="modal-add-photo" class="full-modal">
         <div class="modal-header">
             <h3>Ajouter une photo</h3>
@@ -443,7 +423,6 @@
         </div>
     </div>
 
-    <!-- MODALE FIRMA AGGIORNATO (3 BOTTONI + OTP) -->
     <div id="modal-signature" class="full-modal">
         <div class="modal-header">
             <h3 id="sig-modal-title">Action Devis</h3>
@@ -451,14 +430,12 @@
         </div>
         <div class="modal-body" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
             
-            <!-- STEP 1: I 3 Bottoni -->
             <div id="sig-step-1" style="width: 100%; display:flex; flex-direction:column; gap: 15px;">
                 <button class="btn-primary" style="background:#0F172A;" onclick="App.generateGlobalPDF('devis', Store.data.activeDevisId)"><i class="fas fa-download"></i> TÉLÉCHARGER LE DEVIS</button>
                 <button class="btn-primary" style="background:#EF4444;" onclick="App.rejectDevis()"><i class="fas fa-times"></i> REFUSER LE DEVIS</button>
                 <button class="btn-primary" style="background:#15803d;" onclick="App.requestEmailSignature()"><i class="fas fa-envelope"></i> ACCEPTER ET SIGNER</button>
             </div>
 
-            <!-- STEP 2: Input OTP -->
             <div id="sig-step-2" style="width: 100%; display:none; flex-direction:column; align-items:center;">
                 <div style="background:#ECFDF5; border:1px solid #10B981; color:#065F46; padding:15px; border-radius:10px; margin-bottom:20px; text-align:center; font-size:0.9rem;">
                     <i class="fas fa-check-circle"></i> Un code à 4 chiffres a été envoyé par e-mail.
@@ -606,7 +583,7 @@
                  </label>
 
                  <div style="text-align:center; font-size:0.85rem; color:#475569; font-weight:600;" id="edit-item-split-display">
-                     Manodopera: 0,00€ + Materiale: 0,00€
+                     Vente M.O.: 0,00€ + Vente Mat.: 0,00€
                  </div>
             </div>
 
@@ -918,6 +895,9 @@
             renderProjets() { 
                 const l = document.getElementById('projects-list-full'); 
                 l.innerHTML = ''; 
+                const rateSell = Store.data.settings.hourlyRate || 45;
+                const rateCost = Store.data.settings.laborCost || 25;
+
                 Store.data.chantiers.forEach(c => { 
                     const cli = Store.data.clients.find(x=>x.id==c.clientId); 
                     
@@ -927,11 +907,13 @@
                         c.devisList.forEach(d => {
                             if(d.status === 'Accepté') {
                                 d.items.forEach(i => {
-                                    const mCost = (i.material_cost || 0) * i.qty;
-                                    const lCost = (i.time || 0) * (Store.data.settings.laborCost || 25) * i.qty;
-                                    const sell = i.price * i.qty;
-                                    cRevenue += sell;
-                                    cMargin += (sell - mCost - lCost);
+                                    const sMO = (i.time || 0) * rateSell * i.qty;
+                                    const cMO = (i.time || 0) * rateCost * i.qty;
+                                    const cMat = (i.material_cost || 0) * i.qty;
+                                    const sMat = (i.price * i.qty) - sMO;
+                                    
+                                    cRevenue += (i.price * i.qty);
+                                    cMargin += ((sMO - cMO) + (sMat - cMat));
                                 });
                             }
                         });
@@ -980,6 +962,9 @@
                 const c = Store.data.chantiers.find(x=>x.id==id); const cli = Store.data.clients.find(x=>x.id==c.clientId);
                 document.getElementById('hub-name').innerText = c.name; document.getElementById('hub-client').innerText = cli ? cli.nom : '?'; document.getElementById('hub-ref').innerText = c.ref;
                 
+                const rateSell = Store.data.settings.hourlyRate || 45;
+                const rateCost = Store.data.settings.laborCost || 25;
+
                 if (Auth.role === 'admin') {
                     let totalChantierMargin = 0;
                     let totalChantierRevenue = 0;
@@ -987,11 +972,13 @@
                         c.devisList.forEach(d => {
                             if(d.status === 'Accepté') {
                                 d.items.forEach(i => {
-                                    const mCost = (i.material_cost || 0) * i.qty;
-                                    const lCost = (i.time || 0) * (Store.data.settings.laborCost || 25) * i.qty;
-                                    const sell = i.price * i.qty;
-                                    totalChantierRevenue += sell;
-                                    totalChantierMargin += (sell - mCost - lCost);
+                                    const sMO = (i.time || 0) * rateSell * i.qty;
+                                    const cMO = (i.time || 0) * rateCost * i.qty;
+                                    const cMat = (i.material_cost || 0) * i.qty;
+                                    const sMat = (i.price * i.qty) - sMO;
+                                    
+                                    totalChantierRevenue += (i.price * i.qty);
+                                    totalChantierMargin += ((sMO - cMO) + (sMat - cMat));
                                 });
                             }
                         });
@@ -1054,21 +1041,25 @@
                         let cat = i.category || "Général";
                         if(!families[cat]) families[cat] = { costMO: 0, costMat: 0, sellMO: 0, sellMat: 0, margeTot: 0 };
                         
+                        const sMO = (i.time || 0) * rateSell * i.qty;
                         const cMO = (i.time || 0) * rateCost * i.qty;
                         const cMat = (i.material_cost || 0) * i.qty;
-                        const sMO = (i.time || 0) * rateSell * i.qty;
                         const sMat = (i.price * i.qty) - sMO; 
 
                         families[cat].costMO += cMO;
                         families[cat].costMat += cMat;
                         families[cat].sellMO += sMO;
                         families[cat].sellMat += sMat;
-                        families[cat].margeTot += (i.price * i.qty) - cMO - cMat;
+                        
+                        const margeMO = sMO - cMO;
+                        const margeMat = sMat - cMat;
+
+                        families[cat].margeTot += (margeMO + margeMat);
 
                         grandTotalCostMO += cMO;
                         grandTotalCostMat += cMat;
                         grandTotalRevenue += (i.price * i.qty);
-                        grandTotalMarge += (i.price * i.qty) - cMO - cMat;
+                        grandTotalMarge += (margeMO + margeMat);
                     });
                 });
 
@@ -1124,6 +1115,7 @@
             },
 
             generateAllChantiersMarginPDF() {
+                const rateSell = Store.data.settings.hourlyRate || 45;
                 const rateCost = Store.data.settings.laborCost || 25;
                 let rows = "";
                 let grandTotalMarge = 0;
@@ -1139,13 +1131,18 @@
                         c.devisList.forEach(d => {
                             if(d.status === 'Accepté') {
                                 d.items.forEach(i => {
+                                    const sMO = (i.time || 0) * rateSell * i.qty;
                                     const cMO = (i.time || 0) * rateCost * i.qty;
                                     const cMat = (i.material_cost || 0) * i.qty;
-                                    const sell = i.price * i.qty;
+                                    const sMat = (i.price * i.qty) - sMO;
+                                    
+                                    const margeMO = sMO - cMO;
+                                    const margeMat = sMat - cMat;
+
                                     cCostMO += cMO;
                                     cCostMat += cMat;
-                                    cRevenue += sell;
-                                    cMargin += (sell - cMO - cMat);
+                                    cRevenue += (i.price * i.qty);
+                                    cMargin += (margeMO + margeMat);
                                 });
                             }
                         });
@@ -1380,13 +1377,13 @@
                         let html = `<div class="piece-section"><div class="piece-header"><div class="piece-title"><i class="fas fa-door-open"></i> ${piece}</div><span style="font-size:0.8rem; font-weight:700;">${items.length}</span></div>`;
                         items.forEach(i => {
                             let rowP = i.qty * i.price;
-                            let laborCostTotal = (i.time || 0) * rateSell * i.qty;
-                            let matCostTotal = (i.material_cost || 0) * i.qty * (1 + (Store.data.settings.materialMarkup || 0)/100);
+                            let sMO = (i.time || 0) * rateSell * i.qty;
+                            let sMat = rowP - sMO;
                             
                             html += `<div class="e-card" style="background:var(--bg-devis);" onclick="App.editDevisItem(${i.id})"><div class="e-card-row"><div class="e-desc">${i.desc}</div><div style="font-weight:800; color:var(--primary);">${App.formatMoney(rowP)}</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Qté</div><div class="stat-val">${i.qty}</div></div><div class="stat-box"><div class="stat-lbl">Prix U.</div><div class="stat-val">${App.formatMoney(i.price)}</div></div><div class="stat-box"><div class="stat-lbl">Temps</div><div class="stat-val time">${i.time||0}h</div></div></div>
                             <div class="e-stats" style="border-top:1px dashed #e2e8f0; margin-top:5px;">
-                                <div class="stat-box"><div class="stat-lbl" style="color:var(--time)">M.O. (€)</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(laborCostTotal)}</div></div>
-                                <div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Mat. (€)</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(matCostTotal)}</div></div>
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--time)">M.O. (€)</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(sMO)}</div></div>
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Mat. (€)</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(sMat)}</div></div>
                                 <div class="stat-box"><div class="stat-lbl" style="color:var(--rubble)">Gravats</div><div class="stat-val" style="color:var(--rubble); font-size:0.8rem;">${(i.gravats*i.qty).toFixed(2)} kg</div></div>
                             </div>
                             </div>`;
@@ -1410,7 +1407,7 @@
 
                         const key = i.desc + "_" + i.price;
                         if (!groupedByFamily[cat].items[key]) {
-                            groupedByFamily[cat].items[key] = { desc: i.desc, price: i.price, totalQty: 0, totalTime: 0, pieces: new Set(), totalLaborCost: 0, totalMatCost: 0 };
+                            groupedByFamily[cat].items[key] = { desc: i.desc, price: i.price, totalQty: 0, totalTime: 0, pieces: new Set(), totalSellMO: 0, totalSellMat: 0 };
                         }
                         
                         const agg = groupedByFamily[cat].items[key];
@@ -1418,15 +1415,19 @@
                         agg.totalTime += (i.qty * (i.time || 0)); 
                         agg.pieces.add(i.piece || "Général");
                         
+                        const sMO = (i.time || 0) * rateSell * i.qty;
                         const cMO = (i.time || 0) * rateCost * i.qty;
                         const cMat = (i.material_cost || 0) * i.qty;
-                        const sell = i.price * i.qty;
+                        const sMat = (i.price * i.qty) - sMO;
 
-                        agg.totalLaborCost += ((i.time || 0) * rateSell * i.qty);
-                        agg.totalMatCost += ((i.material_cost || 0) * i.qty * (1 + (Store.data.settings.materialMarkup || 0)/100));
+                        agg.totalSellMO += sMO;
+                        agg.totalSellMat += sMat;
 
-                        groupedByFamily[cat].total += sell;
-                        groupedByFamily[cat].totalMargin += (sell - cMO - cMat);
+                        const margeMO = sMO - cMO;
+                        const margeMat = sMat - cMat;
+
+                        groupedByFamily[cat].total += (i.price * i.qty);
+                        groupedByFamily[cat].totalMargin += (margeMO + margeMat);
                     });
 
                     const sortedCats = [...new Set(Config.allItems.map(i => i.category))];
@@ -1459,8 +1460,8 @@
                             const locs = Array.from(agg.pieces).join(", ");
                             l.innerHTML += `<div class="e-card" style="background:var(--bg-devis); border-left-color:var(--accent);"><div class="e-card-row"><div class="e-desc">${agg.desc}<br><span class="e-loc-tag">${locs}</span></div><div style="font-weight:800;">${App.formatMoney(totalP)}</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Tot Qté</div><div class="stat-val">${agg.totalQty}</div></div><div class="stat-box"><div class="stat-lbl">Tot Time</div><div class="stat-val time">${agg.totalTime.toFixed(1)}h</div></div></div>
                             <div class="e-stats" style="border-top:1px dashed #e2e8f0; margin-top:5px;">
-                                    <div class="stat-box"><div class="stat-lbl" style="color:var(--time)">Tot M.O.</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(agg.totalLaborCost)}</div></div>
-                                    <div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Tot Mat.</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(agg.totalMatCost)}</div></div>
+                                    <div class="stat-box"><div class="stat-lbl" style="color:var(--time)">Tot M.O.</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(agg.totalSellMO)}</div></div>
+                                    <div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Tot Mat.</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(agg.totalSellMat)}</div></div>
                             </div>
                             </div>`;
                         }
@@ -1836,10 +1837,10 @@
                 const t = parseFloat(document.getElementById('edit-item-time').value) || 0;
                 const m = parseFloat(document.getElementById('edit-item-mat').value) || 0;
                 
-                const rate = Store.data.settings.hourlyRate || 45;
+                const rateSell = Store.data.settings.hourlyRate || 45;
                 const markup = Store.data.settings.materialMarkup || 0;
                 
-                const laborCost = t * rate;
+                const laborCost = t * rateSell;
                 const matSelling = m * (1 + markup/100);
                 
                 document.getElementById('edit-item-split-display').innerText = 
