@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+    <!-- AJOUT DE LA LIBRAIRIE CHART.JS POUR LE TABLEAU DE BORD -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -266,12 +267,14 @@
         <div class="home-fixed-area">
             <div class="welcome-block"><div class="welcome-name">Bonjour, <span id="home-username">Jean</span></div><div class="welcome-date" id="home-date-display">...</div></div>
             <div class="action-grid" id="home-action-grid">
-                </div>
+                <!-- Les boutons seront affichés conditionnellement selon le rôle -->
+            </div>
         </div>
         <div class="scroll-content">
             <div class="section-separator" style="border:none; margin-top:0;"><div class="section-title">Aujourd'hui</div><button class="action-create-btn" onclick="App.openAgenda()">+ RDV</button></div>
             <div id="home-today-list"></div>
             
+            <!-- NOUVEAU TABLEAU DE BORD DE RENTABILITÉ -->
             <div id="home-dashboard-block" style="margin-top:25px; display:none; flex-direction:column; gap:20px;">
                 <div style="background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card);">
                     <div style="font-size: 0.85rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; text-transform: uppercase;">Rentabilité Mensuelle Nette</div>
@@ -282,7 +285,8 @@
                     <div style="font-size: 0.85rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; text-transform: uppercase;">Chantiers en cours</div>
                     <div style="overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch;">
                         <div id="chart-chantiers-cards" style="display:flex; gap:15px; min-width: max-content;">
-                            </div>
+                            <!-- Cards generati dinamicamente -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -303,6 +307,7 @@
                 <div style="background:rgba(255,255,255,0.2); padding:6px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; color:white; display:inline-block; margin-top:10px;" id="hub-ref">REF</div>
             </div>
             <div style="padding: 0 20px 120px 20px;">
+                <!-- SECTION MARGE CHANTIER -->
                 <div id="hub-margin-section" style="display: none; background: #F0FDF4; border: 1px solid #BBF7D0; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
@@ -465,6 +470,7 @@
         </div>
     </div>
 
+    <!-- MODALE FIRMA AGGIORNATO (3 BOTTONI + OTP) -->
     <div id="modal-signature" class="full-modal">
         <div class="modal-header">
             <h3 id="sig-modal-title">Action Devis</h3>
@@ -577,79 +583,6 @@
             <div id="lib-container"></div>
         </div>
     </div>
-
-    <div id="modal-client" class="full-modal"><div class="modal-header"><h3>Nouveau Client</h3><button class="header-back-container" onclick="App.closeModal('modal-client')">×</button></div><div class="modal-body"><input type="hidden" id="cli-id"><div class="type-switch"><div class="type-option active" id="type-particulier" onclick="App.toggleClientType('particulier')">Particulier</div><div class="type-option" id="type-societe" onclick="App.toggleClientType('societe')">Société</div></div><input type="text" id="cli-nom" class="app-input" placeholder="Nom Complet"><div id="field-siret" style="display:none;"><input type="text" id="cli-siret" class="app-input" placeholder="TVA / SIRET"></div><input type="text" id="cli-addr" class="app-input" placeholder="Adresse"><input type="tel" id="cli-tel" class="app-input" placeholder="Téléphone"><input type="email" id="cli-email" class="app-input" placeholder="Email"></div><div class="modal-footer"><button class="btn-primary" onclick="App.saveClient()">ENREGISTRER</button></div></div>
-    
-    <div id="modal-edit-item" class="full-modal">
-        <div class="modal-header">
-            <h3 id="edit-item-title">Article</h3>
-            <button class="header-back-container" onclick="App.closeModal('modal-edit-item')">×</button>
-        </div>
-        <div class="modal-body">
-            <input type="hidden" id="edit-item-idx">
-            
-            <label style="font-weight:700; color:var(--text-sub);">Pièce</label>
-            <select id="edit-item-piece" class="app-input" style="font-weight:700;"></select>
-            
-            <label style="font-weight:700; display:block; margin-bottom:8px;">Description</label>
-            <input type="text" id="edit-item-desc" class="app-input">
-            
-            <div style="display:flex; gap:15px;">
-                <div style="flex:1">
-                    <label style="font-weight:700; display:block; margin-bottom:8px;">Qté</label>
-                    <input type="number" id="edit-item-qty" class="app-input" oninput="App.calcEditPrice()">
-                </div>
-                <div style="flex:1">
-                    <label style="font-weight:700; display:block; margin-bottom:8px;">Unit.</label>
-                    <input type="text" id="edit-item-unit" class="app-input" disabled style="background:#f1f5f9;">
-                </div>
-            </div>
-            
-            <div style="background:#F1F5F9; padding:12px; border-radius:12px; margin-bottom:15px; border:1px dashed var(--border);">
-                 <div style="font-size:0.75rem; font-weight:700; color:var(--text-sub); text-transform:uppercase; margin-bottom:5px;">Composition du Prix</div>
-                 
-                 <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <div style="flex:1">
-                        <label style="font-size:0.8rem; font-weight:700; color:#3B82F6;">Temps U. (h)</label>
-                        <input type="number" id="edit-item-time" class="app-input" step="0.1" style="border-color:#3B82F6; color:#3B82F6;" oninput="App.calcEditPrice()">
-                    </div>
-                    <div style="flex:1">
-                        <label style="font-size:0.8rem; font-weight:700; color:var(--material);">Matériel U. (€)</label>
-                        <input type="number" id="edit-item-mat" class="app-input" step="0.01" style="border-color:var(--material); color:var(--material);" oninput="App.calcEditPrice()">
-                    </div>
-                 </div>
-                 
-                 <label style="display:flex; align-items:center; gap:8px; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:10px; cursor:pointer; justify-content:center;">
-                    <input type="checkbox" id="edit-item-exclude-mat" onchange="App.toggleExcludeMat()" style="width:16px; height:16px; accent-color:var(--primary);">
-                    Exclure fournitures (M.O. uniquement)
-                 </label>
-
-                 <div style="text-align:center; font-size:0.85rem; color:#475569; font-weight:600;" id="edit-item-split-display">
-                     Vente M.O.: 0,00€ + Vente Mat.: 0,00€
-                 </div>
-            </div>
-
-            <label style="font-weight:700; display:block; margin-bottom:8px;">Prix U. (Calculé)</label>
-            <input type="number" id="edit-item-price" class="app-input" step="0.01" style="font-weight:800;" readonly>
-            
-            <div style="background:#ecfccb; padding:15px; border-radius:12px; margin-bottom:20px; text-align:center; border:2px solid #84cc16;">
-                <div style="font-size:0.7rem; color:#365314; font-weight:700; text-transform:uppercase;">(P.U. x Qté) = TOTALE RIGA</div>
-                <div id="edit-item-total-row" style="font-size:1.8rem; font-weight:900; color:#365314;">0,00 €</div>
-            </div>
-            
-            <label style="font-weight:700; display:block; margin-bottom:8px; color:var(--rubble);">Gravats U. (kg)</label>
-            <input type="number" id="edit-item-rubble" class="app-input" step="0.01" style="border-color:var(--border); color:var(--rubble); font-weight:700;">
-            
-            <button id="btn-delete-item" class="btn-primary" style="background:#fee2e2; color:#dc2626; margin-top:20px;" onclick="App.deleteItem()">SUPPRIMER LIGNE</button>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-primary" onclick="App.saveItemChanges()">CONFIRMER</button>
-        </div>
-    </div>
-
-    <div id="modal-projet" class="full-modal"><div class="modal-header"><h3>Nouveau Chantier</h3><button class="header-back-container" onclick="App.closeModal('modal-projet')">×</button></div><div class="modal-body"><div style="display:flex; gap:10px; margin-bottom:15px;"><select id="prj-cli" class="app-input" style="flex:1; margin:0;"></select><button onclick="App.openClientModal()" style="width:55px; border-radius:12px; border:2px solid var(--border); background:white; font-size:1.2rem;">+</button></div><input type="text" id="prj-nom" class="app-input" placeholder="Nom Chantier"><input type="text" id="prj-addr" class="app-input" placeholder="Lieu"></div><div class="modal-footer"><button class="btn-primary" onclick="App.createProject()">CRÉER</button></div></div>
-    <div id="modal-agenda" class="full-modal"><div class="modal-header"><h3>Nouveau RDV</h3><button class="header-back-container" onclick="App.closeModal('modal-agenda')">×</button></div><div class="modal-body"><select id="agd-chantier" class="app-input"></select><input type="datetime-local" id="agd-date" class="app-input"><button class="btn-primary" onclick="App.saveAgendaEvent()">ENREGISTRER</button><div style="margin-top:30px; font-weight:800;">Prochains Événements</div><div id="agenda-list-view" style="margin-top:10px;"></div></div></div>
-    <div id="modal-invoice" class="full-modal"><div class="modal-header"><h3>Créer Facture</h3><button class="header-back-container" onclick="App.closeModal('modal-invoice')">×</button></div><div class="modal-body"><label style="font-weight:700;">Depuis Devis:</label><select id="inv-devis-select" class="app-input" onchange="App.onInvoiceDevisChange()"></select><div style="background:#F1F5F9; padding:15px; border-radius:12px; text-align:center; margin-bottom:20px;"><div style="font-size:0.8rem; color:#64748B">Montant Devis</div><div style="font-size:1.4rem; font-weight:900;" id="inv-total-quote">0,00 €</div></div><div style="display:flex; gap:10px; margin-bottom:15px;"><button id="btn-acompte" onclick="App.setInvType('acompte')" style="flex:1; height:45px; border-radius:10px; border:1px solid var(--border);">Acompte %</button><button id="btn-solde" onclick="App.setInvType('solde')" style="flex:1; height:45px; border-radius:10px; border:1px solid var(--border);">Solde</button></div><input type="number" id="inv-percent" class="app-input" value="30" onchange="App.calcInvPreview()"><div style="text-align:center; margin-top:20px;"><div>Montant Facture</div><div style="font-size:2rem; font-weight:900; color:var(--primary);" id="inv-preview-amount">0,00 €</div></div></div><div class="modal-footer"><button class="btn-primary" onclick="App.generateInvoice()">CRÉER FACTURE</button></div></div>
 
     <script>
         const SUPABASE_URL = 'https://uhuxdsubvvnytuftyztq.supabase.co'; 
@@ -852,7 +785,10 @@
                             <div style="text-align:left"><span style="display:block; font-size:0.9rem;">AGENDA</span><span style="font-size:0.7rem; color:var(--text-sub); font-weight:500;">Gestion RDV</span></div>
                         </button>
                     `;
-                    document.getElementById('home-unpaid-block').style.display = 'none'; 
+                    
+                    const elUnpaid = document.getElementById('home-unpaid-block');
+                    if(elUnpaid) elUnpaid.style.display = 'none'; 
+                    
                     document.getElementById('hub-devis-section').style.display = 'block';
                     document.getElementById('hub-factures-section').style.display = 'block';
                     document.getElementById('hub-margin-section').style.display = 'block';
@@ -971,7 +907,6 @@
                         }
                     });
 
-                    // Chart Render
                     const ctxElem = document.getElementById('chart-global-rentabilite');
                     if(ctxElem) {
                         if(App.state.globalChart) App.state.globalChart.destroy();
@@ -996,7 +931,6 @@
                         });
                     }
 
-                    // Cards render
                     const cardsContainer = document.getElementById('chart-chantiers-cards');
                     if(cardsContainer) {
                         cardsContainer.innerHTML = '';
@@ -1117,8 +1051,11 @@
 
             openHub(id) {
                 Store.data.activeChantierId = id; Store.save();
-                const c = Store.data.chantiers.find(x=>x.id==id); const cli = Store.data.clients.find(x=>x.id==c.clientId);
-                document.getElementById('hub-name').innerText = c.name; document.getElementById('hub-client').innerText = cli ? cli.nom : '?'; document.getElementById('hub-ref').innerText = c.ref;
+                const c = Store.data.chantiers.find(x=>x.id==id); 
+                const cli = Store.data.clients.find(x=>x.id==c.clientId);
+                document.getElementById('hub-name').innerText = c.name; 
+                document.getElementById('hub-client').innerText = cli ? cli.nom : '?'; 
+                document.getElementById('hub-ref').innerText = c.ref;
                 
                 const rateSell = Store.data.settings.hourlyRate || 45;
                 const rateCost = Store.data.settings.laborCost || 25;
@@ -1360,7 +1297,7 @@
                 html2pdf().set(opt).from(html).save();
             },
 
-            // --- SIGNATURE MODULE AGGIORNATO (OTP VIA EMAIL) ---
+            // --- SIGNATURE MODULE ---
             promptSignature(devisId) {
                 Store.data.activeDevisId = devisId;
                 
@@ -1422,7 +1359,6 @@
                     alert("Code incorrect, veuillez réessayer.");
                 }
             },
-            // --- END SIGNATURE ---
 
             deleteDevis(did) {
                 if(!confirm("Eliminare definitivamente questo preventivo?")) return;
@@ -2104,225 +2040,322 @@
                 }); 
             },
             
-            viewCahierTable(doc) {
-                document.getElementById('vc-title').innerText = doc.name;
-                const t = document.getElementById('vc-table');
-                t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Photos</th><th style="padding:10px;">Ass.</th></tr>';
+            // --- FUNZIONI DI GESTIONE CDC E PDF (RIPRISTINATE) ---
+            openSelectCDCModal() {
+                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
+                if(!c.devisList || c.devisList.length === 0) return alert("Aucun devis disponible.");
+                
+                const sel = document.getElementById('sel-source-devis');
+                sel.innerHTML = '';
+                c.devisList.forEach(d => {
+                    sel.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+                });
+                
+                const assignSel = document.getElementById('cdc-assignee');
+                assignSel.innerHTML = '<option value="">-- Partenaire --</option>';
+                Store.data.partners.forEach(p => {
+                    assignSel.innerHTML += `<option value="${p.name}">${p.name} (${p.role})</option>`;
+                });
+                
+                App.state.selectedItems = new Set();
+                App.renderSelectionList();
+                document.getElementById('modal-select-cdc').classList.add('open');
+            },
+
+            generateRoomReportPDF() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                if(!c.devisList || c.devisList.length === 0) return alert("Aucun devis disponible.");
+                
+                const acceptedDevis = c.devisList.filter(d => d.status === 'Accepté');
+                const targetDevisList = acceptedDevis.length > 0 ? acceptedDevis : c.devisList;
+                
+                const grouped = {};
+                targetDevisList.forEach(d => {
+                    (d.items || []).forEach(i => {
+                        const p = i.piece || "Général";
+                        if(!grouped[p]) grouped[p] = [];
+                        grouped[p].push(i);
+                    });
+                });
+                
+                let html = `<div style="font-family:sans-serif; padding:20px;"><h2>Zones de Travail - ${c.name}</h2>`;
+                for (const [room, items] of Object.entries(grouped)) {
+                    html += `<h3 style="background:#0F172A; color:white; padding:10px; border-radius:8px; margin-top:20px;">${room}</h3><ul>`;
+                    items.forEach(i => {
+                        html += `<li style="margin-bottom:8px;"><strong>${i.desc}</strong> (Qté: ${i.qty}) - <em>${i.assignedTo || 'Non assigné'}</em></li>`;
+                    });
+                    html += `</ul>`;
+                }
+                html += `</div>`;
+                const opt = { margin: 10, filename: `ZONES_${c.name}.pdf`, jsPDF: { format: 'a4', orientation: 'portrait' } };
+                html2pdf().set(opt).from(html).save();
+            },
+
+            generateCDCPDF(docId) {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                const doc = c.extraDocs.find(d => d.id == docId);
+                
+                let html = `<div style="font-family:sans-serif; padding:20px;">
+                    <h2>Cahier des Charges</h2>
+                    <div style="margin-bottom:20px; color:#64748B;">Chantier: <strong>${c.name}</strong><br>Réf: ${doc.ref}<br>Date: ${new Date(doc.date).toLocaleDateString()}</div>
+                    <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                        <thead style="background:#0F172A; color:white;">
+                            <tr>
+                                <th style="padding:10px; text-align:left;">Tâche</th>
+                                <th style="padding:10px; text-align:left;">Zone</th>
+                                <th style="padding:10px; text-align:left;">Assigné à</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
                 
                 (doc.items || []).forEach(i => {
-                    const photosHtml = (i.photos && i.photos.length) 
-                        ? i.photos.map(p => `<img src="${p}" class="photo-thumb" onclick="window.open('${p}', '_blank')">`).join('')
-                        : 'Aucune photo';
-                    
-                    const row = t.insertRow();
-                    row.style.borderBottom = '1px solid #eee';
-                    
-                    const cellDesc = row.insertCell();
-                    cellDesc.style.padding = '10px';
-                    cellDesc.innerText = i.desc;
-                    
-                    const cellLoc = row.insertCell();
-                    cellLoc.style.padding = '10px';
-                    cellLoc.innerText = i.piece || '-';
-                    
-                    const cellPhotos = row.insertCell();
-                    cellPhotos.style.padding = '10px';
-                    cellPhotos.innerHTML = `<div class="photo-gallery">${photosHtml}</div>`;
-                    
-                    const cellActions = row.insertCell();
-                    cellActions.style.padding = '10px';
-                    cellActions.innerHTML = `
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <span style="color: #15803d; font-weight:bold;">${i.assignedTo || '-'}</span>
-                            <button class="add-photo-btn" onclick="App.openAddPhotoModal('${doc.id}', ${i.id}, '${i.desc.replace(/'/g, "\\'")}')">
-                                <i class="fas fa-camera"></i> Ajouter photo
-                            </button>
-                        </div>
-                    `;
+                    html += `<tr style="border-bottom:1px solid #E2E8F0;">
+                        <td style="padding:10px;">${i.desc}</td>
+                        <td style="padding:10px;">${i.piece || '-'}</td>
+                        <td style="padding:10px; font-weight:bold; color:#15803d;">${i.assignedTo || '-'}</td>
+                    </tr>`;
                 });
                 
-                document.getElementById('modal-view-cahier').classList.add('open');
+                html += `</tbody></table></div>`;
+                const opt = { margin: 10, filename: `${doc.ref}.pdf`, jsPDF: { format: 'a4', orientation: 'portrait' } };
+                html2pdf().set(opt).from(html).save();
             },
 
-            openAddPhotoModal(docId, itemId, itemDesc) {
-                App.state.currentCDCDocForPhoto = docId;
-                App.state.currentCDCItemForPhoto = itemId;
-                document.getElementById('add-photo-item-desc').innerText = `Ajouter une photo pour : ${itemDesc}`;
-                document.getElementById('photo-input').value = ''; 
-                document.getElementById('photo-preview').innerHTML = '';
-                document.getElementById('modal-add-photo').classList.add('open');
+            generateGlobalPDF(type, id, forceCid = null) {
+                let mode = "1";
+                if (type === 'devis') {
+                    mode = prompt("Comment voulez-vous regrouper le devis ?\n\nTapez 1 pour grouper par PIÈCES\nTapez 2 pour grouper par FAMILLES", "1");
+                    if (!mode) return;
+                }
+
+                let c = Store.data.chantiers.find(x => x.id == (forceCid || Store.data.activeChantierId));
+                if (!c || (type === 'devis' && !(c.devisList||[]).some(d => d.id == id)) || (type === 'facture' && !(c.factures||[]).some(f => f.id == id))) {
+                    c = Store.data.chantiers.find(ch => 
+                        (type === 'devis' && (ch.devisList||[]).some(d => d.id == id)) || 
+                        (type === 'facture' && (ch.factures||[]).some(f => f.id == id))
+                    );
+                }
                 
-                document.getElementById('photo-input').onchange = function() {
-                    const file = this.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            document.getElementById('photo-preview').innerHTML = `<img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`;
-                        };
-                        reader.readAsDataURL(file);
+                if(!c) return alert("Erreur: Document introuvable.");
+
+                const cli = Store.data.clients.find(x=>x.id==c.clientId);
+                const rateSell = Store.data.settings.hourlyRate || 45;
+                
+                let items, title, ref, extraInfo = "";
+                let signatureBlock = "";
+                
+                let totalLaborPDF = 0;
+                let totalMatPDF = 0;
+                
+                if (type === 'devis') {
+                    const obj = c.devisList.find(x=>x.id==id);
+                    items = obj.items || []; 
+                    title = "DEVIS"; 
+                    ref = obj.ref;
+                    if(obj.totalGravats > 0) {
+                        extraInfo = `<div style="text-align:right; margin-top:10px; font-size:0.9rem; color:#64748B;">Poids Gravats Estimé: <strong>${obj.totalGravats.toFixed(2)} kg</strong></div>`;
                     }
-                };
-            },
-
-            async uploadPhoto() {
-                const fileInput = document.getElementById('photo-input');
-                const file = fileInput.files[0];
-                if (!file) return alert("Sélectionnez une photo.");
-
-                const docId = App.state.currentCDCDocForPhoto;
-                const itemId = App.state.currentCDCItemForPhoto;
-                if (!docId || !itemId) return;
-
-                const userId = Auth.user.id;
-                const fileName = `${userId}/${docId}/${itemId}/${Date.now()}_${file.name}`;
-
-                App.showToast("Upload en cours...");
-
-                const { data, error } = await sbClient.storage
-                    .from('cdc-photos')
-                    .upload(fileName, file);
-
-                if (error) {
-                    console.error(error);
-                    return App.showToast("Erreur upload : " + error.message);
-                }
-
-                const { data: urlData, error: urlError } = await sbClient.storage
-                    .from('cdc-photos')
-                    .createSignedUrl(fileName, 31536000); 
-
-                if (urlError) {
-                    console.error(urlError);
-                    return App.showToast("Erreur génération URL");
-                }
-
-                const publicUrl = urlData.signedUrl;
-
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const doc = (c.extraDocs||[]).find(d => d.id == docId);
-                const item = (doc.items||[]).find(i => i.id == itemId);
-                if (!item.photos) item.photos = [];
-                item.photos.push(publicUrl);
-
-                await Store.save();
-                App.showToast("Photo ajoutée !");
-                App.closeModal('modal-add-photo');
-                App.viewCahierTable(doc); 
-            },
-
-            renderSelectionList() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const did = document.getElementById('sel-source-devis').value;
-                if (!did) return;
-                
-                const d = c.devisList.find(x => x.id == did);
-                const cont = document.getElementById('selection-list-container');
-                cont.innerHTML = '';
-
-                (d.items || []).forEach(item => {
-                    const isChecked = App.state.selectedItems.has(item.id) ? 'checked' : '';
-                    const assignedInfo = item.assignedTo 
-                        ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${item.assignedTo}</span>` 
-                        : '';
                     
-                    const el = document.createElement('div');
-                    el.className = 'check-container';
-                    el.onclick = (e) => App.toggleItemSelection(item.id, el);
-                    el.innerHTML = `
-                        <div class="custom-checkbox ${isChecked}"></div>
-                        <div style="flex:1">
-                            <div style="font-weight:700; font-size:0.9rem;">${item.desc}</div>
-                            <div style="font-size:0.8rem; color:var(--text-sub); display:flex; align-items:center;">
-                                ${item.piece || 'Général'} ${assignedInfo}
+                    if(obj.signedByEmail) {
+                        signatureBlock = `
+                            <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid; text-align:center;">
+                                <div style="font-weight:bold; color:#16a34a; font-size:1.2rem; margin-bottom:10px;">BON POUR ACCORD</div>
+                                <div style="font-size:1.1rem; font-weight:bold; margin-bottom:5px;">SIGNÉ PAR MAIL</div>
+                                <div style="font-size:0.9rem;">le ${obj.signDate}</div>
+                            </div>
+                        `;
+                    } else if(obj.signature) {
+                        signatureBlock = `
+                            <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid; text-align:center;">
+                                <div style="font-weight:bold; color:#16a34a; margin-bottom:10px;">BON POUR ACCORD</div>
+                                <div style="font-size:0.8rem; margin-bottom:10px;">Signé électroniquement le ${obj.signDate || ''}</div>
+                                <img src="${obj.signature}" style="max-width: 250px; max-height: 100px; width: auto; height: auto; display:block; margin:0 auto;" />
+                            </div>
+                        `;
+                    } else {
+                        signatureBlock = `
+                            <div style="margin-top:50px; margin-bottom:20px; display:flex; justify-content:space-between; page-break-inside: avoid; break-inside: avoid;">
+                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Entreprise</div>
+                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Client (Bon pour accord)</div>
+                            </div>
+                        `;
+                    }
+
+                } else {
+                    const obj = c.factures.find(x=>x.id==id);
+                    title = "FACTURE"; ref = obj.ref; items = [{desc: `Facture selon avancement (${obj.type})`, qty: 1, unit:'U', price: obj.amount, time:0, material_cost:0}];
+                }
+                
+                let totalTTC = 0;
+                let rowsHtml = "";
+
+                if (type === 'facture') {
+                    rowsHtml = items.map(i => {
+                        const rowT = i.qty * i.price; totalTTC += rowT;
+                        const sellLabor = (i.time || 0) * rateSell;
+                        const sellMat = rowT - sellLabor;
+                        
+                        totalLaborPDF += sellLabor;
+                        totalMatPDF += sellMat;
+                        
+                        return `
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:10px;">${i.desc}</td>
+                                <td style="padding:10px; text-align:center;">${i.qty}</td>
+                                <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${sellLabor > 0 ? App.formatMoney(sellLabor) : '-'}</td>
+                                <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${sellMat > 0 ? App.formatMoney(sellMat) : '-'}</td>
+                                <td style="padding:10px; text-align:right;">${App.formatMoney(i.price)}</td>
+                                <td style="padding:10px; text-align:right; font-weight:bold;">${App.formatMoney(rowT)}</td>
+                            </tr>`;
+                    }).join('');
+                } else {
+                    let grouped = {};
+
+                    if (mode === "2") {
+                        items.forEach(i => {
+                            let cat = i.category || "Général";
+                            if (!grouped[cat]) grouped[cat] = { title: cat, items: [], subtotal: 0 };
+                            
+                            const key = i.desc + "_" + i.price;
+                            let existing = grouped[cat].items.find(x => x.key === key);
+                            if (existing) {
+                                existing.qty += i.qty;
+                                existing.time += (i.time || 0) * i.qty;
+                                existing.rowT += (i.qty * i.price);
+                            } else {
+                                grouped[cat].items.push({
+                                    key: key,
+                                    desc: i.desc,
+                                    qty: i.qty,
+                                    unit: i.unit,
+                                    price: i.price,
+                                    time: (i.time || 0) * i.qty,
+                                    rowT: i.qty * i.price
+                                });
+                            }
+                            grouped[cat].subtotal += (i.qty * i.price);
+                            totalTTC += (i.qty * i.price);
+                        });
+                        
+                        const sortedCats = [...new Set(Config.allItems.map(i => i.category))];
+                        const orderedKeys = Object.keys(grouped).sort((a, b) => {
+                            let idxA = sortedCats.indexOf(a); let idxB = sortedCats.indexOf(b);
+                            if(idxA === -1) idxA = 999; if(idxB === -1) idxB = 999;
+                            return idxA - idxB;
+                        });
+                        
+                        let sortedGrouped = {};
+                        orderedKeys.forEach(k => sortedGrouped[k] = grouped[k]);
+                        grouped = sortedGrouped;
+
+                    } else {
+                        items.forEach(i => {
+                            let p = i.piece || "Zone Générale";
+                            if (!grouped[p]) grouped[p] = { title: p, items: [], subtotal: 0 };
+                            
+                            grouped[p].items.push({
+                                desc: i.desc,
+                                qty: i.qty,
+                                unit: i.unit,
+                                price: i.price,
+                                time: (i.time || 0) * i.qty,
+                                rowT: i.qty * i.price
+                            });
+                            
+                            grouped[p].subtotal += (i.qty * i.price);
+                            totalTTC += (i.qty * i.price);
+                        });
+                    }
+
+                    for (const [groupName, groupData] of Object.entries(grouped)) {
+                        rowsHtml += `
+                            <tr style="background:#E2E8F0;">
+                                <td colspan="6" style="padding:10px; font-weight:800; color:#0F172A;">
+                                    ${mode === "2" ? '<i class="fas fa-layer-group"></i> ' : '<i class="fas fa-door-open"></i> '} ${groupName}
+                                </td>
+                            </tr>
+                        `;
+                        groupData.items.forEach(i => {
+                            const sellLabor = i.time * rateSell; 
+                            const sellMat = i.rowT - sellLabor; 
+                            
+                            totalLaborPDF += sellLabor;
+                            totalMatPDF += sellMat;
+
+                            rowsHtml += `
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:10px;">${i.desc}</td>
+                                <td style="padding:10px; text-align:center;">${i.qty}</td>
+                                <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${sellLabor > 0 ? App.formatMoney(sellLabor) : '-'}</td>
+                                <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${sellMat > 0 ? App.formatMoney(sellMat) : '-'}</td>
+                                <td style="padding:10px; text-align:right;">${App.formatMoney(i.price)}</td>
+                                <td style="padding:10px; text-align:right; font-weight:bold;">${App.formatMoney(i.rowT)}</td>
+                            </tr>`;
+                        });
+                        rowsHtml += `
+                            <tr>
+                                <td colspan="5" style="padding:10px; text-align:right; font-size:0.85rem; color:#64748B;">Sous-total ${groupName}:</td>
+                                <td style="padding:10px; text-align:right; font-weight:700; color:var(--primary);">${App.formatMoney(groupData.subtotal)}</td>
+                            </tr>
+                            <tr><td colspan="6" style="height:15px;"></td></tr>
+                        `;
+                    }
+                }
+                
+                const html = `
+                    <div style="font-family:sans-serif; padding:30px; color:#334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px;">
+                            <div>
+                                <h1 style="color:#0f172a; margin:0;">${title}</h1>
+                                <div style="color:#64748b; font-size:0.9rem;">${ref}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <strong>QOTIA ENTREPRISE</strong><br>123 Rue Exemple<br>06000 NICE
                             </div>
                         </div>
-                    `;
-                    cont.appendChild(el);
-                });
-            },
+                        <div style="background:#f1f5f9; padding:20px; border-radius:10px; margin-bottom:30px;">
+                            <strong>CLIENT:</strong><br>
+                            <span style="font-size:1.2rem; font-weight:bold; color:#0f172a;">${cli.nom}</span><br>
+                            ${cli.addr}<br>${cli.tel||''}
+                        </div>
+                        <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin-bottom:30px;">
+                            <thead style="background:#0f172a; color:white;">
+                                <tr>
+                                    <th style="padding:12px; text-align:left;">Description</th>
+                                    <th style="padding:12px; text-align:center;">Qté</th>
+                                    <th style="padding:12px; text-align:center;">Vente M.O. (Tot)</th>
+                                    <th style="padding:12px; text-align:center;">Vente Mat. (Tot)</th>
+                                    <th style="padding:12px; text-align:right;">P.U.</th>
+                                    <th style="padding:12px; text-align:right;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                        </table>
+                        
+                        <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+                            <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                                <table style="width:300px; font-size:1rem; color:#334155; margin-bottom:10px;">
+                                    <tr>
+                                        <td style="text-align:left; padding:4px 0;">Total Vente M.O.:</td>
+                                        <td style="text-align:right; font-weight:700;">${App.formatMoney(totalLaborPDF)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:left; padding:4px 0;">Total Vente Matériel:</td>
+                                        <td style="text-align:right; font-weight:700;">${App.formatMoney(totalMatPDF)}</td>
+                                    </tr>
+                                </table>
+                                <div style="font-size:1.5rem; font-weight:900; color:#0f172a; border-top:2px solid #E2E8F0; padding-top:10px; width:300px; text-align:right;">
+                                    TOTAL A PAYER: ${App.formatMoney(totalTTC)}
+                                </div>
+                                ${extraInfo}
+                            </div>
+                        </div>
 
-            toggleItemSelection(id, el) {
-                if (App.state.selectedItems.has(id)) {
-                    App.state.selectedItems.delete(id);
-                    el.querySelector('.custom-checkbox').classList.remove('checked');
-                } else {
-                    App.state.selectedItems.add(id);
-                    el.querySelector('.custom-checkbox').classList.add('checked');
-                }
-            },
-
-            selectAllItems() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const did = document.getElementById('sel-source-devis').value;
-                const d = c.devisList.find(x => x.id == did);
-                
-                const allSelected = (App.state.selectedItems.size === (d.items || []).length);
-                
-                if (allSelected) {
-                    App.state.selectedItems.clear();
-                } else {
-                    (d.items || []).forEach(i => App.state.selectedItems.add(i.id));
-                }
-                App.renderSelectionList();
-            },
-
-            assignCollaborator() {
-                if(App.state.selectedItems.size === 0) return alert("Seleziona almeno un lavoro.");
-                const name = document.getElementById('cdc-assignee').value;
-                if(!name) return alert("Seleziona un partner dalla lista.");
-                
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                const d = c.devisList.find(x=>x.id==document.getElementById('sel-source-devis').value);
-                
-                let count = 0;
-                (d.items || []).forEach(i => {
-                    if(App.state.selectedItems.has(i.id)) {
-                        i.assignedTo = name;
-                        count++;
-                    }
-                });
-                
-                Store.save();
-                App.showToast(`${count} lavori assegnati a ${name}`);
-                App.renderSelectionList(); 
-            },
-
-            saveCDC() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const cli = Store.data.clients.find(x => x.id == c.clientId);
-                const did = document.getElementById('sel-source-devis').value;
-                const d = c.devisList.find(x => x.id == did);
-                
-                if (App.state.selectedItems.size === 0) return alert("Seleziona gli elementi da includere nel CDC.");
-
-                const selectedItemsList = (d.items || []).filter(i => App.state.selectedItems.has(i.id));
-                
-                const today = new Date();
-                const dateStr = today.toLocaleDateString('fr-FR').replace(/\//g, '-'); 
-                const clientName = cli ? cli.nom.replace(/\s+/g, '_') : 'Client';
-                const chantierName = c.name.replace(/\s+/g, '_');
-                const enrichedName = `${dateStr}_${clientName}_${chantierName}`;
-                
-                const itemsCopy = selectedItemsList.map(item => ({
-                    ...item,
-                    photos: [] 
-                }));
-                
-                const newDoc = {
-                    id: Date.now(),
-                    name: enrichedName,
-                    ref: `CDC-${Date.now().toString().slice(-4)}`,
-                    date: new Date().toISOString(),
-                    items: itemsCopy
-                };
-
-                if (!c.extraDocs) c.extraDocs = [];
-                c.extraDocs.push(newDoc);
-                Store.save();
-                
-                App.showToast("Documento CDC creato!");
-                App.closeModal('modal-select-cdc');
-                App.openHub(c.id);
+                        ${signatureBlock}
+                        <div style="height:30px;"></div> </div>`;
+                const opt = { margin: 10, filename: `${title}_${ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                html2pdf().set(opt).from(html).save();
+                App.showToast("PDF Téléchargé");
             }
         };
 
