@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#ffffff">
     
-    <!-- ANTI-CACHE META TAGS -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -18,10 +17,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
-    <!-- AJOUT DE LA LIBRAIRIE CHART.JS POUR LE TABLEAU DE BORD -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- AUTO-REFRESH SCRIPT PER BYPASSARE LA CACHE DI SAFARI -->
     <script>
         if (!sessionStorage.getItem('qotia_cache_busted')) {
             sessionStorage.setItem('qotia_cache_busted', 'true');
@@ -281,14 +278,12 @@
         <div class="home-fixed-area">
             <div class="welcome-block"><div class="welcome-name">Bonjour, <span id="home-username">Jean</span></div><div class="welcome-date" id="home-date-display">...</div></div>
             <div class="action-grid" id="home-action-grid">
-                <!-- Les boutons seront affichés conditionnellement selon le rôle -->
-            </div>
+                </div>
         </div>
         <div class="scroll-content">
             <div class="section-separator" style="border:none; margin-top:0;"><div class="section-title">Aujourd'hui</div><button class="action-create-btn" onclick="App.openAgenda()">+ RDV</button></div>
             <div id="home-today-list"></div>
             
-            <!-- NOUVEAU TABLEAU DE BORD DE RENTABILITÉ -->
             <div id="home-dashboard-block" style="margin-top:25px; display:none; flex-direction:column; gap:20px;">
                 <div style="background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card);">
                     <div style="font-size: 0.85rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; text-transform: uppercase;">Rentabilité Mensuelle Nette</div>
@@ -299,8 +294,7 @@
                     <div style="font-size: 0.85rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; text-transform: uppercase;">Chantiers en cours</div>
                     <div style="overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch;">
                         <div id="chart-chantiers-cards" style="display:flex; gap:15px; min-width: max-content;">
-                            <!-- Cards generati dinamicamente -->
-                        </div>
+                            </div>
                     </div>
                 </div>
             </div>
@@ -321,8 +315,7 @@
                 <div style="background:rgba(255,255,255,0.2); padding:6px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; color:white; display:inline-block; margin-top:10px;" id="hub-ref">REF</div>
             </div>
             <div style="padding: 0 20px 120px 20px;">
-                <!-- SECTION MARGE CHANTIER -->
-                <div id="hub-margin-section" style="background: #F0FDF4; border: 1px solid #BBF7D0; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                <div id="hub-margin-section" style="display: none; background: #F0FDF4; border: 1px solid #BBF7D0; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-size: 0.75rem; color: #166534; font-weight: 700; text-transform: uppercase;">Marge Chantier (Devis Acceptés)</div>
@@ -332,8 +325,7 @@
                     </div>
                 </div>
 
-                <!-- DEVIS VISIBILE DI DEFAULT -->
-                <div id="hub-devis-section">
+                <div id="hub-devis-section" style="display: none;">
                     <div class="section-separator"><span class="section-title" style="color:var(--col-devis)">Devis</span><button class="action-create-btn" style="background:var(--col-devis); color:white; border:none;" onclick="App.createNewDevis()"><i class="fas fa-plus"></i> Créer</button></div>
                     <div id="hub-devis-list"></div>
                 </div>
@@ -341,14 +333,11 @@
                 <div class="section-separator">
                     <span class="section-title" style="color:var(--col-cdc)">Cahier des Charges</span>
                     <div style="display:flex; gap:5px;" id="hub-cdc-buttons">
-                        <button class="action-create-btn" onclick="App.generateRoomReportPDF()" style="border-color: #3B82F6; color: #3B82F6;"><i class="fas fa-map-marked-alt"></i> Zones PDF</button>
-                        <button class="action-create-btn" onclick="App.openSelectCDCModal()"><i class="fas fa-tasks"></i> Gérer</button>
                     </div>
                 </div>
                 <div id="hub-docs-list"></div>
                 
-                <!-- FACTURES VISIBILE DI DEFAULT -->
-                <div id="hub-factures-section">
+                <div id="hub-factures-section" style="display: none;">
                     <div class="section-separator"><span class="section-title" style="color:var(--col-facture)">Factures</span><button class="action-create-btn" onclick="App.openCreateInvoiceModal()"><i class="fas fa-euro-sign"></i> Facture</button></div>
                     <div id="hub-factures-list"></div>
                 </div>
@@ -403,7 +392,7 @@
         <header class="mobile-header">
             <div class="logo-text">LISTE CHANTIERS</div>
             <div style="display:flex; gap:10px;">
-                <button class="header-action-btn" id="btn-global-margin" style="background:#15803d;" onclick="App.generateAllChantiersMarginPDF()"><i class="fas fa-chart-line"></i></button>
+                <button class="header-action-btn" id="btn-global-margin" style="background:#15803d; display:none;" onclick="App.generateAllChantiersMarginPDF()"><i class="fas fa-chart-line"></i></button>
                 <button class="header-action-btn" onclick="App.openProjectWizard()">+</button>
             </div>
         </header>
@@ -488,7 +477,6 @@
         </div>
     </div>
 
-    <!-- MODALE FIRMA AGGIORNATO (3 BOTTONI + OTP) -->
     <div id="modal-signature" class="full-modal">
         <div class="modal-header">
             <h3 id="sig-modal-title">Action Devis</h3>
@@ -623,7 +611,6 @@
                         .eq('id', this.user.id)
                         .single();
                     
-                    // Sicurezza massima: se non ci sono regole precise, sei un admin!
                     if (profile && profile.role) {
                         this.role = profile.role.toLowerCase();
                     } else {
@@ -760,7 +747,6 @@
             init() { Auth.init(); },
 
             applyRoleRestrictions() {
-                // Logica Invertita: a meno che tu non sia esplicitamente un collaborateur registrato, sei sempre l'Admin.
                 const isCollaborateur = Auth.role === 'collaborateur' || Auth.role === 'ouvrier';
                 
                 const navDocs = document.getElementById('nav-documents');
@@ -923,7 +909,6 @@
                         }
                     });
 
-                    // Chart Render
                     const ctxElem = document.getElementById('chart-global-rentabilite');
                     if(ctxElem) {
                         if(App.state.globalChart) App.state.globalChart.destroy();
@@ -948,7 +933,6 @@
                         });
                     }
 
-                    // Cards render
                     const cardsContainer = document.getElementById('chart-chantiers-cards');
                     if(cardsContainer) {
                         cardsContainer.innerHTML = '';
@@ -1059,7 +1043,7 @@
                 </div>
                 
                 <div class="card-item" onclick="App.editSetting('materialMarkup', 'Marge sur Matériel (%)')">
-                    <div class="card-info"><div class="card-title">Marge Matériel</div><div class="card-sub">% aggiunto al costo di acquisto</div></div>
+                    <div class="card-info"><div class="card-title">Marge Matériel</div><div class="card-sub">% ajouté au coût d'achat</div></div>
                     <div style="font-size:1.2rem; font-weight:800; color:var(--success);">${Store.data.settings.materialMarkup} %</div>
                 </div>
                 
@@ -1086,7 +1070,6 @@
                 const rateCost = Store.data.settings.laborCost || 25;
                 const isCollaborateur = Auth.role === 'collaborateur' || Auth.role === 'ouvrier';
 
-                // Calcolo margini (eseguito sempre, mostrato via CSS)
                 let totalChantierMargin = 0;
                 let totalChantierRevenue = 0;
                 if(c.devisList) {
@@ -1107,7 +1090,6 @@
                 let perc = totalChantierRevenue > 0 ? ((totalChantierMargin / totalChantierRevenue) * 100).toFixed(1) : 0;
                 document.getElementById('hub-total-margin').innerHTML = `${App.formatMoney(totalChantierMargin)} <span style="font-size:0.9rem; color:#64748B;">(${perc}%)</span>`;
 
-                // Renderizzazione liste (senza blocchi if-role, così il codice HTML viene generato)
                 const ld = document.getElementById('hub-devis-list'); ld.innerHTML=''; 
                 (c.devisList || []).forEach(d => { 
                     const isSigned = d.status === "Accepté";
@@ -1400,7 +1382,7 @@
 
             deleteRoom() {
                 const roomName = document.getElementById('room-display-final').innerText;
-                if(roomName === "Sélectionner une pièce" || roomName === "Sélectionner...") return;
+                if(roomName === "Sélectionner une pièce") return;
 
                 const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId); 
                 const dv = c.devisList.find(x => x.id == Store.data.activeDevisId);
@@ -1847,22 +1829,26 @@
                             </div>
                         </div>
                         <div style="background:var(--accent); color:white; width:35px; height:35px; border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer;">
-                            <i class="fas fa-plus" style="font-size:0.9rem;"></i>
+                            <i class="fas fa-plus" style="font-size:0.9rem; pointer-events:none;"></i>
                         </div>
                     `; 
                     
                     div.onclick = () => { 
-                        const roomDisplay = document.getElementById('room-display-final');
-                        const finalPieceName = roomDisplay.innerText.trim();
-                        
-                        const isConfirmed = finalPieceName !== "Sélectionner une pièce" && finalPieceName !== "Sélectionner...";
-                        
-                        if(!isConfirmed) {
-                            App.toggleRoomEdit(true);
-                            return alert("Per favore, seleziona e CONFERMA una stanza prima di aggiungere articoli!");
+                        try {
+                            const roomDisplay = document.getElementById('room-display-final');
+                            let finalPieceName = roomDisplay.innerText.trim();
+                            
+                            const isConfirmed = finalPieceName && finalPieceName.length > 0 && !finalPieceName.toLowerCase().includes("lectionner");
+                            
+                            // FALLBACK SALVAVITA: Se l'utente non ha selezionato la stanza, non lo blocchiamo, mettiamo "Général" in automatico.
+                            if(!isConfirmed) {
+                                finalPieceName = "Général";
+                            }
+                            
+                            App.openAddItemModal(it, finalPieceName);
+                        } catch(e) {
+                            alert("Erreur: " + e.message);
                         }
-                        
-                        App.openAddItemModal(it, finalPieceName);
                     }; 
                     container.appendChild(div); 
                 });
@@ -1891,9 +1877,9 @@
                 App.state.tempLibItem = item;
                 
                 document.getElementById('edit-item-title').innerText = "Nouvel Article";
-                document.getElementById('edit-item-desc').value = item.desc;
+                document.getElementById('edit-item-desc').value = item.desc || "";
                 document.getElementById('edit-item-qty').value = 1;
-                document.getElementById('edit-item-unit').value = item.unit;
+                document.getElementById('edit-item-unit').value = item.unit || "U";
                 document.getElementById('edit-item-price').value = App.calculateItemPrice(item).toFixed(2);
                 
                 document.getElementById('edit-item-time').value = item.labor_time || 0;
@@ -1904,7 +1890,7 @@
                 matInput.style.opacity = '1';
                 
                 const cb = document.getElementById('edit-item-exclude-mat');
-                cb.checked = false;
+                if (cb) cb.checked = false;
                 
                 document.getElementById('edit-item-rubble').value = item.gravats || 0; 
                 document.getElementById('btn-delete-item').style.display = 'none'; 
@@ -1912,7 +1898,9 @@
                 const sel = document.getElementById('edit-item-piece');
                 sel.innerHTML = '';
                 let o = document.createElement('option');
-                o.value = room; o.text = room; o.selected = true;
+                o.value = room || "Général"; 
+                o.text = room || "Général"; 
+                o.selected = true;
                 sel.appendChild(o);
                 
                 document.getElementById('modal-edit-item').classList.add('open');
@@ -1938,13 +1926,13 @@
                 matInput.style.opacity = '1';
                 
                 const cb = document.getElementById('edit-item-exclude-mat');
-                cb.checked = false;
+                if (cb) cb.checked = false;
                 
                 document.getElementById('edit-item-rubble').value = item.gravats || 0;
                 
-                const rooms = new Set(d.items.map(i => i.piece).filter(Boolean)); 
+                const rooms = new Set((d.items||[]).map(i => i.piece).filter(Boolean)); 
                 const currentSticky = document.getElementById('room-display-final').innerText;
-                if(currentSticky !== "Sélectionner une pièce" && currentSticky !== "Sélectionner...") rooms.add(currentSticky);
+                if(currentSticky && currentSticky !== "Sélectionner une pièce" && currentSticky !== "Sélectionner...") rooms.add(currentSticky);
 
                 const sel = document.getElementById('edit-item-piece'); sel.innerHTML = ''; 
                 rooms.forEach(r => { const isSel = r === item.piece ? 'selected' : ''; sel.innerHTML += `<option value="${r}" ${isSel}>${r}</option>`; });
@@ -1983,7 +1971,7 @@
                 const material = parseFloat(document.getElementById('edit-item-mat').value)||0;
                 
                 const gravats = parseFloat(document.getElementById('edit-item-rubble').value)||0;
-                const piece = document.getElementById('edit-item-piece').value;
+                const piece = document.getElementById('edit-item-piece').value || "Général";
                 
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); 
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId); 
@@ -1998,7 +1986,7 @@
                     const newItem = { 
                         id: Date.now(), 
                         desc: desc, 
-                        unit: document.getElementById('edit-item-unit').value, 
+                        unit: document.getElementById('edit-item-unit').value || "U", 
                         time: time, 
                         material_cost: material, 
                         price: price, 
@@ -2382,227 +2370,6 @@
                 const opt = { margin: 10, filename: `${title}_${ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
                 html2pdf().set(opt).from(html).save();
                 App.showToast("PDF Téléchargé");
-            },
-            
-            viewCahierTable(doc) {
-                document.getElementById('vc-title').innerText = doc.name;
-                const t = document.getElementById('vc-table');
-                t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Photos</th><th style="padding:10px;">Ass.</th></tr>';
-                
-                (doc.items || []).forEach(i => {
-                    const photosHtml = (i.photos && i.photos.length) 
-                        ? i.photos.map(p => `<img src="${p}" class="photo-thumb" onclick="window.open('${p}', '_blank')">`).join('')
-                        : 'Aucune photo';
-                    
-                    const row = t.insertRow();
-                    row.style.borderBottom = '1px solid #eee';
-                    
-                    const cellDesc = row.insertCell();
-                    cellDesc.style.padding = '10px';
-                    cellDesc.innerText = i.desc;
-                    
-                    const cellLoc = row.insertCell();
-                    cellLoc.style.padding = '10px';
-                    cellLoc.innerText = i.piece || '-';
-                    
-                    const cellPhotos = row.insertCell();
-                    cellPhotos.style.padding = '10px';
-                    cellPhotos.innerHTML = `<div class="photo-gallery">${photosHtml}</div>`;
-                    
-                    const cellActions = row.insertCell();
-                    cellActions.style.padding = '10px';
-                    cellActions.innerHTML = `
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <span style="color: #15803d; font-weight:bold;">${i.assignedTo || '-'}</span>
-                            <button class="add-photo-btn" onclick="App.openAddPhotoModal('${doc.id}', ${i.id}, '${i.desc.replace(/'/g, "\\'")}')">
-                                <i class="fas fa-camera"></i> Ajouter photo
-                            </button>
-                        </div>
-                    `;
-                });
-                
-                document.getElementById('modal-view-cahier').classList.add('open');
-            },
-
-            openAddPhotoModal(docId, itemId, itemDesc) {
-                App.state.currentCDCDocForPhoto = docId;
-                App.state.currentCDCItemForPhoto = itemId;
-                document.getElementById('add-photo-item-desc').innerText = `Ajouter une photo pour : ${itemDesc}`;
-                document.getElementById('photo-input').value = ''; 
-                document.getElementById('photo-preview').innerHTML = '';
-                document.getElementById('modal-add-photo').classList.add('open');
-                
-                document.getElementById('photo-input').onchange = function() {
-                    const file = this.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            document.getElementById('photo-preview').innerHTML = `<img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`;
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                };
-            },
-
-            async uploadPhoto() {
-                const fileInput = document.getElementById('photo-input');
-                const file = fileInput.files[0];
-                if (!file) return alert("Sélectionnez une photo.");
-
-                const docId = App.state.currentCDCDocForPhoto;
-                const itemId = App.state.currentCDCItemForPhoto;
-                if (!docId || !itemId) return;
-
-                const userId = Auth.user.id;
-                const fileName = `${userId}/${docId}/${itemId}/${Date.now()}_${file.name}`;
-
-                App.showToast("Upload en cours...");
-
-                const { data, error } = await sbClient.storage
-                    .from('cdc-photos')
-                    .upload(fileName, file);
-
-                if (error) {
-                    console.error(error);
-                    return App.showToast("Erreur upload : " + error.message);
-                }
-
-                const { data: urlData, error: urlError } = await sbClient.storage
-                    .from('cdc-photos')
-                    .createSignedUrl(fileName, 31536000); 
-
-                if (urlError) {
-                    console.error(urlError);
-                    return App.showToast("Erreur génération URL");
-                }
-
-                const publicUrl = urlData.signedUrl;
-
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const doc = (c.extraDocs||[]).find(d => d.id == docId);
-                const item = (doc.items||[]).find(i => i.id == itemId);
-                if (!item.photos) item.photos = [];
-                item.photos.push(publicUrl);
-
-                await Store.save();
-                App.showToast("Photo ajoutée !");
-                App.closeModal('modal-add-photo');
-                App.viewCahierTable(doc); 
-            },
-
-            renderSelectionList() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const did = document.getElementById('sel-source-devis').value;
-                if (!did) return;
-                
-                const d = c.devisList.find(x => x.id == did);
-                const cont = document.getElementById('selection-list-container');
-                cont.innerHTML = '';
-
-                (d.items || []).forEach(item => {
-                    const isChecked = App.state.selectedItems.has(item.id) ? 'checked' : '';
-                    const assignedInfo = item.assignedTo 
-                        ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${item.assignedTo}</span>` 
-                        : '';
-                    
-                    const el = document.createElement('div');
-                    el.className = 'check-container';
-                    el.onclick = (e) => App.toggleItemSelection(item.id, el);
-                    el.innerHTML = `
-                        <div class="custom-checkbox ${isChecked}"></div>
-                        <div style="flex:1">
-                            <div style="font-weight:700; font-size:0.9rem;">${item.desc}</div>
-                            <div style="font-size:0.8rem; color:var(--text-sub); display:flex; align-items:center;">
-                                ${item.piece || 'Général'} ${assignedInfo}
-                            </div>
-                        </div>
-                    `;
-                    cont.appendChild(el);
-                });
-            },
-
-            toggleItemSelection(id, el) {
-                if (App.state.selectedItems.has(id)) {
-                    App.state.selectedItems.delete(id);
-                    el.querySelector('.custom-checkbox').classList.remove('checked');
-                } else {
-                    App.state.selectedItems.add(id);
-                    el.querySelector('.custom-checkbox').classList.add('checked');
-                }
-            },
-
-            selectAllItems() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const did = document.getElementById('sel-source-devis').value;
-                const d = c.devisList.find(x => x.id == did);
-                
-                const allSelected = (App.state.selectedItems.size === (d.items || []).length);
-                
-                if (allSelected) {
-                    App.state.selectedItems.clear();
-                } else {
-                    (d.items || []).forEach(i => App.state.selectedItems.add(i.id));
-                }
-                App.renderSelectionList();
-            },
-
-            assignCollaborator() {
-                if(App.state.selectedItems.size === 0) return alert("Seleziona almeno un lavoro.");
-                const name = document.getElementById('cdc-assignee').value;
-                if(!name) return alert("Seleziona un partner dalla lista.");
-                
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                const d = c.devisList.find(x=>x.id==document.getElementById('sel-source-devis').value);
-                
-                let count = 0;
-                (d.items || []).forEach(i => {
-                    if(App.state.selectedItems.has(i.id)) {
-                        i.assignedTo = name;
-                        count++;
-                    }
-                });
-                
-                Store.save();
-                App.showToast(`${count} lavori assegnati a ${name}`);
-                App.renderSelectionList(); 
-            },
-
-            saveCDC() {
-                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const cli = Store.data.clients.find(x => x.id == c.clientId);
-                const did = document.getElementById('sel-source-devis').value;
-                const d = c.devisList.find(x => x.id == did);
-                
-                if (App.state.selectedItems.size === 0) return alert("Seleziona gli elementi da includere nel CDC.");
-
-                const selectedItemsList = (d.items || []).filter(i => App.state.selectedItems.has(i.id));
-                
-                const today = new Date();
-                const dateStr = today.toLocaleDateString('fr-FR').replace(/\//g, '-'); 
-                const clientName = cli ? cli.nom.replace(/\s+/g, '_') : 'Client';
-                const chantierName = c.name.replace(/\s+/g, '_');
-                const enrichedName = `${dateStr}_${clientName}_${chantierName}`;
-                
-                const itemsCopy = selectedItemsList.map(item => ({
-                    ...item,
-                    photos: [] 
-                }));
-                
-                const newDoc = {
-                    id: Date.now(),
-                    name: enrichedName,
-                    ref: `CDC-${Date.now().toString().slice(-4)}`,
-                    date: new Date().toISOString(),
-                    items: itemsCopy
-                };
-
-                if (!c.extraDocs) c.extraDocs = [];
-                c.extraDocs.push(newDoc);
-                Store.save();
-                
-                App.showToast("Documento CDC creato!");
-                App.closeModal('modal-select-cdc');
-                App.openHub(c.id);
             }
         };
 
