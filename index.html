@@ -180,6 +180,7 @@
         .type-option { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95rem; color: #64748B; border-radius: 10px; cursor: pointer; }
         .type-option.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
+        /* LIST CHANTIERS HEADER STYLE */
         #view-projets .mobile-header { background: var(--col-chantier); }
         #view-projets .logo-text, #view-projets .header-action-btn { color: white; }
         #view-projets .header-action-btn { background: rgba(255,255,255,0.2); }
@@ -193,6 +194,7 @@
         .toast { background: #1E293B; color: white; padding: 14px; border-radius: 50px; font-weight: 600; font-size: 0.9rem; opacity: 0; transform: translateY(20px); transition: all 0.3s; margin-top: 10px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         .toast.show { opacity: 1; transform: translateY(0); }
 
+        /* AJOUT CDC PHOTOS : Style pour les miniatures */
         .photo-thumb {
             width: 60px;
             height: 60px;
@@ -850,7 +852,7 @@
                             <div style="text-align:left"><span style="display:block; font-size:0.9rem;">AGENDA</span><span style="font-size:0.7rem; color:var(--text-sub); font-weight:500;">Gestion RDV</span></div>
                         </button>
                     `;
-                    document.getElementById('home-unpaid-block').style.display = 'none'; // Sostituito dalla dashboard
+                    document.getElementById('home-unpaid-block').style.display = 'none'; 
                     document.getElementById('hub-devis-section').style.display = 'block';
                     document.getElementById('hub-factures-section').style.display = 'block';
                     document.getElementById('hub-margin-section').style.display = 'block';
@@ -931,7 +933,7 @@
                                     let dRev = 0;
                                     let dMargin = 0;
                                     
-                                    d.items.forEach(i => {
+                                    (d.items || []).forEach(i => {
                                         const sMO = (i.time || 0) * rateSell * i.qty;
                                         const cMO = (i.time || 0) * rateCost * i.qty;
                                         const cMat = (i.material_cost || 0) * i.qty;
@@ -1062,7 +1064,7 @@
                     if (Auth.role === 'admin' && c.devisList) {
                         c.devisList.forEach(d => {
                             if(d.status === 'Accepté') {
-                                d.items.forEach(i => {
+                                (d.items || []).forEach(i => {
                                     const sMO = (i.time || 0) * rateSell * i.qty;
                                     const cMO = (i.time || 0) * rateCost * i.qty;
                                     const cMat = (i.material_cost || 0) * i.qty;
@@ -1127,7 +1129,7 @@
                     if(c.devisList) {
                         c.devisList.forEach(d => {
                             if(d.status === 'Accepté') {
-                                d.items.forEach(i => {
+                                (d.items || []).forEach(i => {
                                     const sMO = (i.time || 0) * rateSell * i.qty;
                                     const cMO = (i.time || 0) * rateCost * i.qty;
                                     const cMat = (i.material_cost || 0) * i.qty;
@@ -1146,7 +1148,7 @@
 
                 const ld = document.getElementById('hub-devis-list'); ld.innerHTML=''; 
                 if (Auth.role === 'admin') {
-                    c.devisList.forEach(d => { 
+                    (c.devisList || []).forEach(d => { 
                         const isSigned = d.status === "Accepté";
                         
                         const signIcon = isSigned 
@@ -1171,7 +1173,7 @@
 
                 const lf = document.getElementById('hub-factures-list'); lf.innerHTML=''; 
                 if (Auth.role === 'admin') {
-                    c.factures.forEach(f => { 
+                    (c.factures || []).forEach(f => { 
                         lf.innerHTML+=`<div class="card-item" style="border-left:4px solid var(--col-facture); background:var(--bg-facture);"><div class="card-info"><div class="card-title">${f.ref}</div><div class="card-sub">${App.formatMoney(f.amount)}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i></div>`; 
                     });
                 }
@@ -1180,7 +1182,7 @@
             
             generateMarginPDF() {
                 const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const acceptedDevis = c.devisList.filter(d => d.status === 'Accepté');
+                const acceptedDevis = (c.devisList || []).filter(d => d.status === 'Accepté');
                 if(acceptedDevis.length === 0) return alert("Aucun devis accepté pour générer la marge.");
 
                 const rateSell = Store.data.settings.hourlyRate || 45;
@@ -1193,7 +1195,7 @@
                 let grandTotalRevenue = 0;
 
                 acceptedDevis.forEach(d => {
-                    d.items.forEach(i => {
+                    (d.items || []).forEach(i => {
                         let cat = i.category || "Général";
                         if(!families[cat]) families[cat] = { costMO: 0, costMat: 0, sellMO: 0, sellMat: 0, margeTot: 0 };
                         
@@ -1286,7 +1288,7 @@
                     if(c.devisList) {
                         c.devisList.forEach(d => {
                             if(d.status === 'Accepté') {
-                                d.items.forEach(i => {
+                                (d.items || []).forEach(i => {
                                     const sMO = (i.time || 0) * rateSell * i.qty;
                                     const cMO = (i.time || 0) * rateCost * i.qty;
                                     const cMat = (i.material_cost || 0) * i.qty;
@@ -1444,7 +1446,7 @@
 
                 const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId); 
                 const dv = c.devisList.find(x => x.id == Store.data.activeDevisId);
-                const isUsed = dv.items.some(i => i.piece === roomName);
+                const isUsed = (dv.items || []).some(i => i.piece === roomName);
 
                 if(isUsed) {
                     alert("Impossibile eliminare: questa stanza contiene degli articoli. Rimuovi prima gli articoli.");
@@ -1473,17 +1475,18 @@
 
             createNewDevis() {
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                const name = prompt("Nom du devis :", 'Devis #' + (c.devisList.length + 1));
+                const name = prompt("Nom du devis :", 'Devis #' + ((c.devisList || []).length + 1));
                 if (!name) return;
                 const id = Date.now();
+                if(!c.devisList) c.devisList = [];
                 c.devisList.push({ id: id, ref: 'D-'+Math.floor(Math.random()*1000), name: name, status:'Brouillon', items: [], total: 0, totalTime: 0, totalGravats: 0 });
                 Store.save(); App.openEditor(id);
             },
             openEditor(did) { 
                 Store.data.activeDevisId = did; 
-                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
-                if(!c) { 
-                    const found = Store.data.chantiers.find(ch => ch.devisList.some(d => d.id == did));
+                let c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
+                if(!c || !(c.devisList || []).some(d => d.id == did)) { 
+                    const found = Store.data.chantiers.find(ch => (ch.devisList || []).some(d => d.id == did));
                     if(found) { Store.data.activeChantierId = found.id; return App.openEditor(did); }
                     return App.nav('projets'); 
                 }
@@ -1507,7 +1510,7 @@
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
                 let totP = 0; let totT = 0; let totG = 0;
-                d.items.forEach(i => { 
+                (d.items || []).forEach(i => { 
                     totP += i.qty * i.price; 
                     totT += i.qty * (i.time || 0); 
                     totG += i.qty * (i.gravats || 0); 
@@ -1521,7 +1524,7 @@
                 const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
                 const d = c.devisList.find(x=>x.id==Store.data.activeDevisId);
                 const l = document.getElementById('editor-list-container'); l.innerHTML=''; 
-                if(d.items.length === 0) { l.innerHTML = '<div style="text-align:center; padding:40px; color:#94A3B8;">Vide</div>'; return; }
+                if(!d.items || d.items.length === 0) { l.innerHTML = '<div style="text-align:center; padding:40px; color:#94A3B8;">Vide</div>'; return; }
 
                 const rateSell = Store.data.settings.hourlyRate || 45;
                 const rateCost = Store.data.settings.laborCost || 25;
@@ -1669,7 +1672,7 @@
                 container.innerHTML = '';
 
                 const usedRooms = new Set();
-                dv.items.forEach(i => {
+                (dv.items || []).forEach(i => {
                     if(i.piece) usedRooms.add(i.piece);
                 });
 
@@ -2042,6 +2045,7 @@
                         gravats: gravats,
                         category: App.state.tempLibItem ? App.state.tempLibItem.category : "Général" 
                     };
+                    if(!d.items) d.items = [];
                     d.items.push(newItem);
                     App.showToast("Ajouté: " + desc);
                     
@@ -2054,7 +2058,7 @@
                 App.renderEditorItems(); 
             },
 
-            deleteItem() { if(confirm("Supprimer ?")) { const id=parseInt(document.getElementById('edit-item-idx').value); const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); d.items=d.items.filter(x=>x.id!==id); Store.save(); App.closeModal('modal-edit-item'); App.calcTotals(); App.renderEditorItems(); } },
+            deleteItem() { if(confirm("Supprimer ?")) { const id=parseInt(document.getElementById('edit-item-idx').value); const c=Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const d=c.devisList.find(x=>x.id==Store.data.activeDevisId); d.items=(d.items||[]).filter(x=>x.id!==id); Store.save(); App.closeModal('modal-edit-item'); App.calcTotals(); App.renderEditorItems(); } },
             
             closeModal(id) { document.getElementById(id).classList.remove('open'); },
             openPartnerModal() { document.getElementById('ptn-name').value=''; document.getElementById('modal-partner').classList.add('open'); },
@@ -2073,17 +2077,39 @@
             onInvoiceDevisChange() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); document.getElementById('inv-total-quote').innerText = App.formatMoney(d.total); App.calcInvPreview(); },
             setInvType(t) { App.state.invType = t; document.getElementById('btn-acompte').style.background = t==='acompte'? 'var(--primary)' : 'white'; document.getElementById('btn-acompte').style.color = t==='acompte'? 'white' : '#64748B'; document.getElementById('btn-solde').style.background = t==='solde'? 'var(--primary)' : 'white'; document.getElementById('btn-solde').style.color = t==='solde'? 'white' : '#64748B'; const inp = document.getElementById('inv-percent'); if(t==='solde') { inp.value = 100; inp.disabled = true; } else { inp.value = 30; inp.disabled = false; } App.calcInvPreview(); },
             calcInvPreview() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); const perc = parseInt(document.getElementById('inv-percent').value) || 0; const amt = d.total * (perc/100); document.getElementById('inv-preview-amount').innerText = App.formatMoney(amt); },
-            generateInvoice() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const amtString = document.getElementById('inv-preview-amount').innerText.replace(' €','').replace(/\s/g,'').replace(/\./g,'').replace(',','.'); c.factures.push({ id: Date.now(), ref: "FAC-"+Date.now().toString().slice(-4), type: App.state.invType, amount: parseFloat(amtString), paid: false }); Store.save(); App.showToast("Facture émise"); App.closeModal('modal-invoice'); App.openHub(c.id); },
+            generateInvoice() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const amtString = document.getElementById('inv-preview-amount').innerText.replace(' €','').replace(/\s/g,'').replace(/\./g,'').replace(',','.'); if(!c.factures) c.factures = []; c.factures.push({ id: Date.now(), ref: "FAC-"+Date.now().toString().slice(-4), type: App.state.invType, amount: parseFloat(amtString), paid: false }); Store.save(); App.showToast("Facture émise"); App.closeModal('modal-invoice'); App.openHub(c.id); },
             openAgenda() { const s=document.getElementById('agd-chantier'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.chantiers.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.name; s.appendChild(o);}); document.getElementById('modal-agenda').classList.add('open'); let l=document.getElementById('agenda-list-view'); l.innerHTML=''; (Store.data.appointments||[]).forEach(a=>{let d=document.createElement('div'); d.className='card-item'; d.innerText=new Date(a.date).toLocaleString()+' - '+a.title; l.appendChild(d);}); },
             saveAgendaEvent() { const cid=document.getElementById('agd-chantier').value; const date=document.getElementById('agd-date').value; if(cid&&date){const c=Store.data.chantiers.find(x=>x.id==cid); Store.data.appointments.push({id:Date.now(), date:date, title:"Visite", sub:c.name}); Store.save(); App.showToast("RDV Enregistré"); App.closeModal('modal-agenda'); App.renderHome();} },
-            renderDocuments(filter) { const l=document.getElementById('documents-list'); l.innerHTML=''; let docs=[]; Store.data.chantiers.forEach(c=>{ const cli=Store.data.clients.find(x=>x.id==c.clientId); const cn=cli?cli.nom:'-'; if(c.devisList) c.devisList.forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); if(c.factures) c.factures.forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); if(c.extraDocs) c.extraDocs.forEach(e=>docs.push({type:'CDC', ref:e.ref, client:cn, cid:c.id, obj:e})); }); if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter||(filter==='CDC'&&d.type==='Etude')); docs.forEach(d=>{ let div=document.createElement('div'); div.className='card-item'; div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); ${d.type==='CDC' ? `App.generateCDCPDF('${d.obj.id}')` : `App.generateGlobalPDF('${d.type.toLowerCase()}', ${d.obj.id}, ${d.cid})`}"></i>`; div.onclick=()=>{ Store.data.activeChantierId=d.cid; if(d.type==='Devis') App.openEditor(d.obj.id); else if(d.type==='CDC') App.viewCahierTable(d.obj); else App.openHub(d.cid); }; l.appendChild(div); }); },
+            renderDocuments(filter) { 
+                const l=document.getElementById('documents-list'); l.innerHTML=''; 
+                let docs=[]; 
+                Store.data.chantiers.forEach(c=>{ 
+                    const cli=Store.data.clients.find(x=>x.id==c.clientId); 
+                    const cn=cli?cli.nom:'-'; 
+                    (c.devisList||[]).forEach(d=>docs.push({type:'Devis', ref:d.ref, client:cn, cid:c.id, obj:d})); 
+                    (c.factures||[]).forEach(f=>docs.push({type:'Facture', ref:f.ref, client:cn, cid:c.id, obj:f})); 
+                    (c.extraDocs||[]).forEach(e=>docs.push({type:'CDC', ref:e.ref, client:cn, cid:c.id, obj:e})); 
+                }); 
+                if(filter&&filter!=='all') docs=docs.filter(d=>d.type===filter||(filter==='CDC'&&d.type==='Etude')); 
+                docs.forEach(d=>{ 
+                    let div=document.createElement('div'); div.className='card-item'; 
+                    div.innerHTML=`<div class="card-info"><span class="card-tag">${d.type}</span><div class="card-title">${d.ref}</div><div class="card-sub">${d.client}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); ${d.type==='CDC' ? `App.generateCDCPDF('${d.obj.id}')` : `App.generateGlobalPDF('${d.type.toLowerCase()}', ${d.obj.id})`}"></i>`; 
+                    div.onclick=()=>{ 
+                        Store.data.activeChantierId=d.cid; 
+                        if(d.type==='Devis') App.openEditor(d.obj.id); 
+                        else if(d.type==='CDC') App.viewCahierTable(d.obj); 
+                        else App.openHub(d.cid); 
+                    }; 
+                    l.appendChild(div); 
+                }); 
+            },
             
             viewCahierTable(doc) {
                 document.getElementById('vc-title').innerText = doc.name;
                 const t = document.getElementById('vc-table');
                 t.innerHTML = '<tr style="background:#f1f5f9; text-align:left;"><th style="padding:10px;">Article</th><th style="padding:10px;">Loc</th><th style="padding:10px;">Photos</th><th style="padding:10px;">Ass.</th></tr>';
                 
-                doc.items.forEach(i => {
+                (doc.items || []).forEach(i => {
                     const photosHtml = (i.photos && i.photos.length) 
                         ? i.photos.map(p => `<img src="${p}" class="photo-thumb" onclick="window.open('${p}', '_blank')">`).join('')
                         : 'Aucune photo';
@@ -2173,8 +2199,8 @@
                 const publicUrl = urlData.signedUrl;
 
                 const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                const doc = c.extraDocs.find(d => d.id == docId);
-                const item = doc.items.find(i => i.id == itemId);
+                const doc = (c.extraDocs||[]).find(d => d.id == docId);
+                const item = (doc.items||[]).find(i => i.id == itemId);
                 if (!item.photos) item.photos = [];
                 item.photos.push(publicUrl);
 
@@ -2193,7 +2219,7 @@
                 const cont = document.getElementById('selection-list-container');
                 cont.innerHTML = '';
 
-                d.items.forEach(item => {
+                (d.items || []).forEach(item => {
                     const isChecked = App.state.selectedItems.has(item.id) ? 'checked' : '';
                     const assignedInfo = item.assignedTo 
                         ? `<span class="assigned-badge"><i class="fas fa-user"></i> ${item.assignedTo}</span>` 
@@ -2230,12 +2256,12 @@
                 const did = document.getElementById('sel-source-devis').value;
                 const d = c.devisList.find(x => x.id == did);
                 
-                const allSelected = (App.state.selectedItems.size === d.items.length);
+                const allSelected = (App.state.selectedItems.size === (d.items || []).length);
                 
                 if (allSelected) {
                     App.state.selectedItems.clear();
                 } else {
-                    d.items.forEach(i => App.state.selectedItems.add(i.id));
+                    (d.items || []).forEach(i => App.state.selectedItems.add(i.id));
                 }
                 App.renderSelectionList();
             },
@@ -2249,7 +2275,7 @@
                 const d = c.devisList.find(x=>x.id==document.getElementById('sel-source-devis').value);
                 
                 let count = 0;
-                d.items.forEach(i => {
+                (d.items || []).forEach(i => {
                     if(App.state.selectedItems.has(i.id)) {
                         i.assignedTo = name;
                         count++;
@@ -2269,8 +2295,7 @@
                 
                 if (App.state.selectedItems.size === 0) return alert("Seleziona gli elementi da includere nel CDC.");
 
-                const selectedItemsList = d.items.filter(i => App.state.selectedItems.has(i.id));
-                const assigneeName = document.getElementById('cdc-assignee').value || "Général";
+                const selectedItemsList = (d.items || []).filter(i => App.state.selectedItems.has(i.id));
                 
                 const today = new Date();
                 const dateStr = today.toLocaleDateString('fr-FR').replace(/\//g, '-'); 
