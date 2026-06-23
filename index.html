@@ -640,10 +640,6 @@
         </div>
     </div>
 
-    <div id="modal-projet" class="full-modal"><div class="modal-header"><h3>Nouveau Chantier</h3><button class="header-back-container" onclick="App.closeModal('modal-projet')">×</button></div><div class="modal-body"><div style="display:flex; gap:10px; margin-bottom:15px;"><select id="prj-cli" class="app-input" style="flex:1; margin:0;"></select><button onclick="App.openClientModal()" style="width:55px; border-radius:12px; border:2px solid var(--border); background:white; font-size:1.2rem;">+</button></div><input type="text" id="prj-nom" class="app-input" placeholder="Nom Chantier"><input type="text" id="prj-addr" class="app-input" placeholder="Lieu"></div><div class="modal-footer"><button class="btn-primary" onclick="App.createProject()">CRÉER</button></div></div>
-    <div id="modal-agenda" class="full-modal"><div class="modal-header"><h3>Nouveau RDV</h3><button class="header-back-container" onclick="App.closeModal('modal-agenda')">×</button></div><div class="modal-body"><select id="agd-chantier" class="app-input"></select><input type="datetime-local" id="agd-date" class="app-input"><button class="btn-primary" onclick="App.saveAgendaEvent()">ENREGISTRER</button><div style="margin-top:30px; font-weight:800;">Prochains Événements</div><div id="agenda-list-view" style="margin-top:10px;"></div></div></div>
-    <div id="modal-invoice" class="full-modal"><div class="modal-header"><h3>Créer Facture</h3><button class="header-back-container" onclick="App.closeModal('modal-invoice')">×</button></div><div class="modal-body"><label style="font-weight:700;">Depuis Devis:</label><select id="inv-devis-select" class="app-input" onchange="App.onInvoiceDevisChange()"></select><div style="background:#F1F5F9; padding:15px; border-radius:12px; text-align:center; margin-bottom:20px;"><div style="font-size:0.8rem; color:#64748B">Montant Devis</div><div style="font-size:1.4rem; font-weight:900;" id="inv-total-quote">0,00 €</div></div><div style="display:flex; gap:10px; margin-bottom:15px;"><button id="btn-acompte" onclick="App.setInvType('acompte')" style="flex:1; height:45px; border-radius:10px; border:1px solid var(--border);">Acompte %</button><button id="btn-solde" onclick="App.setInvType('solde')" style="flex:1; height:45px; border-radius:10px; border:1px solid var(--border);">Solde</button></div><input type="number" id="inv-percent" class="app-input" value="30" onchange="App.calcInvPreview()"><div style="text-align:center; margin-top:20px;"><div>Montant Facture</div><div style="font-size:2rem; font-weight:900; color:var(--primary);" id="inv-preview-amount">0,00 €</div></div></div><div class="modal-footer"><button class="btn-primary" onclick="App.generateInvoice()">CRÉER FACTURE</button></div></div>
-
     <script>
         const SUPABASE_URL = 'https://uhuxdsubvvnytuftyztq.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVodXhkc3VidnZueXR1ZnR5enRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5MzI3NDMsImV4cCI6MjA4NTUwODc0M30.lXOPs-qDfXuO7ExdpbQJawb_gSWD31FDT0FHSD4xdmE';
@@ -1016,6 +1012,7 @@
                     }
                 }
             },
+            
             renderClients(q='') {
                 const l = document.getElementById('clients-list'); l.innerHTML = '';
                 Store.data.clients.forEach(c => {
@@ -1024,8 +1021,7 @@
                         const addr = c.addr ? c.addr : '';
                         const email = c.email ? c.email : '';
                         
-                        // FIX: Google Maps API search string
-                        const mapsLink = addr ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}` : '#';
+                        const mapsLink = addr ? `http://maps.google.com/?q=${encodeURIComponent(addr)}` : '#';
                         
                         const telLink = tel ? `tel:${tel}` : '#';
                         const mailLink = email ? `mailto:${email}` : '#';
@@ -1128,8 +1124,9 @@
                 
                 const rateSell = Store.data.settings.hourlyRate || 45;
                 const rateCost = Store.data.settings.laborCost || 25;
+                const isCollaborateur = Auth.role === 'collaborateur' || Auth.role === 'ouvrier';
 
-                if (Auth.role !== 'collaborateur' && Auth.role !== 'ouvrier') {
+                if (!isCollaborateur) {
                     let totalChantierMargin = 0;
                     let totalChantierRevenue = 0;
                     if(c.devisList) {
@@ -1149,11 +1146,10 @@
                     }
                     let perc = totalChantierRevenue > 0 ? ((totalChantierMargin / totalChantierRevenue) * 100).toFixed(1) : 0;
                     document.getElementById('hub-total-margin').innerHTML = `${App.formatMoney(totalChantierMargin)} <span style="font-size:0.9rem; color:#64748B;">(${perc}%)</span>`;
-                    document.getElementById('hub-margin-section').style.display = 'block';
                 }
 
                 const ld = document.getElementById('hub-devis-list'); ld.innerHTML=''; 
-                if (Auth.role !== 'collaborateur' && Auth.role !== 'ouvrier') {
+                if (!isCollaborateur) {
                     (c.devisList || []).forEach(d => { 
                         const isSigned = d.status === "Accepté";
                         
@@ -1178,7 +1174,7 @@
                 }
 
                 const lf = document.getElementById('hub-factures-list'); lf.innerHTML=''; 
-                if (Auth.role !== 'collaborateur' && Auth.role !== 'ouvrier') {
+                if (!isCollaborateur) {
                     (c.factures || []).forEach(f => { 
                         lf.innerHTML+=`<div class="card-item" style="border-left:4px solid var(--col-facture); background:var(--bg-facture);"><div class="card-info"><div class="card-title">${f.ref}</div><div class="card-sub">${App.formatMoney(f.amount)}</div></div><i class="fas fa-file-pdf" style="color:#DC2626; font-size:1.4rem; padding:10px; cursor:pointer;" onclick="event.stopPropagation(); App.generateGlobalPDF('facture', ${f.id})"></i></div>`; 
                     });
@@ -1188,8 +1184,7 @@
             
             generateMarginPDF() {
                 const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
-                if(!c) return alert("Erreur chantier.");
-                
+                if(!c) return;
                 const acceptedDevis = (c.devisList || []).filter(d => d.status === 'Accepté');
                 if(acceptedDevis.length === 0) return alert("Aucun devis accepté pour générer la marge.");
 
@@ -1275,10 +1270,8 @@
                     </div>
                 `;
 
-                // FIX: useCORS: true inserito
                 const opt = { margin: 10, filename: `MARGE_${c.name}.pdf`, html2canvas: { scale: 2, useCORS: true }, jsPDF: { orientation: 'landscape', format: 'a4' } };
                 if(typeof html2pdf !== 'undefined') html2pdf().set(opt).from(html).save();
-                App.showToast("PDF Marge téléchargé !");
             },
 
             generateAllChantiersMarginPDF() {
@@ -1365,10 +1358,8 @@
                     </div>
                 `;
 
-                // FIX: useCORS: true inserito
                 const opt = { margin: 10, filename: `MARGES_GLOBALE.pdf`, html2canvas: { scale: 2, useCORS: true }, jsPDF: { orientation: 'landscape', format: 'a4' } };
                 if(typeof html2pdf !== 'undefined') html2pdf().set(opt).from(html).save();
-                App.showToast("PDF Téléchargé");
             },
 
             promptSignature(devisId) {
@@ -1569,8 +1560,8 @@
                             
                             html += `<div class="e-card" style="background:var(--bg-devis);" onclick="App.editDevisItem(${i.id})"><div class="e-card-row"><div class="e-desc">${i.desc}</div><div style="font-weight:800; color:var(--primary);">${App.formatMoney(rowP)}</div></div><div class="e-stats"><div class="stat-box"><div class="stat-lbl">Qté</div><div class="stat-val">${i.qty}</div></div><div class="stat-box"><div class="stat-lbl">Prix U.</div><div class="stat-val">${App.formatMoney(i.price)}</div></div><div class="stat-box"><div class="stat-lbl">Temps</div><div class="stat-val time">${i.time||0}h</div></div></div>
                             <div class="e-stats" style="border-top:1px dashed #e2e8f0; margin-top:5px;">
-                                <div class="stat-box"><div class="stat-lbl" style="color:var(--time)">Vente M.O.</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(laborCostTotal)}</div></div>
-                                <div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Vente Mat.</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(matCostTotal)}</div></div>
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--time)">M.O. (€)</div><div class="stat-val" style="color:var(--time); font-size:0.8rem;">${App.formatMoney(laborCostTotal)}</div></div>
+                                <div class="stat-box"><div class="stat-lbl" style="color:var(--material)">Mat. (€)</div><div class="stat-val" style="color:var(--material); font-size:0.8rem;">${App.formatMoney(matCostTotal)}</div></div>
                                 <div class="stat-box"><div class="stat-lbl" style="color:var(--rubble)">Gravats</div><div class="stat-val" style="color:var(--rubble); font-size:0.8rem;">${(i.gravats*i.qty).toFixed(2)} kg</div></div>
                             </div>
                             </div>`;
@@ -1655,30 +1646,6 @@
                         
                         l.innerHTML += `</div>`;
                     });
-                }
-            },
-
-            // --- TRIGGER DI INSERIMENTO SICURO E INVINCIBILE ---
-            triggerItemAdd(itemId) {
-                try {
-                    const it = Config.allItems.find(x => String(x.id) === String(itemId));
-                    if (!it) {
-                        alert("Erreur: Article non trouvé.");
-                        return;
-                    }
-                    
-                    const roomDisplay = document.getElementById('room-display-final');
-                    let finalPieceName = "Général";
-                    
-                    if (roomDisplay) {
-                        const txt = roomDisplay.innerText.trim();
-                        const isConfirmed = txt && txt.length > 0 && !txt.toLowerCase().includes("lectionner");
-                        if (isConfirmed) finalPieceName = txt;
-                    }
-                    
-                    App.openAddItemModal(it, finalPieceName);
-                } catch(e) {
-                    alert("Erreur d'ouverture: " + e.message);
                 }
             },
 
@@ -2146,13 +2113,346 @@
             createProject() { const cid=document.getElementById('prj-cli').value; const nom=document.getElementById('prj-nom').value; const addr=document.getElementById('prj-addr').value; if(cid && nom) { const ch={id:Date.now(), clientId:cid, name:nom, ref:"C-"+Date.now().toString().slice(-4), devisList:[], factures:[], extraDocs:[]}; Store.data.chantiers.unshift(ch); Store.save(); App.showToast("Chantier créé"); App.closeModal('modal-projet'); App.openHub(ch.id); } },
             backToHub() { if(Store.data.activeChantierId) App.openHub(Store.data.activeChantierId); else App.nav('projets'); },
 
-            openCreateInvoiceModal() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); if(!c.devisList || c.devisList.length === 0) return alert("Erreur: Vous devez d'abord créer un devis !"); const s = document.getElementById('inv-devis-select'); s.innerHTML=''; c.devisList.forEach(d => { let o = document.createElement('option'); o.value=d.id; o.text=d.name; s.appendChild(o); }); document.getElementById('modal-invoice').classList.add('open'); App.onInvoiceDevisChange(); },
+            openCreateInvoiceModal() { 
+                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); 
+                if(!c || !c.devisList || c.devisList.length === 0) return alert("Erreur: Vous devez d'abord créer un devis !"); 
+                const s = document.getElementById('inv-devis-select'); 
+                s.innerHTML=''; 
+                c.devisList.forEach(d => { let o = document.createElement('option'); o.value=d.id; o.text=d.name; s.appendChild(o); }); 
+                document.getElementById('modal-invoice').classList.add('open'); 
+                App.onInvoiceDevisChange(); 
+            },
             onInvoiceDevisChange() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); document.getElementById('inv-total-quote').innerText = App.formatMoney(d.total); App.calcInvPreview(); },
             setInvType(t) { App.state.invType = t; document.getElementById('btn-acompte').style.background = t==='acompte'? 'var(--primary)' : 'white'; document.getElementById('btn-acompte').style.color = t==='acompte'? 'white' : '#64748B'; document.getElementById('btn-solde').style.background = t==='solde'? 'var(--primary)' : 'white'; document.getElementById('btn-solde').style.color = t==='solde'? 'white' : '#64748B'; const inp = document.getElementById('inv-percent'); if(t==='solde') { inp.value = 100; inp.disabled = true; } else { inp.value = 30; inp.disabled = false; } App.calcInvPreview(); },
             calcInvPreview() { const cid = Store.data.activeChantierId; const c = Store.data.chantiers.find(x=>x.id==cid); const did = document.getElementById('inv-devis-select').value; if(!did) return; const d = c.devisList.find(x=>x.id==did); const perc = parseInt(document.getElementById('inv-percent').value) || 0; const amt = d.total * (perc/100); document.getElementById('inv-preview-amount').innerText = App.formatMoney(amt); },
             generateInvoice() { const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId); const amtString = document.getElementById('inv-preview-amount').innerText.replace(' €','').replace(/\s/g,'').replace(/\./g,'').replace(',','.'); if(!c.factures) c.factures = []; c.factures.push({ id: Date.now(), ref: "FAC-"+Date.now().toString().slice(-4), type: App.state.invType, amount: parseFloat(amtString), paid: false }); Store.save(); App.showToast("Facture émise"); App.closeModal('modal-invoice'); App.openHub(c.id); },
             openAgenda() { const s=document.getElementById('agd-chantier'); s.innerHTML='<option value="">Sélectionner...</option>'; Store.data.chantiers.forEach(c=>{let o=document.createElement('option'); o.value=c.id; o.text=c.name; s.appendChild(o);}); document.getElementById('modal-agenda').classList.add('open'); let l=document.getElementById('agenda-list-view'); l.innerHTML=''; (Store.data.appointments||[]).forEach(a=>{let d=document.createElement('div'); d.className='card-item'; d.innerText=new Date(a.date).toLocaleString()+' - '+a.title; l.appendChild(d);}); },
             saveAgendaEvent() { const cid=document.getElementById('agd-chantier').value; const date=document.getElementById('agd-date').value; if(cid&&date){const c=Store.data.chantiers.find(x=>x.id==cid); Store.data.appointments.push({id:Date.now(), date:date, title:"Visite", sub:c.name}); Store.save(); App.showToast("RDV Enregistré"); App.closeModal('modal-agenda'); App.renderHome();} },
+            
+            generateGlobalPDF(type, id, forceCid = null) {
+                let mode = "1";
+                if (type === 'devis') {
+                    mode = prompt("Comment voulez-vous regrouper le devis ?\n\nTapez 1 pour grouper par PIÈCES\nTapez 2 pour grouper par FAMILLES", "1");
+                    if (!mode) return;
+                }
+
+                let c = Store.data.chantiers.find(x => x.id == (forceCid || Store.data.activeChantierId));
+                if (!c || (type === 'devis' && !(c.devisList||[]).some(d => d.id == id)) || (type === 'facture' && !(c.factures||[]).some(f => f.id == id))) {
+                    c = Store.data.chantiers.find(ch => 
+                        (type === 'devis' && (ch.devisList||[]).some(d => d.id == id)) || 
+                        (type === 'facture' && (ch.factures||[]).some(f => f.id == id))
+                    );
+                }
+                
+                if(!c) return alert("Erreur: Document introuvable.");
+
+                const cli = Store.data.clients.find(x=>x.id==c.clientId);
+                const rateSell = Store.data.settings.hourlyRate || 45;
+                
+                let items, title, ref, extraInfo = "";
+                let signatureBlock = "";
+                
+                let totalLaborPDF = 0;
+                let totalMatPDF = 0;
+                
+                if (type === 'devis') {
+                    const obj = c.devisList.find(x=>x.id==id);
+                    items = obj.items || []; 
+                    title = "DEVIS"; 
+                    ref = obj.ref;
+                    if(obj.totalGravats > 0) {
+                        extraInfo = `<div style="text-align:right; margin-top:10px; font-size:0.9rem; color:#64748B;">Poids Gravats Estimé: <strong>${obj.totalGravats.toFixed(2)} kg</strong></div>`;
+                    }
+                    
+                    if(obj.signedByEmail) {
+                        signatureBlock = `
+                            <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid; text-align:center;">
+                                <div style="font-weight:bold; color:#16a34a; font-size:1.2rem; margin-bottom:10px;">BON POUR ACCORD</div>
+                                <div style="font-size:1.1rem; font-weight:bold; margin-bottom:5px;">SIGNÉ PAR MAIL</div>
+                                <div style="font-size:0.9rem;">le ${obj.signDate}</div>
+                            </div>
+                        `;
+                    } else if(obj.signature) {
+                        signatureBlock = `
+                            <div style="margin-top:40px; margin-bottom:20px; border:2px solid #16a34a; padding:15px; border-radius:10px; page-break-inside: avoid; break-inside: avoid; text-align:center;">
+                                <div style="font-weight:bold; color:#16a34a; margin-bottom:10px;">BON POUR ACCORD</div>
+                                <div style="font-size:0.8rem; margin-bottom:10px;">Signé électroniquement le ${obj.signDate || ''}</div>
+                                <img src="${obj.signature}" style="max-width: 250px; max-height: 100px; width: auto; height: auto; display:block; margin:0 auto;" />
+                            </div>
+                        `;
+                    } else {
+                        signatureBlock = `
+                            <div style="margin-top:50px; margin-bottom:20px; display:flex; justify-content:space-between; page-break-inside: avoid; break-inside: avoid;">
+                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Entreprise</div>
+                                <div style="border-top:1px solid #000; width:40%; padding-top:10px; font-size:0.8rem;">Date et Signature Client (Bon pour accord)</div>
+                            </div>
+                        `;
+                    }
+
+                } else {
+                    const obj = c.factures.find(x=>x.id==id);
+                    title = "FACTURE"; ref = obj.ref; items = [{desc: `Facture selon avancement (${obj.type})`, qty: 1, unit:'U', price: obj.amount, time:0, material_cost:0}];
+                }
+                
+                let totalTTC = 0;
+                let rowsHtml = "";
+
+                if (type === 'facture') {
+                    rowsHtml = items.map(i => {
+                        const rowT = i.qty * i.price; totalTTC += rowT;
+                        const sellLabor = (i.time || 0) * rateSell;
+                        const sellMat = rowT - sellLabor;
+                        
+                        totalLaborPDF += sellLabor;
+                        totalMatPDF += sellMat;
+                        
+                        return `
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:10px;">${i.desc}</td>
+                                <td style="padding:10px; text-align:center;">${i.qty}</td>
+                                <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${sellLabor > 0 ? App.formatMoney(sellLabor) : '-'}</td>
+                                <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${sellMat > 0 ? App.formatMoney(sellMat) : '-'}</td>
+                                <td style="padding:10px; text-align:right;">${App.formatMoney(i.price)}</td>
+                                <td style="padding:10px; text-align:right; font-weight:bold;">${App.formatMoney(rowT)}</td>
+                            </tr>`;
+                    }).join('');
+                } else {
+                    let grouped = {};
+
+                    if (mode === "2") {
+                        items.forEach(i => {
+                            let cat = i.category || "Général";
+                            if (!grouped[cat]) grouped[cat] = { title: cat, items: [], subtotal: 0 };
+                            
+                            const key = i.desc + "_" + i.price;
+                            let existing = grouped[cat].items.find(x => x.key === key);
+                            if (existing) {
+                                existing.qty += i.qty;
+                                existing.time += (i.time || 0) * i.qty;
+                                existing.rowT += (i.qty * i.price);
+                            } else {
+                                grouped[cat].items.push({
+                                    key: key,
+                                    desc: i.desc,
+                                    qty: i.qty,
+                                    unit: i.unit,
+                                    price: i.price,
+                                    time: (i.time || 0) * i.qty,
+                                    rowT: i.qty * i.price
+                                });
+                            }
+                            grouped[cat].subtotal += (i.qty * i.price);
+                            totalTTC += (i.qty * i.price);
+                        });
+                        
+                        const sortedCats = [...new Set(Config.allItems.map(i => i.category))];
+                        const orderedKeys = Object.keys(grouped).sort((a, b) => {
+                            let idxA = sortedCats.indexOf(a); let idxB = sortedCats.indexOf(b);
+                            if(idxA === -1) idxA = 999; if(idxB === -1) idxB = 999;
+                            return idxA - idxB;
+                        });
+                        
+                        let sortedGrouped = {};
+                        orderedKeys.forEach(k => sortedGrouped[k] = grouped[k]);
+                        grouped = sortedGrouped;
+
+                    } else {
+                        items.forEach(i => {
+                            let p = i.piece || "Zone Générale";
+                            if (!grouped[p]) grouped[p] = { title: p, items: [], subtotal: 0 };
+                            
+                            grouped[p].items.push({
+                                desc: i.desc,
+                                qty: i.qty,
+                                unit: i.unit,
+                                price: i.price,
+                                time: (i.time || 0) * i.qty,
+                                rowT: i.qty * i.price
+                            });
+                            
+                            grouped[p].subtotal += (i.qty * i.price);
+                            totalTTC += (i.qty * i.price);
+                        });
+                    }
+
+                    for (const [groupName, groupData] of Object.entries(grouped)) {
+                        rowsHtml += `
+                            <tr style="background:#E2E8F0;">
+                                <td colspan="6" style="padding:10px; font-weight:800; color:#0F172A;">
+                                    ${mode === "2" ? '<i class="fas fa-layer-group"></i> ' : '<i class="fas fa-door-open"></i> '} ${groupName}
+                                </td>
+                            </tr>
+                        `;
+                        groupData.items.forEach(i => {
+                            const sellLabor = i.time * rateSell; 
+                            const sellMat = i.rowT - sellLabor; 
+                            
+                            totalLaborPDF += sellLabor;
+                            totalMatPDF += sellMat;
+
+                            rowsHtml += `
+                            <tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:10px;">${i.desc}</td>
+                                <td style="padding:10px; text-align:center;">${i.qty}</td>
+                                <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${sellLabor > 0 ? App.formatMoney(sellLabor) : '-'}</td>
+                                <td style="padding:10px; text-align:center; font-size:0.85rem; color:#64748b;">${sellMat > 0 ? App.formatMoney(sellMat) : '-'}</td>
+                                <td style="padding:10px; text-align:right;">${App.formatMoney(i.price)}</td>
+                                <td style="padding:10px; text-align:right; font-weight:bold;">${App.formatMoney(i.rowT)}</td>
+                            </tr>`;
+                        });
+                        rowsHtml += `
+                            <tr>
+                                <td colspan="5" style="padding:10px; text-align:right; font-size:0.85rem; color:#64748B;">Sous-total ${groupName}:</td>
+                                <td style="padding:10px; text-align:right; font-weight:700; color:var(--primary);">${App.formatMoney(groupData.subtotal)}</td>
+                            </tr>
+                            <tr><td colspan="6" style="height:15px;"></td></tr>
+                        `;
+                    }
+                }
+                
+                const html = `
+                    <div style="font-family:sans-serif; padding:30px; color:#334155;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px;">
+                            <div>
+                                <h1 style="color:#0f172a; margin:0;">${title}</h1>
+                                <div style="color:#64748b; font-size:0.9rem;">${ref}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <strong>QOTIA ENTREPRISE</strong><br>123 Rue Exemple<br>06000 NICE
+                            </div>
+                        </div>
+                        <div style="background:#f1f5f9; padding:20px; border-radius:10px; margin-bottom:30px;">
+                            <strong>CLIENT:</strong><br>
+                            <span style="font-size:1.2rem; font-weight:bold; color:#0f172a;">${cli.nom}</span><br>
+                            ${cli.addr}<br>${cli.tel||''}
+                        </div>
+                        <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin-bottom:30px;">
+                            <thead style="background:#0f172a; color:white;">
+                                <tr>
+                                    <th style="padding:12px; text-align:left;">Description</th>
+                                    <th style="padding:12px; text-align:center;">Qté</th>
+                                    <th style="padding:12px; text-align:center;">Vente M.O. (Tot)</th>
+                                    <th style="padding:12px; text-align:center;">Vente Mat. (Tot)</th>
+                                    <th style="padding:12px; text-align:right;">P.U.</th>
+                                    <th style="padding:12px; text-align:right;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                        </table>
+                        
+                        <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+                            <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                                <table style="width:300px; font-size:1rem; color:#334155; margin-bottom:10px;">
+                                    <tr>
+                                        <td style="text-align:left; padding:4px 0;">Total Vente M.O.:</td>
+                                        <td style="text-align:right; font-weight:700;">${App.formatMoney(totalLaborPDF)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:left; padding:4px 0;">Total Vente Matériel:</td>
+                                        <td style="text-align:right; font-weight:700;">${App.formatMoney(totalMatPDF)}</td>
+                                    </tr>
+                                </table>
+                                <div style="font-size:1.5rem; font-weight:900; color:#0f172a; border-top:2px solid #E2E8F0; padding-top:10px; width:300px; text-align:right;">
+                                    TOTAL A PAYER: ${App.formatMoney(totalTTC)}
+                                </div>
+                                ${extraInfo}
+                            </div>
+                        </div>
+
+                        ${signatureBlock}
+                        <div style="height:30px;"></div> </div>`;
+                const opt = { margin: 10, filename: `${title}_${ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                if(typeof html2pdf !== 'undefined') html2pdf().set(opt).from(html).save();
+                App.showToast("PDF Téléchargé");
+            },
+
+            // --- FUNZIONI DI GESTIONE CDC E PDF (RIPRISTINATE) ---
+            openSelectCDCModal() {
+                const c = Store.data.chantiers.find(x=>x.id==Store.data.activeChantierId);
+                if(!c || !c.devisList || c.devisList.length === 0) return alert("Aucun devis disponible.");
+                
+                const sel = document.getElementById('sel-source-devis');
+                sel.innerHTML = '';
+                c.devisList.forEach(d => {
+                    sel.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+                });
+                
+                const assignSel = document.getElementById('cdc-assignee');
+                assignSel.innerHTML = '<option value="">-- Partenaire --</option>';
+                (Store.data.partners || []).forEach(p => {
+                    assignSel.innerHTML += `<option value="${p.name}">${p.name} (${p.role})</option>`;
+                });
+                
+                App.state.selectedItems = new Set();
+                App.renderSelectionList();
+                document.getElementById('modal-select-cdc').classList.add('open');
+            },
+
+            generateRoomReportPDF() {
+                const c = Store.data.chantiers.find(x => x.id == Store.data.activeChantierId);
+                if(!c || !c.devisList || c.devisList.length === 0) return alert("Aucun devis disponible.");
+                
+                const acceptedDevis = c.devisList.filter(d => d.status === 'Accepté');
+                const targetDevisList = acceptedDevis.length > 0 ? acceptedDevis : c.devisList;
+                
+                const grouped = {};
+                targetDevisList.forEach(d => {
+                    (d.items || []).forEach(i => {
+                        const p = i.piece || "Général";
+                        if(!grouped[p]) grouped[p] = [];
+                        grouped[p].push(i);
+                    });
+                });
+                
+                let html = `<div style="font-family:sans-serif; padding:20px;"><h2>Zones de Travail - ${c.name}</h2>`;
+                for (const [room, items] of Object.entries(grouped)) {
+                    html += `<h3 style="background:#0F172A; color:white; padding:10px; border-radius:8px; margin-top:20px;">${room}</h3><ul>`;
+                    items.forEach(i => {
+                        html += `<li style="margin-bottom:8px;"><strong>${i.desc}</strong> (Qté: ${i.qty}) - <em>${i.assignedTo || 'Non assigné'}</em></li>`;
+                    });
+                    html += `</ul>`;
+                }
+                html += `</div>`;
+                const opt = { margin: 10, filename: `ZONES_${c.name}.pdf`, jsPDF: { format: 'a4', orientation: 'portrait' } };
+                if(typeof html2pdf !== 'undefined') html2pdf().set(opt).from(html).save();
+            },
+
+            generateCDCPDF(docId, forceCid = null) {
+                let c = Store.data.chantiers.find(x => x.id == (forceCid || Store.data.activeChantierId));
+                if(!c) {
+                    c = Store.data.chantiers.find(ch => (ch.extraDocs||[]).some(d => d.id == docId));
+                }
+                if(!c) return alert("Introuvable");
+
+                const doc = (c.extraDocs||[]).find(d => d.id == docId);
+                if(!doc) return;
+                
+                let html = `<div style="font-family:sans-serif; padding:20px;">
+                    <h2>Cahier des Charges</h2>
+                    <div style="margin-bottom:20px; color:#64748B;">Chantier: <strong>${c.name}</strong><br>Réf: ${doc.ref}<br>Date: ${new Date(doc.date).toLocaleDateString()}</div>
+                    <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                        <thead style="background:#0F172A; color:white;">
+                            <tr>
+                                <th style="padding:10px; text-align:left;">Tâche</th>
+                                <th style="padding:10px; text-align:left;">Zone</th>
+                                <th style="padding:10px; text-align:left;">Assigné à</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                
+                (doc.items || []).forEach(i => {
+                    html += `<tr style="border-bottom:1px solid #E2E8F0;">
+                        <td style="padding:10px;">${i.desc}</td>
+                        <td style="padding:10px;">${i.piece || '-'}</td>
+                        <td style="padding:10px; font-weight:bold; color:#15803d;">${i.assignedTo || '-'}</td>
+                    </tr>`;
+                });
+                
+                html += `</tbody></table></div>`;
+                const opt = { margin: 10, filename: `${doc.ref}.pdf`, html2canvas: { scale: 2, useCORS: true }, jsPDF: { format: 'a4', orientation: 'portrait' } };
+                if(typeof html2pdf !== 'undefined') html2pdf().set(opt).from(html).save();
+            },
+
             renderDocuments(filter) { 
                 const l=document.getElementById('documents-list'); l.innerHTML=''; 
                 let docs=[]; 
